@@ -35,12 +35,13 @@ for (const file of htmlFiles) {
 const config = JSON.parse(fs.readFileSync(path.join(root, "backend", "data", "site.json"), "utf8"));
 const slugs = new Set();
 for (const service of config.services) {
-  for (const key of ["slug", "title", "summary", "suitableFor", "benefits", "steps", "highlights"]) {
+  for (const key of ["slug", "title", "summary", "image", "imageAlt", "suitableFor", "benefits", "steps", "highlights"]) {
     if (!service[key] || !service[key].length) errors.push(`Service ${service.slug || "ohne Slug"}: ${key} fehlt`);
   }
   if (slugs.has(service.slug)) errors.push(`Service-Slug doppelt: ${service.slug}`);
   slugs.add(service.slug);
   if (!fs.existsSync(path.join(frontend, `${service.slug}.html`))) errors.push(`Leistungsseite fehlt: ${service.slug}.html`);
+  if (service.image && !existsForUrl(service.image)) errors.push(`Service-Bild fehlt: ${service.image}`);
 }
 
 if (errors.length) {

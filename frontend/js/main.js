@@ -122,6 +122,10 @@ function renderServices(limit = 99) {
   if (!grid) return;
   grid.innerHTML = siteConfig.services.slice(0, limit).map((service, index) => `
     <article class="service-card">
+      <div class="service-card__media">
+        <img src="${escapeHtml(service.image)}" alt="${escapeHtml(service.imageAlt)}" width="1536" height="1024" loading="lazy">
+        <span>Leistungsvisualisierung</span>
+      </div>
       <div class="service-card__top">
         <span class="icon-badge" aria-hidden="true">${String(index + 1).padStart(2, "0")}</span>
         <span>${escapeHtml(service.duration)}</span>
@@ -329,6 +333,21 @@ function renderServicePage() {
   if (steps) steps.innerHTML = service.steps.map((item, index) => `<li><span>${String(index + 1).padStart(2, "0")}</span>${escapeHtml(item)}</li>`).join("");
   const status = qs("[data-service-status]");
   if (status) status.hidden = service.confirmed;
+  const hero = qs(".service-hero");
+  if (hero && !qs(".service-hero__media", hero)) {
+    const image = document.createElement("img");
+    image.className = "service-hero__media";
+    image.src = service.image;
+    image.alt = service.imageAlt;
+    image.width = 1536;
+    image.height = 1024;
+    image.fetchPriority = "high";
+    const shade = document.createElement("span");
+    shade.className = "service-hero__shade";
+    shade.setAttribute("aria-hidden", "true");
+    hero.prepend(shade);
+    hero.prepend(image);
+  }
   qsa("[data-service-whatsapp]").forEach((link) => {
     link.href = whatsappUrl(`Hallo, ich moechte ein Angebot fuer ${service.title} anfragen.`);
   });
