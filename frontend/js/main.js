@@ -144,9 +144,82 @@ function renderGallery() {
   `).join("");
 }
 
+function initGalleryLightbox() {
+  const items = qsa(".gallery-item");
+  if (!items.length) return;
+
+  const lightbox = document.createElement("div");
+  lightbox.className = "lightbox";
+  lightbox.setAttribute("role", "dialog");
+  lightbox.setAttribute("aria-modal", "true");
+  lightbox.setAttribute("aria-label", "Galeriebild vergrössert");
+  lightbox.innerHTML = `
+    <button class="lightbox__close" type="button" aria-label="Galerie schliessen">×</button>
+    <figure class="lightbox__content">
+      <img alt="">
+      <figcaption></figcaption>
+    </figure>
+  `;
+  document.body.append(lightbox);
+
+  let trigger = null;
+  const closeButton = qs(".lightbox__close", lightbox);
+  const image = qs("img", lightbox);
+  const caption = qs("figcaption", lightbox);
+
+  const close = () => {
+    lightbox.classList.remove("is-open");
+    document.body.classList.remove("lightbox-open");
+    trigger?.focus();
+  };
+
+  items.forEach((item) => {
+    item.tabIndex = 0;
+    item.setAttribute("role", "button");
+    item.setAttribute("aria-label", `${qs("figcaption", item)?.textContent || "Galeriebild"} vergrössern`);
+    const open = () => {
+      const source = qs("img", item);
+      trigger = item;
+      image.src = source.src;
+      image.alt = source.alt;
+      caption.textContent = qs("figcaption", item)?.textContent || "";
+      lightbox.classList.add("is-open");
+      document.body.classList.add("lightbox-open");
+      closeButton.focus();
+    };
+    item.addEventListener("click", open);
+    item.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        open();
+      }
+    });
+  });
+
+  closeButton.addEventListener("click", close);
+  lightbox.addEventListener("click", (event) => {
+    if (event.target === lightbox) close();
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && lightbox.classList.contains("is-open")) close();
+  });
+}
+
 function initMotion() {
   const header = qs(".site-header");
-  const updateHeader = () => header?.classList.toggle("is-scrolled", window.scrollY > 24);
+  const progress = document.createElement("div");
+  progress.className = "scroll-progress";
+  progress.setAttribute("aria-hidden", "true");
+  progress.innerHTML = "<span></span>";
+  document.body.append(progress);
+  const progressBar = qs("span", progress);
+
+  const updateHeader = () => {
+    header?.classList.toggle("is-scrolled", window.scrollY > 24);
+    const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+    const ratio = scrollable > 0 ? Math.min(window.scrollY / scrollable, 1) : 0;
+    progressBar.style.transform = `scaleX(${ratio})`;
+  };
   updateHeader();
   window.addEventListener("scroll", updateHeader, { passive: true });
 
@@ -183,16 +256,67 @@ function initNav() {
   const toggle = qs(".nav-toggle");
   const panel = qs(".nav-links");
   if (!toggle || !panel) return;
+
+  panel.id = "mobile-navigation";
+  toggle.setAttribute("aria-controls", panel.id);
+  panel.insertAdjacentHTML("beforeend", `
+    <div class="nav-menu-meta">
+      <p>Direkter Kontakt</p>
+      <a data-call-link href="#"><span>Telefon</span><strong data-phone></strong></a>
+      <a data-whatsapp-link href="#" target="_blank" rel="noopener"><span>WhatsApp</span><strong>Fotos & Anfrage senden</strong></a>
+    </div>
+  `);
+
+  const backdrop = document.createElement("div");
+  backdrop.className = "nav-backdrop";
+  backdrop.setAttribute("aria-hidden", "true");
+  document.body.append(backdrop);
+
+  const close = (restoreFocus = false) => {
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.setAttribute("aria-label", "Menue oeffnen");
+    toggle.classList.remove("is-open");
+    panel.classList.remove("is-open");
+    backdrop.classList.remove("is-open");
+    document.body.classList.remove("nav-open");
+    if (restoreFocus) toggle.focus();
+  };
+
+  const open = () => {
+    toggle.setAttribute("aria-expanded", "true");
+    toggle.setAttribute("aria-label", "Menue schliessen");
+    toggle.classList.add("is-open");
+    panel.classList.add("is-open");
+    backdrop.classList.add("is-open");
+    document.body.classList.add("nav-open");
+    window.setTimeout(() => qs("a", panel)?.focus(), 180);
+  };
+
   toggle.addEventListener("click", () => {
-    const expanded = toggle.getAttribute("aria-expanded") === "true";
-    toggle.setAttribute("aria-expanded", String(!expanded));
-    panel.classList.toggle("is-open", !expanded);
+    toggle.getAttribute("aria-expanded") === "true" ? close() : open();
   });
-  qsa(".nav-links a").forEach((link) => {
-    link.addEventListener("click", () => {
-      toggle.setAttribute("aria-expanded", "false");
-      panel.classList.remove("is-open");
-    });
+  qsa("a", panel).forEach((link) => link.addEventListener("click", () => close()));
+  backdrop.addEventListener("click", () => close(true));
+  document.addEventListener("keydown", (event) => {
+    if (!panel.classList.contains("is-open")) return;
+    if (event.key === "Escape") {
+      close(true);
+      return;
+    }
+    if (event.key !== "Tab") return;
+    const focusable = [toggle, ...qsa("a", panel)];
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  });
+  window.matchMedia("(min-width: 1051px)").addEventListener("change", (event) => {
+    if (event.matches) close();
   });
 }
 
@@ -244,6 +368,7 @@ async function init() {
   renderFaq();
   renderOpeningHours();
   renderGallery();
+  initGalleryLightbox();
   renderServicePage();
   initInquiryForm();
 }
