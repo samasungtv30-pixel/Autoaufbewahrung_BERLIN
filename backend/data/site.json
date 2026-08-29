@@ -1,0 +1,100 @@
+{
+  "siteName": "[KUNDENNAME] Autoaufbereitung",
+  "publicUrl": "https://autoaufbereitung.example",
+  "claim": "Premium-Fahrzeugpflege mit sichtbarem Ergebnis",
+  "phone": "+49 000 00000000",
+  "whatsapp": "https://wa.me/4900000000000",
+  "email": "kontakt@kundenname.example",
+  "address": {
+    "street": "[Strasse und Hausnummer]",
+    "zip": "[PLZ]",
+    "city": "[Ort]",
+    "mapsUrl": "https://www.google.com/maps/search/?api=1&query=Autoaufbereitung"
+  },
+  "openingHours": [
+    { "day": "Montag - Freitag", "hours": "08:00 - 18:00 Uhr" },
+    { "day": "Samstag", "hours": "nach Vereinbarung" },
+    { "day": "Sonntag", "hours": "geschlossen" }
+  ],
+  "services": [
+    {
+      "slug": "innenreinigung",
+      "title": "Innenraum-Aufbereitung",
+      "summary": "Gründliche Reinigung von Sitzen, Teppichen, Kunststoffflächen, Leder und Kofferraum.",
+      "priceFrom": "ab [Preis] EUR",
+      "duration": "[Dauer] Std.",
+      "highlights": ["Polster- und Lederpflege", "Geruchsneutralisierung", "Detailreinigung aller Kontaktflächen"]
+    },
+    {
+      "slug": "lackaufbereitung",
+      "title": "Lackaufbereitung & Politur",
+      "summary": "Mehrstufige Politur für mehr Tiefenglanz, weniger Hologramme und gepflegte Lackflächen.",
+      "priceFrom": "ab [Preis] EUR",
+      "duration": "[Dauer] Std.",
+      "highlights": ["Lackanalyse", "Defektkorrektur", "Finish-Politur"]
+    },
+    {
+      "slug": "keramikversiegelung",
+      "title": "Keramikversiegelung",
+      "summary": "Langfristiger Schutz für Lack, Felgen oder Glas mit hydrophobem Effekt.",
+      "priceFrom": "ab [Preis] EUR",
+      "duration": "[Dauer] Tage",
+      "highlights": ["Vorbereitung inklusive", "Schutzschicht mit Glanzplus", "Pflegehinweise nach Übergabe"]
+    },
+    {
+      "slug": "felgenreparatur",
+      "title": "Felgenreparatur",
+      "summary": "Optische Reparatur von Bordsteinschäden, Kratzern und kleinen Lackschäden an Felgen.",
+      "priceFrom": "ab [Preis] EUR",
+      "duration": "[Dauer] Std.",
+      "highlights": ["Schadensaufnahme per Foto", "Farbanpassung", "Optionaler Schutzlack"]
+    },
+    {
+      "slug": "leasing",
+      "title": "Leasing-Rückgabe",
+      "summary": "Gezielte Aufbereitung vor der Fahrzeugrückgabe, um unnötige Nachzahlungen zu reduzieren.",
+      "priceFrom": "ab [Preis] EUR",
+      "duration": "[Dauer] Std.",
+      "highlights": ["Check vor Rückgabe", "Innen und außen", "Dokumentation auf Wunsch"]
+    },
+    {
+      "slug": "smart-repair",
+      "title": "Smart Repair",
+      "summary": "Kleine optische Schäden wirtschaftlich beheben, bevor sie den Gesamteindruck stören.",
+      "priceFrom": "auf Anfrage",
+      "duration": "nach Schaden",
+      "highlights": ["Kleine Kratzer", "Kunststoffdetails", "Individuelle Einschätzung"]
+    }
+  ],
+  "packages": [
+    {
+      "name": "Refresh",
+      "price": "ab [Preis] EUR",
+      "description": "Schnelle Pflege für ein sichtbar sauberes Fahrzeug.",
+      "features": ["Handwäsche außen", "Innenraum saugen", "Scheiben innen und außen", "Cockpitpflege"]
+    },
+    {
+      "name": "Deep Clean",
+      "price": "ab [Preis] EUR",
+      "description": "Intensive Aufbereitung für Alltag, Verkauf oder besondere Anlässe.",
+      "features": ["Innenraum-Detailreinigung", "Polster-/Lederpflege", "Lackreinigung", "Felgenpflege"]
+    },
+    {
+      "name": "Premium Schutz",
+      "price": "ab [Preis] EUR",
+      "description": "Hochwertiges Paket mit Lackfinish und Versiegelung.",
+      "features": ["Lackanalyse", "Mehrstufige Politur", "Keramik-/Premiumversiegelung", "Übergabe mit Pflegehinweisen"]
+    }
+  ],
+  "reviews": [
+    { "name": "[Kundenname]", "text": "Sehr professionell, schnelle Kommunikation und das Auto sah wieder aus wie neu.", "rating": 5 },
+    { "name": "[Kundenname]", "text": "Transparente Beratung, saubere Arbeit und fairer Preis.", "rating": 5 },
+    { "name": "[Kundenname]", "text": "Besonders die Innenreinigung war beeindruckend. Klare Empfehlung.", "rating": 5 }
+  ],
+  "faq": [
+    { "question": "Kann ich vorab Fotos per WhatsApp schicken?", "answer": "Ja. Besonders bei Felgenreparatur, Smart Repair und Lackschäden ist ein Foto ideal für eine erste Einschätzung." },
+    { "question": "Wie lange dauert eine Aufbereitung?", "answer": "Das hängt vom Zustand und gewählten Paket ab. In den Platzhalterdaten ist die Dauer je Leistung vorbereitet und kann später exakt gepflegt werden." },
+    { "question": "Werden Preise später verbindlich angezeigt?", "answer": "Ja. Die Pakete und Leistungsseiten sind so strukturiert, dass echte Preise schnell ersetzt werden können." },
+    { "question": "Gibt es Termine außerhalb der Öffnungszeiten?", "answer": "Auf Wunsch kann ein individueller Termin vereinbart werden. Der Platzhalter kann später an den echten Ablauf angepasst werden." }
+  ]
+}

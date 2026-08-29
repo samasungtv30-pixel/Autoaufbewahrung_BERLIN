@@ -1,0 +1,20 @@
+{
+  "name": "autoaufbereitung-website",
+  "version": "0.1.0",
+  "description": "Professionelle Website fuer eine Autoaufbereitung mit statischem Frontend und kleinem Node-Backend.",
+  "main": "backend/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "node backend/server.js",
+    "check": "node --check backend/server.js && node --check backend/mailer.js && node --check frontend/js/main.js && node --check frontend/js/site-data.js"
+  },
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.2",
+    "nodemailer": "^9.0.6"
+  },
+  "license": "UNLICENSED"
+}
