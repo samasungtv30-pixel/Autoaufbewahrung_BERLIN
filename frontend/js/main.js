@@ -1,10 +1,11 @@
 const SERVICE_PAGE_SLUGS = {
   "/innenreinigung.html": "innenreinigung",
+  "/aussenreinigung.html": "aussenreinigung",
+  "/komplettaufbereitung.html": "komplettaufbereitung",
   "/lackaufbereitung.html": "lackaufbereitung",
   "/keramikversiegelung.html": "keramikversiegelung",
   "/felgenreparatur.html": "felgenreparatur",
-  "/leasing.html": "leasing",
-  "/smart-repair.html": "smart-repair"
+  "/leasing.html": "leasing"
 };
 
 let siteConfig = null;
@@ -30,6 +31,10 @@ function whatsappUrl(message) {
   return `${base}${separator}text=${encodeURIComponent(message)}`;
 }
 
+function hasPlaceholder(value) {
+  return /\[[^\]]+\]/.test(String(value || ""));
+}
+
 async function loadConfig() {
   const response = await fetch(`/api/config?v=${Date.now()}`, { cache: "no-store" });
   if (!response.ok) throw new Error("Konfiguration konnte nicht geladen werden.");
@@ -43,7 +48,60 @@ function applyGlobalConfig() {
   } else if (document.title.endsWith("| Autoaufbereitung")) {
     document.title = document.title.replace(/\| Autoaufbereitung$/, `| ${siteConfig.siteName}`);
   }
-  qs('meta[name="description"]')?.setAttribute("content", `${siteConfig.claim}. Professionelle Fahrzeugpflege, Felgenreparatur, Keramikversiegelung und Innenreinigung.`);
+  const descriptionMeta = qs('meta[name="description"]');
+  if (descriptionMeta && !descriptionMeta.content.trim()) descriptionMeta.content = siteConfig.claim;
+  const canonicalUrl = `${siteConfig.publicUrl.replace(/\/+$/, "")}${window.location.pathname === "/index.html" ? "/" : window.location.pathname}`;
+  let canonical = qs('link[rel="canonical"]');
+  if (!canonical) {
+    canonical = document.createElement("link");
+    canonical.rel = "canonical";
+    document.head.append(canonical);
+  }
+  canonical.href = canonicalUrl;
+  const socialMeta = {
+    "og:title": document.title,
+    "og:description": descriptionMeta?.content || siteConfig.claim,
+    "og:type": "website",
+    "og:url": canonicalUrl,
+    "og:image": `${siteConfig.publicUrl.replace(/\/+$/, "")}/images/premium-hero.webp`
+  };
+  Object.entries(socialMeta).forEach(([property, content]) => {
+    let meta = qs(`meta[property="${property}"]`);
+    if (!meta) {
+      meta = document.createElement("meta");
+      meta.setAttribute("property", property);
+      document.head.append(meta);
+    }
+    meta.content = content;
+  });
+  const businessDataIsComplete = ![
+    siteConfig.siteName,
+    siteConfig.phone,
+    siteConfig.email,
+    siteConfig.address.street,
+    siteConfig.address.zip,
+    siteConfig.address.city
+  ].some(hasPlaceholder);
+  if (businessDataIsComplete) {
+    const schema = document.createElement("script");
+    schema.type = "application/ld+json";
+    schema.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "AutoRepair",
+      name: siteConfig.siteName,
+      url: siteConfig.publicUrl,
+      telephone: siteConfig.phone,
+      email: siteConfig.email,
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: siteConfig.address.street,
+        postalCode: siteConfig.address.zip,
+        addressLocality: siteConfig.address.city,
+        addressCountry: "DE"
+      }
+    });
+    document.head.append(schema);
+  }
   qsa("[data-site-name]").forEach((el) => { el.textContent = siteConfig.siteName; });
   qsa("[data-claim]").forEach((el) => { el.textContent = siteConfig.claim; });
   qsa("[data-phone]").forEach((el) => { el.textContent = siteConfig.phone; });
@@ -55,13 +113,8 @@ function applyGlobalConfig() {
     el.href = whatsappUrl("Hallo, ich moechte ein Angebot fuer eine Autoaufbereitung anfragen.");
   });
   qsa("[data-mail-link]").forEach((el) => { el.href = `mailto:${siteConfig.email}`; });
+  qsa("[data-email]").forEach((el) => { el.textContent = siteConfig.email; });
   qsa("[data-maps-link]").forEach((el) => { el.href = siteConfig.address.mapsUrl; });
-
-  const map = qs("[data-map]");
-  if (map) {
-    const query = `${siteConfig.address.street}, ${siteConfig.address.zip} ${siteConfig.address.city}`;
-    map.src = `https://www.google.com/maps?q=${encodeURIComponent(query)}&output=embed`;
-  }
 }
 
 function renderServices(limit = 99) {
@@ -75,6 +128,7 @@ function renderServices(limit = 99) {
       </div>
       <h3>${escapeHtml(service.title)}</h3>
       <p>${escapeHtml(service.summary)}</p>
+      ${service.confirmed ? "" : '<span class="content-status">Leistungsumfang noch zu bestaetigen</span>'}
       <div class="service-card__footer">
         <strong>${escapeHtml(service.priceFrom)}</strong>
         <a href="/${escapeHtml(service.slug)}.html">Details</a>
@@ -88,7 +142,7 @@ function renderPackages() {
   if (!grid) return;
   grid.innerHTML = siteConfig.packages.map((item, index) => `
     <article class="package ${index === 1 ? "package--featured" : ""}">
-      <span class="package__label">${index === 1 ? "Empfohlen" : "Paket"}</span>
+      <span class="package__label">Paketstruktur ${String(index + 1).padStart(2, "0")}</span>
       <h3>${escapeHtml(item.name)}</h3>
       <strong>${escapeHtml(item.price)}</strong>
       <p>${escapeHtml(item.description)}</p>
@@ -96,6 +150,12 @@ function renderPackages() {
       <a class="button button--dark" href="${document.body.classList.contains("home") ? "#anfrage" : "/kontakt.html#anfrage"}">Paket anfragen</a>
     </article>
   `).join("");
+}
+
+function renderIndividualServices() {
+  const list = qs("[data-individual-services]");
+  if (!list) return;
+  list.innerHTML = siteConfig.individualServices.map((item) => `<li>${escapeHtml(item)}<span>Preis auf Anfrage</span></li>`).join("");
 }
 
 function renderReviews() {
@@ -134,7 +194,7 @@ function renderGallery() {
   if (!grid) return;
   const gallery = window.AUTO_DETAILING_DATA?.gallery || [];
   grid.innerHTML = gallery.map((item, index) => `
-    <figure class="gallery-item gallery-item--${index + 1}">
+    <figure class="gallery-item gallery-item--${index + 1}" data-category="${escapeHtml(item.category)}">
       <div class="image-placeholder">
         <img src="${escapeHtml(item.src)}" alt="${escapeHtml(item.caption)}" loading="lazy">
         <span>${escapeHtml(item.label)}</span>
@@ -142,6 +202,19 @@ function renderGallery() {
       <figcaption>${escapeHtml(item.caption)}</figcaption>
     </figure>
   `).join("");
+}
+
+function initGalleryFilters() {
+  const buttons = qsa("[data-gallery-filter]");
+  const items = qsa(".gallery-item");
+  if (!buttons.length || !items.length) return;
+  buttons.forEach((button) => button.addEventListener("click", () => {
+    const category = button.dataset.galleryFilter;
+    buttons.forEach((item) => item.classList.toggle("is-active", item === button));
+    items.forEach((item) => {
+      item.hidden = category !== "all" && item.dataset.category !== category;
+    });
+  }));
 }
 
 function initGalleryLightbox() {
@@ -249,7 +322,16 @@ function renderServicePage() {
   qs("[data-service-price]").textContent = service.priceFrom;
   qs("[data-service-duration]").textContent = service.duration;
   qs("[data-service-list]").innerHTML = service.highlights.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
-  qs("[data-service-whatsapp]").href = whatsappUrl(`Hallo, ich moechte ein Angebot fuer ${service.title} anfragen.`);
+  qs("[data-service-suitable]")?.replaceChildren(document.createTextNode(service.suitableFor));
+  const benefits = qs("[data-service-benefits]");
+  if (benefits) benefits.innerHTML = service.benefits.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+  const steps = qs("[data-service-steps]");
+  if (steps) steps.innerHTML = service.steps.map((item, index) => `<li><span>${String(index + 1).padStart(2, "0")}</span>${escapeHtml(item)}</li>`).join("");
+  const status = qs("[data-service-status]");
+  if (status) status.hidden = service.confirmed;
+  qsa("[data-service-whatsapp]").forEach((link) => {
+    link.href = whatsappUrl(`Hallo, ich moechte ein Angebot fuer ${service.title} anfragen.`);
+  });
 }
 
 function initNav() {
@@ -364,10 +446,12 @@ async function init() {
   applyGlobalConfig();
   renderServices(document.body.classList.contains("home") ? 6 : 99);
   renderPackages();
+  renderIndividualServices();
   renderReviews();
   renderFaq();
   renderOpeningHours();
   renderGallery();
+  initGalleryFilters();
   initGalleryLightbox();
   renderServicePage();
   initInquiryForm();

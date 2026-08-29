@@ -1,12 +1,13 @@
 # Autoaufbereitung Website
 
-Erste professionelle Website-Version fuer ein Autoaufbereitungs-Projekt.
+Produktionsnahe Website-Basis fuer einen Autoaufbereitungsbetrieb. Inhalte, Leistungen und Preise bleiben bis zur Kundenfreigabe eindeutig als vorbereitete Struktur gekennzeichnet.
 
 ## Struktur
 
 - `frontend/` enthaelt die oeffentlichen Seiten, CSS und Browser-JavaScript.
 - `backend/server.js` liefert die Website, `robots.txt`, `sitemap.xml`, `/api/config` und eine einfache Angebotsanfrage unter `/api/inquiry`.
-- `backend/data/site.json` ist die zentrale Inhaltsdatei fuer Kundendaten, Leistungen, Preise, Oeffnungszeiten, Bewertungen und FAQ.
+- `backend/data/site.json` ist die zentrale Inhaltsdatei fuer Kundendaten, Leistungsdetails, Preise, Oeffnungszeiten und FAQ.
+- `scripts/check-site.js` prueft Seitenstruktur, interne Links, Assets und Leistungsdaten vor jedem Deployment.
 
 ## Start
 
@@ -22,13 +23,22 @@ Danach ist die Website unter `http://localhost:3100` erreichbar.
 2. SMTP-Zugangsdaten des E-Mail-Anbieters eintragen.
 3. Unter `INQUIRY_RECIPIENT` die Empfaengeradresse des Betriebs eintragen.
 
-Neue Formularanfragen werden lokal gespeichert und per E-Mail versendet. Wenn der
+Neue Formularanfragen werden rate-limitiert, serverseitig gespeichert und per E-Mail versendet. Wenn der
 Interessent eine E-Mail-Adresse angibt, wird sie als Antwortadresse gesetzt. Dadurch
 kann der Betrieb in seinem Mailprogramm direkt auf die Anfrage antworten.
 
-## Spaeter ersetzen
+## Vor dem finalen Go-Live erforderlich
 
-Die Platzhalter in `backend/data/site.json` koennen mit echten Kundendaten ersetzt werden. Echte Bilder koennen in `frontend/images/` abgelegt und anschliessend in HTML/CSS oder in einer spaeteren Galerie-Datenstruktur referenziert werden.
+- Firmenname, Rechtsform, Inhaber und vollstaendige Anschrift
+- Telefonnummer, WhatsApp-Nummer und Empfaenger-E-Mail
+- bestaetigte Oeffnungszeiten und finaler Kartenlink
+- bestaetigte Leistungen, Paketbestandteile, Dauerangaben und Preise
+- echte Werkstatt- und Projektbilder mit dokumentierten Bildrechten
+- SMTP-Zugangsdaten als Render Environment Variables
+- rechtliche Pruefung von Impressum und Datenschutz
+- finale Domain in `publicUrl` und Render
+
+Die vorhandenen Automotive-Motive sind als Leistungsvisualisierungen gekennzeichnet und duerfen nicht als Kundenreferenzen bezeichnet werden.
 
 ## Vom Restaurant-Projekt adaptiert
 

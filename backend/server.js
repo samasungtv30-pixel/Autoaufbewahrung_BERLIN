@@ -9,6 +9,7 @@ const PORT = Number(process.env.PORT || 3100);
 const ROOT = path.join(__dirname, "..");
 const FRONTEND_DIR = path.join(ROOT, "frontend");
 const CONFIG_FILE = path.join(__dirname, "data", "site.json");
+const inquiryAttempts = new Map();
 
 const MIME_TYPES = {
   ".html": "text/html; charset=utf-8",
@@ -32,7 +33,10 @@ function send(res, statusCode, body, contentType = "text/plain; charset=utf-8", 
   res.writeHead(statusCode, {
     "Content-Type": contentType,
     "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
     "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+    "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'self'",
     ...headers
   });
   res.end(body);
@@ -78,14 +82,13 @@ function handleSitemap(req, res) {
     "/felgenreparatur.html",
     "/lackaufbereitung.html",
     "/innenreinigung.html",
+    "/aussenreinigung.html",
+    "/komplettaufbereitung.html",
     "/keramikversiegelung.html",
     "/leasing.html",
-    "/smart-repair.html",
     "/preise.html",
     "/galerie.html",
-    "/kontakt.html",
-    "/impressum.html",
-    "/datenschutz.html"
+    "/kontakt.html"
   ];
   const urls = pages.map((page, index) => [
     "  <url>",
@@ -120,8 +123,22 @@ function collectRequestBody(req) {
 
 async function handleInquiry(req, res) {
   try {
+    const clientIp = String(req.headers["x-forwarded-for"] || req.socket.remoteAddress || "unknown").split(",")[0].trim();
+    const now = Date.now();
+    const recentAttempts = (inquiryAttempts.get(clientIp) || []).filter((time) => now - time < 10 * 60 * 1000);
+    if (recentAttempts.length >= 5) {
+      send(res, 429, JSON.stringify({ error: "Zu viele Anfragen. Bitte versuchen Sie es spaeter erneut oder nutzen Sie Telefon beziehungsweise WhatsApp." }), MIME_TYPES[".json"]);
+      return;
+    }
+    recentAttempts.push(now);
+    inquiryAttempts.set(clientIp, recentAttempts);
+
     const raw = await collectRequestBody(req);
     const payload = JSON.parse(raw || "{}");
+    if (String(payload.website || "").trim()) {
+      send(res, 200, JSON.stringify({ success: true, emailSent: false, emailStatus: "filtered" }), MIME_TYPES[".json"]);
+      return;
+    }
     const clean = (value, max) => String(value || "").trim().slice(0, max);
     const inquiry = {
       id: crypto.randomUUID(),
@@ -134,8 +151,8 @@ async function handleInquiry(req, res) {
     };
 
     const emailIsValid = !inquiry.email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inquiry.email);
-    if (inquiry.name.length < 2 || inquiry.phone.length < 5 || !emailIsValid) {
-      send(res, 400, JSON.stringify({ error: "Bitte Name, Telefonnummer und eine gueltige E-Mail-Adresse angeben." }), MIME_TYPES[".json"]);
+    if (inquiry.name.length < 2 || inquiry.phone.length < 5 || !emailIsValid || payload.privacy !== "accepted") {
+      send(res, 400, JSON.stringify({ error: "Bitte Pflichtfelder ausfuellen und die Datenschutzhinweise bestaetigen." }), MIME_TYPES[".json"]);
       return;
     }
 
@@ -187,7 +204,8 @@ const server = http.createServer(async (req, res) => {
 
   const filePath = resolveStaticPath(url.pathname);
   if (!filePath) {
-    send(res, 404, "Nicht gefunden");
+    const notFoundFile = path.join(FRONTEND_DIR, "404.html");
+    send(res, 404, fs.readFileSync(notFoundFile, "utf8"), MIME_TYPES[".html"], { "Cache-Control": "no-cache" });
     return;
   }
 
@@ -200,7 +218,10 @@ const server = http.createServer(async (req, res) => {
     "Content-Type": contentType,
     "Cache-Control": cache,
     "X-Content-Type-Options": "nosniff",
-    "Referrer-Policy": "strict-origin-when-cross-origin"
+    "X-Frame-Options": "DENY",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+    "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'self'"
   });
   if (req.method === "HEAD") return res.end();
   fs.createReadStream(filePath).pipe(res);

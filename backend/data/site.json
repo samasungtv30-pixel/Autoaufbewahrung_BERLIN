@@ -1,96 +1,81 @@
 {
   "siteName": "[KUNDENNAME] Autoaufbereitung",
-  "publicUrl": "https://autoaufbereitung.example",
-  "claim": "Premium-Fahrzeugpflege mit sichtbarem Ergebnis",
+  "shortName": "[KUNDENNAME]",
+  "publicUrl": "https://autoaufbereitung-berlin.onrender.com",
+  "claim": "Professionelle Fahrzeugpflege mit klarer Beratung und sorgfaeltiger Ausfuehrung",
   "phone": "+49 000 00000000",
   "whatsapp": "https://wa.me/4900000000000",
   "email": "kontakt@kundenname.example",
-  "address": {
-    "street": "[Strasse und Hausnummer]",
-    "zip": "[PLZ]",
-    "city": "[Ort]",
-    "mapsUrl": "https://www.google.com/maps/search/?api=1&query=Autoaufbereitung"
-  },
+  "address": { "street": "[Strasse und Hausnummer]", "zip": "[PLZ]", "city": "[Ort]", "mapsUrl": "https://www.google.com/maps/search/?api=1&query=Autoaufbereitung" },
   "openingHours": [
-    { "day": "Montag - Freitag", "hours": "08:00 - 18:00 Uhr" },
-    { "day": "Samstag", "hours": "nach Vereinbarung" },
-    { "day": "Sonntag", "hours": "geschlossen" }
+    { "day": "Montag - Freitag", "hours": "[Oeffnungszeit]" },
+    { "day": "Samstag", "hours": "[Oeffnungszeit]" },
+    { "day": "Sonntag", "hours": "[Oeffnungszeit]" }
   ],
   "services": [
     {
-      "slug": "innenreinigung",
-      "title": "Innenraum-Aufbereitung",
-      "summary": "Gründliche Reinigung von Sitzen, Teppichen, Kunststoffflächen, Leder und Kofferraum.",
-      "priceFrom": "ab [Preis] EUR",
-      "duration": "[Dauer] Std.",
-      "highlights": ["Polster- und Lederpflege", "Geruchsneutralisierung", "Detailreinigung aller Kontaktflächen"]
+      "slug": "innenreinigung", "title": "Innenraumaufbereitung", "summary": "Struktur fuer eine materialgerechte Reinigung von Sitzen, Teppichen, Kunststoffflaechen und Kofferraum.", "priceFrom": "Preis auf Anfrage", "duration": "nach Fahrzeug-Check", "confirmed": false,
+      "suitableFor": "Fahrzeuge mit sichtbaren Alltagsspuren, Flecken, Staub oder erhoehtem Pflegebedarf im Innenraum.",
+      "benefits": ["Gepflegter Gesamteindruck", "Materialgerechte Behandlung", "Individuell abgestimmter Umfang"],
+      "steps": ["Innenraum und Materialien pruefen", "Lose Verschmutzungen entfernen", "Oberflaechen passend zum Material bearbeiten", "Ergebnis kontrollieren"],
+      "highlights": ["Polster- und Lederpflege", "Teppich- und Kofferraumreinigung", "Detailreinigung von Kontaktflaechen"]
     },
     {
-      "slug": "lackaufbereitung",
-      "title": "Lackaufbereitung & Politur",
-      "summary": "Mehrstufige Politur für mehr Tiefenglanz, weniger Hologramme und gepflegte Lackflächen.",
-      "priceFrom": "ab [Preis] EUR",
-      "duration": "[Dauer] Std.",
-      "highlights": ["Lackanalyse", "Defektkorrektur", "Finish-Politur"]
+      "slug": "aussenreinigung", "title": "Aussenaufbereitung", "summary": "Vorbereitete Leistungsstruktur fuer schonende Fahrzeugwaesche, Lackreinigung und Pflege der Aussenflaechen.", "priceFrom": "Preis auf Anfrage", "duration": "nach Fahrzeug-Check", "confirmed": false,
+      "suitableFor": "Fahrzeuge, deren Lack, Felgen und Aussenbauteile gruendlich und schonend gepflegt werden sollen.",
+      "benefits": ["Sauberer Gesamteindruck", "Schonende Lackpflege", "Auf Fahrzeugzustand abgestimmter Prozess"],
+      "steps": ["Aussenzustand aufnehmen", "Vorreinigung abstimmen", "Fahrzeug und Felgen reinigen", "Trocknen und Finish kontrollieren"],
+      "highlights": ["Schonende Handwaesche", "Felgen- und Detailreinigung", "Optionale Lackpflege"]
     },
     {
-      "slug": "keramikversiegelung",
-      "title": "Keramikversiegelung",
-      "summary": "Langfristiger Schutz für Lack, Felgen oder Glas mit hydrophobem Effekt.",
-      "priceFrom": "ab [Preis] EUR",
-      "duration": "[Dauer] Tage",
-      "highlights": ["Vorbereitung inklusive", "Schutzschicht mit Glanzplus", "Pflegehinweise nach Übergabe"]
+      "slug": "komplettaufbereitung", "title": "Komplettaufbereitung", "summary": "Kombinierbare Innen- und Aussenpflege fuer einen ganzheitlich gepflegten Fahrzeugzustand.", "priceFrom": "Preis auf Anfrage", "duration": "nach Fahrzeug-Check", "confirmed": false,
+      "suitableFor": "Fahrzeuge vor Verkauf, Rueckgabe, besonderen Anlaessen oder bei umfassendem Pflegebedarf.",
+      "benefits": ["Innen und aussen abgestimmt", "Ein zentraler Fahrzeug-Check", "Planbarer Leistungsumfang"],
+      "steps": ["Gesamtzustand dokumentieren", "Leistungsumfang festlegen", "Innen- und Aussenarbeiten ausfuehren", "Gemeinsame Abschlusskontrolle"],
+      "highlights": ["Kombinierte Pflegebereiche", "Individuelle Zusammenstellung", "Abschlusskontrolle bei Uebergabe"]
     },
     {
-      "slug": "felgenreparatur",
-      "title": "Felgenreparatur",
-      "summary": "Optische Reparatur von Bordsteinschäden, Kratzern und kleinen Lackschäden an Felgen.",
-      "priceFrom": "ab [Preis] EUR",
-      "duration": "[Dauer] Std.",
-      "highlights": ["Schadensaufnahme per Foto", "Farbanpassung", "Optionaler Schutzlack"]
+      "slug": "lackaufbereitung", "title": "Lackaufbereitung und Politur", "summary": "Vorbereitete Struktur fuer Lackanalyse, Politur und ein auf den Lackzustand abgestimmtes Finish.", "priceFrom": "Preis auf Anfrage", "duration": "nach Lackanalyse", "confirmed": false,
+      "suitableFor": "Lacke mit mattem Eindruck, feinen Gebrauchsspuren oder dem Wunsch nach mehr Glanz und Farbtiefe.",
+      "benefits": ["Ruhigeres Lackbild", "Mehr Glanz und Farbtiefe", "Nachvollziehbare Lackeinschaetzung"],
+      "steps": ["Lack reinigen und pruefen", "Testbereich anlegen", "Polierstufe festlegen", "Finish und Schutz abstimmen"],
+      "highlights": ["Lackanalyse", "Abgestimmte Polierstufen", "Finish-Kontrolle im Licht"]
     },
     {
-      "slug": "leasing",
-      "title": "Leasing-Rückgabe",
-      "summary": "Gezielte Aufbereitung vor der Fahrzeugrückgabe, um unnötige Nachzahlungen zu reduzieren.",
-      "priceFrom": "ab [Preis] EUR",
-      "duration": "[Dauer] Std.",
-      "highlights": ["Check vor Rückgabe", "Innen und außen", "Dokumentation auf Wunsch"]
+      "slug": "keramikversiegelung", "title": "Keramikversiegelung", "summary": "Leistungsstruktur fuer Lackvorbereitung und einen langlebigen, hydrophoben Oberflaechenschutz.", "priceFrom": "Preis auf Anfrage", "duration": "nach System und Fahrzeug", "confirmed": false,
+      "suitableFor": "Fahrzeuge, bei denen Lackschutz, Pflegeleichtigkeit und ein hochwertiges Finish im Mittelpunkt stehen.",
+      "benefits": ["Hydrophober Oberflaecheneffekt", "Leichtere laufende Pflege", "Schutzsystem passend zur Nutzung"],
+      "steps": ["Lackzustand analysieren", "Oberflaeche vorbereiten", "Versiegelung kontrolliert auftragen", "Aushaertung und Pflegehinweise"],
+      "highlights": ["Vorbereitung nach Lackzustand", "Kontrollierter Auftrag", "Hinweise fuer die Nachpflege"]
     },
     {
-      "slug": "smart-repair",
-      "title": "Smart Repair",
-      "summary": "Kleine optische Schäden wirtschaftlich beheben, bevor sie den Gesamteindruck stören.",
-      "priceFrom": "auf Anfrage",
-      "duration": "nach Schaden",
-      "highlights": ["Kleine Kratzer", "Kunststoffdetails", "Individuelle Einschätzung"]
+      "slug": "felgenreparatur", "title": "Felgenreparatur", "summary": "Vorbereitete Anfrage- und Beratungsstruktur fuer optische Felgenschaeden und eine erste Einschaetzung per Foto.", "priceFrom": "Preis auf Anfrage", "duration": "nach Schadenspruefung", "confirmed": false,
+      "suitableFor": "Felgen mit optischen Bordsteinspuren, Kratzern oder kleinen Lackbeschaedigungen.",
+      "benefits": ["Schnelle Ersteinschaetzung per Foto", "Reparatur statt vorschnellem Austausch", "Schadenbezogene Beratung"],
+      "steps": ["Schaden per Foto oder vor Ort pruefen", "Machbarkeit und Verfahren abstimmen", "Aufbereitung ausfuehren", "Oberflaeche kontrollieren"],
+      "highlights": ["Digitale Schadensaufnahme", "Individuelle Machbarkeitspruefung", "Abgestimmtes Oberflaechenfinish"]
+    },
+    {
+      "slug": "leasing", "title": "Leasingaufbereitung", "summary": "Gezielte Vorbereitung des Fahrzeugzustands vor einer anstehenden Leasingrueckgabe.", "priceFrom": "Preis auf Anfrage", "duration": "nach Fahrzeug-Check", "confirmed": false,
+      "suitableFor": "Leasingfahrzeuge vor Rueckgabe oder Vorabpruefung des optischen Pflegezustands.",
+      "benefits": ["Fruehzeitige Zustandseinschaetzung", "Gezielte statt pauschale Massnahmen", "Besser vorbereitete Rueckgabe"],
+      "steps": ["Fahrzeugzustand aufnehmen", "Pflegebedarf priorisieren", "Abgestimmte Arbeiten ausfuehren", "Ergebnis dokumentieren"],
+      "highlights": ["Innen- und Aussencheck", "Priorisierte Massnahmen", "Optionale Fotodokumentation"]
     }
   ],
   "packages": [
-    {
-      "name": "Refresh",
-      "price": "ab [Preis] EUR",
-      "description": "Schnelle Pflege für ein sichtbar sauberes Fahrzeug.",
-      "features": ["Handwäsche außen", "Innenraum saugen", "Scheiben innen und außen", "Cockpitpflege"]
-    },
-    {
-      "name": "Deep Clean",
-      "price": "ab [Preis] EUR",
-      "description": "Intensive Aufbereitung für Alltag, Verkauf oder besondere Anlässe.",
-      "features": ["Innenraum-Detailreinigung", "Polster-/Lederpflege", "Lackreinigung", "Felgenpflege"]
-    },
-    {
-      "name": "Premium Schutz",
-      "price": "ab [Preis] EUR",
-      "description": "Hochwertiges Paket mit Lackfinish und Versiegelung.",
-      "features": ["Lackanalyse", "Mehrstufige Politur", "Keramik-/Premiumversiegelung", "Übergabe mit Pflegehinweisen"]
-    }
+    { "name": "Basis", "price": "Preis auf Anfrage", "description": "Kompakte Pflege fuer einen sauberen und gepflegten Gesamteindruck.", "features": ["Leistungsumfang nach Fahrzeug-Check", "Innen oder aussen konfigurierbar", "Klare Abstimmung vor Beginn"] },
+    { "name": "Premium", "price": "Preis auf Anfrage", "description": "Intensivere Aufbereitung mit zusaetzlichen Detail- und Pflegearbeiten.", "features": ["Erweiterter Pflegeumfang", "Material- und zustandsbezogene Behandlung", "Abschlusskontrolle bei Uebergabe"] },
+    { "name": "Komplett", "price": "Preis auf Anfrage", "description": "Individuell kombinierte Innen- und Aussenaufbereitung fuer umfassenden Pflegebedarf.", "features": ["Innen- und Aussenbereiche", "Individuell zusammengestellte Optionen", "Persoenliche Angebotserstellung"] }
   ],
+  "individualServices": ["Innenraumpflege", "Aussenpflege", "Lackanalyse und Politur", "Oberflaechenschutz", "Felgenpflege oder Reparaturanfrage", "Leasing-Vorabcheck"],
   "reviews": [],
   "faq": [
-    { "question": "Kann ich vorab Fotos per WhatsApp schicken?", "answer": "Ja. Besonders bei Felgenreparatur, Smart Repair und Lackschäden ist ein Foto ideal für eine erste Einschätzung." },
-    { "question": "Wie lange dauert eine Aufbereitung?", "answer": "Das hängt vom Zustand und gewählten Paket ab. In den Platzhalterdaten ist die Dauer je Leistung vorbereitet und kann später exakt gepflegt werden." },
-    { "question": "Werden Preise später verbindlich angezeigt?", "answer": "Ja. Die Pakete und Leistungsseiten sind so strukturiert, dass echte Preise schnell ersetzt werden können." },
-    { "question": "Gibt es Termine außerhalb der Öffnungszeiten?", "answer": "Auf Wunsch kann ein individueller Termin vereinbart werden. Der Platzhalter kann später an den echten Ablauf angepasst werden." }
+    { "question": "Kann ich vorab Fotos per WhatsApp schicken?", "answer": "Ja. Fotos von Fahrzeugzustand, Felge oder Lackbereich helfen bei einer ersten unverbindlichen Einschaetzung. Ein verbindliches Angebot kann eine Pruefung vor Ort erfordern." },
+    { "question": "Wie wird der Preis fuer eine Aufbereitung bestimmt?", "answer": "Fahrzeugklasse, Zustand, gewuenschter Leistungsumfang und Arbeitsaufwand beeinflussen den Preis. Deshalb wird das Angebot individuell erstellt." },
+    { "question": "Wie lange dauert eine Fahrzeugaufbereitung?", "answer": "Die Dauer richtet sich nach Fahrzeugzustand und Leistungsumfang. Eine realistische Zeitangabe erhalten Sie nach der ersten Abstimmung." },
+    { "question": "Welche Leistungen sind aktuell verfuegbar?", "answer": "Die dargestellte Website-Struktur wird derzeit mit dem Betrieb final abgestimmt. Bitte fragen Sie die gewuenschte Leistung direkt an." },
+    { "question": "Kann ich mehrere Leistungen kombinieren?", "answer": "Verschiedene Pflegebereiche koennen grundsaetzlich in einem individuellen Angebot zusammengefasst werden. Der konkrete Umfang wird vorab abgestimmt." },
+    { "question": "Muss ich fuer eine Einschaetzung vorbeikommen?", "answer": "Viele Fragen lassen sich vorab per Telefon oder WhatsApp klaeren. Fuer ein verbindliches Angebot kann eine Besichtigung des Fahrzeugs sinnvoll sein." }
   ]
 }
