@@ -17,7 +17,7 @@
 }
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; background: var(--black); }
+html { overflow-x: clip; scroll-behavior: smooth; background: var(--black); }
 body {
   margin: 0;
   overflow-x: hidden;
