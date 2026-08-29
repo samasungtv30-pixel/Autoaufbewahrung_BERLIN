@@ -86,11 +86,7 @@
       "features": ["Lackanalyse", "Mehrstufige Politur", "Keramik-/Premiumversiegelung", "Übergabe mit Pflegehinweisen"]
     }
   ],
-  "reviews": [
-    { "name": "[Kundenname]", "text": "Sehr professionell, schnelle Kommunikation und das Auto sah wieder aus wie neu.", "rating": 5 },
-    { "name": "[Kundenname]", "text": "Transparente Beratung, saubere Arbeit und fairer Preis.", "rating": 5 },
-    { "name": "[Kundenname]", "text": "Besonders die Innenreinigung war beeindruckend. Klare Empfehlung.", "rating": 5 }
-  ],
+  "reviews": [],
   "faq": [
     { "question": "Kann ich vorab Fotos per WhatsApp schicken?", "answer": "Ja. Besonders bei Felgenreparatur, Smart Repair und Lackschäden ist ein Foto ideal für eine erste Einschätzung." },
     { "question": "Wie lange dauert eine Aufbereitung?", "answer": "Das hängt vom Zustand und gewählten Paket ab. In den Platzhalterdaten ist die Dauer je Leistung vorbereitet und kann später exakt gepflegt werden." },
