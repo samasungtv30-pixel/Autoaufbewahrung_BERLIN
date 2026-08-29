@@ -169,6 +169,10 @@ const server = http.createServer(async (req, res) => {
     send(res, 200, fs.readFileSync(CONFIG_FILE, "utf8"), MIME_TYPES[".json"], { "Cache-Control": "no-store" });
     return;
   }
+  if (req.method === "GET" && url.pathname === "/health") {
+    send(res, 200, JSON.stringify({ status: "ok" }), MIME_TYPES[".json"], { "Cache-Control": "no-store" });
+    return;
+  }
   if (req.method === "POST" && url.pathname === "/api/inquiry") {
     await handleInquiry(req, res);
     return;

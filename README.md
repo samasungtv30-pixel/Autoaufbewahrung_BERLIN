@@ -41,3 +41,13 @@ Die neue Version uebernimmt bewusst nur die sinnvollen technischen Muster:
 - klare Trennung zwischen Inhalt, Struktur und Styling
 
 Restaurant-spezifische Module wie Speisekarte, Warenkorb, Tischreservierung und mehrsprachige Restauranttexte wurden nicht uebernommen.
+
+## Render Deployment
+
+Das Repository enthaelt eine `render.yaml` fuer einen Node-Web-Service. Render
+installiert die Abhaengigkeiten mit `npm ci --omit=dev`, startet die Anwendung
+mit `npm start` und prueft den Status ueber `/health`. Neue Commits auf `main`
+werden automatisch veroeffentlicht.
+
+SMTP-Zugangsdaten werden ausschliesslich als geschuetzte Environment Variables
+im Render Dashboard eingetragen und niemals in GitHub gespeichert.
