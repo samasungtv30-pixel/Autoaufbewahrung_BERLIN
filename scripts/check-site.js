@@ -38,10 +38,20 @@ for (const file of htmlFiles) {
     if (url.startsWith("/") && !existsForUrl(url)) errors.push(`${file}: Ziel fehlt ${url}`);
   }
 
+  for (const match of html.matchAll(/data-service-icon="([a-z0-9-]+)"/gi)) {
+    if (!fs.existsSync(path.join(frontend, "icons", `${match[1]}.svg`))) errors.push(`${file}: Icon fehlt ${match[1]}.svg`);
+  }
+
   if (/neu\s+(?:eroeffnet|eröffnet|geoeffnet|geöffnet)|neuer\s+betrieb/i.test(html)) {
     errors.push(`${file}: unbestaetigte Neueröffnungs-Aussage gefunden`);
   }
 }
+
+const contactHtml = fs.readFileSync(path.join(frontend, "kontakt.html"), "utf8");
+for (const marker of ["data-map-load", "data-map-frame", "name=\"vehicle\"", "name=\"preferredContact\"", "data-opening-hours", "id=\"inquiry-form\""]) {
+  if (!contactHtml.includes(marker)) errors.push(`kontakt.html: Produktionsmarker fehlt ${marker}`);
+}
+if ((contactHtml.match(/class="contact-channel"/g) || []).length !== 4) errors.push("kontakt.html: vier direkte Kontaktkanäle erforderlich");
 
 for (const file of publicCopyFiles) {
   const content = fs.readFileSync(file, "utf8");

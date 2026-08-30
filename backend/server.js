@@ -146,7 +146,9 @@ async function handleInquiry(req, res) {
       name: clean(payload.name, 90),
       phone: clean(payload.phone, 40),
       email: clean(payload.email, 120),
+      vehicle: clean(payload.vehicle, 120),
       service: clean(payload.service, 80),
+      preferredContact: clean(payload.preferredContact, 40),
       message: clean(payload.message, 1200)
     };
 

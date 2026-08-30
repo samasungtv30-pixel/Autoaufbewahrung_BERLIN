@@ -36,6 +36,37 @@ function hasPlaceholder(value) {
   return /\[[^\]]+\]/.test(String(value || ""));
 }
 
+function hasUsablePhone(value) {
+  const digits = cleanPhone(value).replace(/\D/g, "").replace(/^49/, "");
+  return digits.length >= 6 && !/^0+$/.test(digits);
+}
+
+function hasUsableEmail(value) {
+  const email = String(value || "").trim();
+  return !hasPlaceholder(email) && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && !/\.example$/i.test(email);
+}
+
+function hasUsableAddress() {
+  if (!siteConfig?.address) return false;
+  return [siteConfig.address.street, siteConfig.address.zip, siteConfig.address.city]
+    .every((value) => String(value || "").trim() && !hasPlaceholder(value));
+}
+
+function setActionAvailability(selector, available, href) {
+  qsa(selector).forEach((element) => {
+    element.classList.toggle("is-unavailable", !available);
+    if (available) {
+      element.href = href;
+      element.removeAttribute("aria-disabled");
+      element.removeAttribute("tabindex");
+    } else {
+      element.removeAttribute("href");
+      element.setAttribute("aria-disabled", "true");
+      element.setAttribute("tabindex", "-1");
+    }
+  });
+}
+
 async function loadConfig() {
   const response = await fetch(`/api/config?v=${Date.now()}`, { cache: "no-store" });
   if (!response.ok) throw new Error("Konfiguration konnte nicht geladen werden.");
@@ -109,13 +140,17 @@ function applyGlobalConfig() {
   qsa("[data-address]").forEach((el) => {
     el.textContent = `${siteConfig.address.street}, ${siteConfig.address.zip} ${siteConfig.address.city}`;
   });
-  qsa("[data-call-link]").forEach((el) => { el.href = `tel:${cleanPhone(siteConfig.phone)}`; });
-  qsa("[data-whatsapp-link]").forEach((el) => {
-    el.href = whatsappUrl("Hallo, ich möchte ein Angebot für eine Autoaufbereitung anfragen.");
-  });
-  qsa("[data-mail-link]").forEach((el) => { el.href = `mailto:${siteConfig.email}`; });
   qsa("[data-email]").forEach((el) => { el.textContent = siteConfig.email; });
-  qsa("[data-maps-link]").forEach((el) => { el.href = siteConfig.address.mapsUrl; });
+  const phoneAvailable = hasUsablePhone(siteConfig.phone);
+  const whatsappDigits = String(siteConfig.whatsapp || "").replace(/\D/g, "").replace(/^49/, "");
+  const whatsappAvailable = whatsappDigits.length >= 6 && !/^0+$/.test(whatsappDigits);
+  const emailAvailable = hasUsableEmail(siteConfig.email);
+  const mapsAvailable = hasUsableAddress() && /^https:\/\//i.test(siteConfig.address.mapsUrl || "");
+  setActionAvailability("[data-call-link]", phoneAvailable, `tel:${cleanPhone(siteConfig.phone)}`);
+  setActionAvailability("[data-whatsapp-link]", whatsappAvailable, whatsappUrl("Hallo, ich möchte ein Angebot für eine Autoaufbereitung anfragen."));
+  setActionAvailability("[data-mail-link]", emailAvailable, `mailto:${siteConfig.email}`);
+  setActionAvailability("[data-maps-link]", mapsAvailable, siteConfig.address.mapsUrl);
+  qs(".mobile-sticky-actions")?.classList.toggle("has-no-actions", !phoneAvailable && !whatsappAvailable);
 }
 
 function renderServices(limit = 99) {
@@ -506,14 +541,21 @@ function initInquiryForm() {
   if (!form) return;
   const status = qs("[data-form-status]");
   const serviceSelect = qs("#service", form);
-  serviceSelect.innerHTML = activeServices().map((service) => `<option value="${escapeHtml(service.title)}">${escapeHtml(service.title)}</option>`).join("");
+  serviceSelect.innerHTML = `<option value="">Bitte wählen</option>${activeServices().map((service) => `<option value="${escapeHtml(service.title)}">${escapeHtml(service.title)}</option>`).join("")}`;
+
+  const setStatus = (message, type = "") => {
+    status.textContent = message;
+    status.classList.toggle("is-success", type === "success");
+    status.classList.toggle("is-error", type === "error");
+  };
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const data = Object.fromEntries(new FormData(form).entries());
     const submitButton = qs('button[type="submit"]', form);
-    status.textContent = "Anfrage wird gesendet...";
+    setStatus("Anfrage wird gesendet...");
     submitButton.disabled = true;
+    form.setAttribute("aria-busy", "true");
     try {
       const response = await fetch("/api/inquiry", {
         method: "POST",
@@ -523,19 +565,42 @@ function initInquiryForm() {
       const result = await response.json();
       if (!response.ok || !result.success) throw new Error(result.error || "Anfrage konnte nicht gesendet werden.");
       if (result.emailSent) {
-        status.textContent = "Vielen Dank. Ihre Anfrage wurde per E-Mail übermittelt.";
+        setStatus("Vielen Dank. Ihre Anfrage wurde per E-Mail übermittelt.", "success");
       } else if (result.emailStatus === "not_configured") {
-        status.textContent = "Vielen Dank. Ihre Anfrage wurde erfasst. Wir melden uns schnellstmöglich bei Ihnen.";
+        setStatus("Vielen Dank. Ihre Anfrage wurde erfasst. Wir melden uns schnellstmöglich bei Ihnen.", "success");
       } else {
-        status.textContent = "Ihre Anfrage wurde gespeichert, aber die E-Mail-Zustellung konnte nicht bestätigt werden. Bitte nutzen Sie bei dringenden Anliegen Telefon oder WhatsApp.";
+        setStatus("Ihre Anfrage wurde gespeichert, aber die E-Mail-Zustellung konnte nicht bestätigt werden. Bitte nutzen Sie bei dringenden Anliegen Telefon oder WhatsApp.", "error");
       }
       form.reset();
     } catch (error) {
-      status.textContent = error.message;
+      setStatus(error.message, "error");
     } finally {
       submitButton.disabled = false;
+      form.removeAttribute("aria-busy");
     }
   });
+}
+
+function initContactMap() {
+  const shell = qs(".contact-map-shell");
+  const frame = qs("[data-map-frame]");
+  const consent = qs("[data-map-consent]");
+  const button = qs("[data-map-load]");
+  const copy = qs("[data-map-copy]");
+  if (!shell || !frame || !consent || !button) return;
+  if (!hasUsableAddress()) {
+    button.disabled = true;
+    button.textContent = "Adresse noch offen";
+    if (copy) copy.textContent = "Die Kartenansicht wird verfügbar, sobald die vollständige Kundenadresse eingetragen ist.";
+    return;
+  }
+  button.addEventListener("click", () => {
+    const address = `${siteConfig.address.street}, ${siteConfig.address.zip} ${siteConfig.address.city}`;
+    frame.src = `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
+    frame.hidden = false;
+    consent.hidden = true;
+    shell.classList.add("is-loaded");
+  }, { once: true });
 }
 
 function initStickyActionCollision() {
@@ -567,6 +632,7 @@ async function init() {
   renderReviews();
   renderFaq();
   renderOpeningHours();
+  initContactMap();
   renderGallery();
   initGalleryFilters();
   initGalleryLightbox();

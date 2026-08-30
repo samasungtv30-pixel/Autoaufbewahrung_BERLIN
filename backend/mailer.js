@@ -43,7 +43,9 @@ async function sendInquiryEmail(inquiry, siteConfig) {
     ["Name", inquiry.name],
     ["Telefon", inquiry.phone],
     ["E-Mail", inquiry.email || "Nicht angegeben"],
+    ["Fahrzeug / Modell", inquiry.vehicle || "Nicht angegeben"],
     ["Leistung", inquiry.service || "Nicht angegeben"],
+    ["Bevorzugter Kontakt", inquiry.preferredContact || "Keine Präferenz"],
     ["Nachricht", inquiry.message || "Keine Nachricht"],
     ["Eingang", new Date(inquiry.createdAt).toLocaleString("de-DE", { timeZone: "Europe/Berlin" })],
     ["Anfrage-ID", inquiry.id]
