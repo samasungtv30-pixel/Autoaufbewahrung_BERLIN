@@ -31,6 +31,10 @@ for (const file of htmlFiles) {
   if (!/<meta\s+name="viewport"/i.test(html)) errors.push(`${file}: Viewport Meta fehlt`);
   if (!html.includes("data-brand-logo")) errors.push(`${file}: gemeinsames Logo fehlt`);
   if (html.includes('class="brand-mark"')) errors.push(`${file}: altes Logo-Kürzel gefunden`);
+  if (html.includes('>Preise</a>')) errors.push(`${file}: alter Navigationsname statt Pakete`);
+  for (const font of ["inter-latin.woff2", "space-grotesk-latin.woff2"]) {
+    if (!html.includes(`href="/fonts/${font}" as="font" type="font/woff2" crossorigin`)) errors.push(`${file}: lokaler Font-Preload fehlt: ${font}`);
+  }
   const h1Count = (html.match(/<h1\b/gi) || []).length;
   if (h1Count !== 1) errors.push(`${file}: erwartet genau eine H1, gefunden ${h1Count}`);
 
@@ -68,6 +72,13 @@ for (const file of publicCopyFiles) {
 }
 
 const config = JSON.parse(fs.readFileSync(path.join(root, "backend", "data", "site.json"), "utf8"));
+for (const font of ["inter-latin", "inter-latin-ext", "space-grotesk-latin", "space-grotesk-latin-ext"]) {
+  const file = path.join(frontend, "fonts", `${font}.woff2`);
+  if (!fs.existsSync(file) || fs.readFileSync(file).subarray(0, 4).toString() !== "wOF2") errors.push(`WOFF2-Schrift fehlt oder ungültig: ${font}`);
+}
+for (const license of ["inter-OFL.txt", "space-grotesk-OFL.txt"]) {
+  if (!fs.existsSync(path.join(frontend, "fonts", license))) errors.push(`Schriftlizenz fehlt: ${license}`);
+}
 if (!config.logo || !existsForUrl(config.logo) || !config.logoAlt) errors.push("Zentrales Logo oder Alternativtext fehlt");
 for (const icon of ["circle-check-big", "phone", "message-circle", "layers-2", "brush-cleaning", "sparkles", "arrow-up-right", "arrow-right"]) {
   if (!fs.existsSync(path.join(frontend, "icons", `${icon}.svg`))) errors.push(`Kontakt-/Checklisten-Icon fehlt: ${icon}`);
