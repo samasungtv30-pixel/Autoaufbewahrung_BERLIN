@@ -135,6 +135,10 @@ function applyGlobalConfig() {
     document.head.append(schema);
   }
   qsa("[data-site-name]").forEach((el) => { el.textContent = siteConfig.siteName; });
+  qsa("[data-brand-logo]").forEach((el) => {
+    el.src = siteConfig.logo || "/images/brand-logo.svg";
+    el.alt = siteConfig.logoAlt || "Autoaufbereitung Berlin";
+  });
   qsa("[data-claim]").forEach((el) => { el.textContent = siteConfig.claim; });
   qsa("[data-phone]").forEach((el) => { el.textContent = siteConfig.phone; });
   qsa("[data-address]").forEach((el) => {
@@ -142,15 +146,18 @@ function applyGlobalConfig() {
   });
   qsa("[data-email]").forEach((el) => { el.textContent = siteConfig.email; });
   const phoneAvailable = hasUsablePhone(siteConfig.phone);
-  const whatsappDigits = String(siteConfig.whatsapp || "").replace(/\D/g, "").replace(/^49/, "");
-  const whatsappAvailable = whatsappDigits.length >= 6 && !/^0+$/.test(whatsappDigits);
+  const whatsappAvailable = hasUsablePhone(siteConfig.whatsapp);
   const emailAvailable = hasUsableEmail(siteConfig.email);
   const mapsAvailable = hasUsableAddress() && /^https:\/\//i.test(siteConfig.address.mapsUrl || "");
   setActionAvailability("[data-call-link]", phoneAvailable, `tel:${cleanPhone(siteConfig.phone)}`);
   setActionAvailability("[data-whatsapp-link]", whatsappAvailable, whatsappUrl("Hallo, ich möchte ein Angebot für eine Autoaufbereitung anfragen."));
   setActionAvailability("[data-mail-link]", emailAvailable, `mailto:${siteConfig.email}`);
   setActionAvailability("[data-maps-link]", mapsAvailable, siteConfig.address.mapsUrl);
-  qs(".mobile-sticky-actions")?.classList.toggle("has-no-actions", !phoneAvailable && !whatsappAvailable);
+  qsa(".mobile-sticky-actions a").forEach((link) => {
+    const unavailable = link.getAttribute("aria-disabled") === "true";
+    qs("small", link).textContent = unavailable ? "Nummer folgt" : "";
+    link.title = unavailable ? "Die Kontaktnummer wird noch ergänzt. Bitte nutzen Sie das Anfrageformular." : "";
+  });
 }
 
 function renderServices(limit = 99) {
@@ -201,13 +208,11 @@ function renderServices(limit = 99) {
     grid.innerHTML = services.map((service, index) => {
       const themes = ["lime", "blue", "orange", "violet", "red", "teal", "yellow"];
       const theme = themes.includes(service.theme) ? service.theme : "lime";
-      const steps = service.cardSteps.map((step, stepIndex) => {
-        const icon = String(step.icon).replace(/[^a-z0-9-]/gi, "");
+      const steps = service.cardSteps.map((step) => {
         return `
-          <li class="service-card__step">
-            <small>${String(stepIndex + 1).padStart(2, "0")}</small>
-            <span class="service-card__step-icon" data-service-icon="${icon}" aria-hidden="true"></span>
-            <strong>${escapeHtml(step.label)}</strong>
+          <li>
+            <span data-service-icon="circle-check-big" aria-hidden="true"></span>
+            <span>${escapeHtml(step.label)}</span>
           </li>
         `;
       }).join("");
@@ -222,10 +227,10 @@ function renderServices(limit = 99) {
               <h3>${escapeHtml(service.title)}</h3>
             </div>
             <p>${escapeHtml(service.summary)}</p>
-            <ol class="service-card__timeline" tabindex="0" aria-label="Arbeitsschritte für ${escapeHtml(service.title)}">${steps}</ol>
+            <ul class="service-checklist" aria-label="Typische Arbeitsschritte für ${escapeHtml(service.title)}">${steps}</ul>
             <div class="service-card__actions">
               <a class="service-card__primary" href="/${escapeHtml(service.slug)}.html">Angebot anfragen</a>
-              <a class="service-card__chat" href="${whatsappUrl(`Hallo, ich möchte ein Angebot für ${service.title} anfragen.`)}" target="_blank" rel="noopener" aria-label="${escapeHtml(service.title)} per WhatsApp anfragen">
+              <a class="service-card__chat${hasUsablePhone(siteConfig.whatsapp) ? "" : " is-unavailable"}" ${hasUsablePhone(siteConfig.whatsapp) ? `href="${escapeHtml(whatsappUrl(`Hallo, ich möchte ein Angebot für ${service.title} anfragen.`))}"` : 'aria-disabled="true" tabindex="-1" title="WhatsApp-Nummer folgt"'} target="_blank" rel="noopener" aria-label="${escapeHtml(service.title)} per WhatsApp anfragen">
                 <span data-service-icon="message-circle" aria-hidden="true"></span>
               </a>
             </div>
@@ -648,30 +653,37 @@ function initContactMap() {
   }, { once: true });
 }
 
-function initStickyActionCollision() {
-  const sticky = qs(".mobile-sticky-actions");
-  const targets = qsa(".service-card__actions, .contact-conversion, .contact-final, .site-footer");
-  if (!sticky || !targets.length || !("IntersectionObserver" in window)) return;
-  const visibleTargets = new Set();
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) visibleTargets.add(entry.target);
-      else visibleTargets.delete(entry.target);
-    });
-    sticky.classList.toggle("is-suppressed", visibleTargets.size > 0);
-  }, { threshold: 0.05, rootMargin: "0px 0px 64px" });
-  targets.forEach((target) => observer.observe(target));
+function initStickyActions() {
+  let sticky = qs(".mobile-sticky-actions");
+  if (!sticky) {
+    sticky = document.createElement("div");
+    sticky.className = "mobile-sticky-actions";
+    document.body.append(sticky);
+  }
+  sticky.setAttribute("aria-label", "Direkter Kontakt");
+  sticky.innerHTML = `
+    <a class="button button--dark" data-call-link href="#">
+      <span data-service-icon="phone" aria-hidden="true"></span><span>Anrufen<small></small></span>
+    </a>
+    <a class="button button--primary" data-whatsapp-link href="#" target="_blank" rel="noopener">
+      <span data-service-icon="message-circle" aria-hidden="true"></span><span>WhatsApp<small></small></span>
+    </a>`;
+  const updateKeyboardState = () => {
+    sticky.classList.toggle("is-suppressed", Boolean(document.activeElement?.matches("input, textarea, select")));
+  };
+  document.addEventListener("focusin", updateKeyboardState);
+  document.addEventListener("focusout", () => window.setTimeout(updateKeyboardState, 0));
 }
 
 async function init() {
   initNav();
   initMotion();
   await loadConfig();
+  initStickyActions();
   applyGlobalConfig();
   renderServices();
   await hydrateServiceIcons();
   initServiceTimelines();
-  initStickyActionCollision();
   renderPackages();
   renderIndividualServices();
   renderReviews();

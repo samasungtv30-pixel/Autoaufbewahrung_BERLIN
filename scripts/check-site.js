@@ -29,6 +29,8 @@ for (const file of htmlFiles) {
   if (!/<title>[^<]+<\/title>/i.test(html)) errors.push(`${file}: title fehlt`);
   if (!/<meta\s+name="description"\s+content="[^"]+"/i.test(html)) errors.push(`${file}: Meta Description fehlt`);
   if (!/<meta\s+name="viewport"/i.test(html)) errors.push(`${file}: Viewport Meta fehlt`);
+  if (!html.includes("data-brand-logo")) errors.push(`${file}: gemeinsames Logo fehlt`);
+  if (html.includes('class="brand-mark"')) errors.push(`${file}: altes Logo-Kürzel gefunden`);
   const h1Count = (html.match(/<h1\b/gi) || []).length;
   if (h1Count !== 1) errors.push(`${file}: erwartet genau eine H1, gefunden ${h1Count}`);
 
@@ -62,6 +64,10 @@ for (const file of publicCopyFiles) {
 }
 
 const config = JSON.parse(fs.readFileSync(path.join(root, "backend", "data", "site.json"), "utf8"));
+if (!config.logo || !existsForUrl(config.logo) || !config.logoAlt) errors.push("Zentrales Logo oder Alternativtext fehlt");
+for (const icon of ["circle-check-big", "phone", "message-circle"]) {
+  if (!fs.existsSync(path.join(frontend, "icons", `${icon}.svg`))) errors.push(`Kontakt-/Checklisten-Icon fehlt: ${icon}`);
+}
 const slugs = new Set();
 for (const service of config.services) {
   for (const key of ["slug", "navTitle", "title", "summary", "image", "imageAlt", "accent", "cardSteps", "suitableFor", "benefits", "steps", "highlights"]) {
