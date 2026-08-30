@@ -139,7 +139,6 @@ function renderServices(limit = 99) {
         <article class="service-card service-card--premium service-card--${theme}">
           <div class="service-card__media">
             <img src="${escapeHtml(service.image)}" alt="${escapeHtml(service.imageAlt)}" width="1536" height="1024" loading="lazy">
-            <span>Leistungsvisualisierung</span>
           </div>
           <div class="service-card__body">
             <div class="service-card__heading">
@@ -164,7 +163,6 @@ function renderServices(limit = 99) {
     <article class="service-card">
       <div class="service-card__media">
         <img src="${escapeHtml(service.image)}" alt="${escapeHtml(service.imageAlt)}" width="1536" height="1024" loading="lazy">
-        <span>Leistungsvisualisierung</span>
       </div>
       <div class="service-card__top">
         <span class="icon-badge" aria-hidden="true">${String(index + 1).padStart(2, "0")}</span>

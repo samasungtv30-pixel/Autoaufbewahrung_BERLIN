@@ -8,12 +8,13 @@ const errors = [];
 const publicCopyFiles = [
   ...htmlFiles.map((file) => path.join(frontend, file)),
   path.join(frontend, "js", "main.js"),
+  path.join(frontend, "js", "site-data.js"),
   path.join(root, "backend", "data", "site.json")
 ];
 const forbiddenPublicCopy = [
   { pattern: /neu\s+(?:eröffnet|eroeffnet)|neu eröffneter|neu eroeffneter/i, label: "unbestätigte Neueröffnungs-Aussage" },
-  { pattern: /Go-Live|Prüffassung|Prueffassung|Kundenfreigabe|Kundendaten|Paketstruktur|Leistungsstruktur|vorbereiteter Leistungsbereich|wird noch eingerichtet/i, label: "interner Entwicklungsbegriff" },
-  { pattern: /\b(?:fuer|spaeter|eroeffnet|Qualitaet|Flaeche|koennen|persoenlich|Rueckmeldung|Einschaetzung|Pruefung|Uebergabe|Oeffnungszeiten|gewuenscht\w*|Moeglich\w*)\b/, label: "ASCII-Ersatzschreibweise" }
+  { pattern: /Go-Live|Prüffassung|Prueffassung|Kundenfreigabe|Kundendaten|Paketstruktur|Leistungsstruktur|vorbereiteter Leistungsbereich|wird noch eingerichtet|wird aktuell .{0,50}(?:abgestimmt|bestätigt)|finaler? Betriebsablauf/i, label: "interner Entwicklungsbegriff" },
+  { pattern: /\b(?:fuer|spaeter|eroeffnet|Qualitaet|Flaeche|koennen|persoenlich|Rueckmeldung|Einschaetzung|Pruefung|pruefen|Uebergabe|Oeffnungszeiten|gewuenscht\w*|Moeglich\w*|Aussen\w*|Strasse)\b/, label: "ASCII-Ersatzschreibweise" }
 ];
 
 function existsForUrl(url) {
