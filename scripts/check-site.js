@@ -30,7 +30,11 @@ for (const file of htmlFiles) {
   if (!/<meta\s+name="viewport"/i.test(html)) errors.push(`${file}: Viewport Meta fehlt`);
   if (!html.includes("data-brand-logo")) errors.push(`${file}: gemeinsames Logo fehlt`);
   if (html.includes('class="brand-mark"')) errors.push(`${file}: altes Logo-Kürzel gefunden`);
-  if (html.includes('>Pakete</a>')) errors.push(`${file}: Paketangebot ohne bestätigte öffentliche Freigabe`);
+  const navigation = html.match(/<div class="nav-links">([\s\S]*?)<\/div>/)?.[1];
+  if (navigation) {
+    const labels = [...navigation.matchAll(/<a\b[^>]*>([^<]+)<\/a>/g)].map((match) => match[1]);
+    if (labels.join(",") !== "Leistungen,Pakete,Ablauf,Kontakt,FAQ") errors.push(`${file}: falsche Reihenfolge der Hauptnavigation`);
+  }
   for (const font of ["inter-latin.woff2", "space-grotesk-latin.woff2"]) {
     if (!html.includes(`href="/fonts/${font}" as="font" type="font/woff2" crossorigin`)) errors.push(`${file}: lokaler Font-Preload fehlt: ${font}`);
   }
