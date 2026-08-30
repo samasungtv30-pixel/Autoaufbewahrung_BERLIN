@@ -9,6 +9,13 @@ Produktionsnahe Website-Basis fuer einen Autoaufbereitungsbetrieb. Inhalte, Leis
 - `backend/data/site.json` ist die zentrale Inhaltsdatei fuer Kundendaten, Leistungsdetails, Preise, Oeffnungszeiten und FAQ.
 - `scripts/check-site.js` prueft Seitenstruktur, interne Links, Assets und Leistungsdaten vor jedem Deployment.
 
+## Oeffentliche Freigaben
+
+- Pakete bleiben mit `packagesConfirmed: false` in `backend/data/site.json` intern vorbereitet. Die API liefert sie dann nicht aus; Paketbereich und Formular-Vorauswahl bleiben deaktiviert. Erst nach Freigabe echter Paketbestandteile und Preise auf den booleschen Wert `true` setzen.
+- Die Galerie ist aus dem oeffentlichen Frontend entfernt. Eine spaetere Galerie benoetigt echte, freigegebene Kundenarbeiten.
+- Karte und Route verwenden die vollstaendige Adresse aus der Konfiguration. Ohne Adresse bleiben sie deaktiviert; Google Maps wird erst nach einem ausdruecklichen Klick geladen.
+- Fehlende Kontaktangaben werden nicht als funktionsfaehige Telefonnummern oder E-Mail-Adressen verlinkt.
+
 ## Start
 
 ```bash
@@ -31,7 +38,7 @@ kann der Betrieb in seinem Mailprogramm direkt auf die Anfrage antworten.
 
 - Firmenname, Rechtsform, Inhaber und vollstaendige Anschrift
 - Telefonnummer, WhatsApp-Nummer und Empfaenger-E-Mail
-- bestaetigte Oeffnungszeiten und finaler Kartenlink
+- bestaetigte Oeffnungszeiten und gepruefte Kartenposition der Betriebsadresse
 - bestaetigte Leistungen, Paketbestandteile, Dauerangaben und Preise
 - echte Werkstatt- und Projektbilder mit dokumentierten Bildrechten
 - SMTP-Zugangsdaten als Render Environment Variables

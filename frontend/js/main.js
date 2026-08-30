@@ -148,11 +148,12 @@ function applyGlobalConfig() {
   const phoneAvailable = hasUsablePhone(siteConfig.phone);
   const whatsappAvailable = hasUsablePhone(siteConfig.whatsapp);
   const emailAvailable = hasUsableEmail(siteConfig.email);
-  const mapsAvailable = hasUsableAddress() && /^https:\/\//i.test(siteConfig.address.mapsUrl || "");
+  const mapsAvailable = hasUsableAddress();
+  const destination = `${siteConfig.address.street}, ${siteConfig.address.zip} ${siteConfig.address.city}`;
   setActionAvailability("[data-call-link]", phoneAvailable, `tel:${cleanPhone(siteConfig.phone)}`);
   setActionAvailability("[data-whatsapp-link]", whatsappAvailable, whatsappUrl("Hallo, ich möchte ein Angebot für eine Autoaufbereitung anfragen."));
   setActionAvailability("[data-mail-link]", emailAvailable, `mailto:${siteConfig.email}`);
-  setActionAvailability("[data-maps-link]", mapsAvailable, siteConfig.address.mapsUrl);
+  setActionAvailability("[data-maps-link]", mapsAvailable, `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`);
   qsa(".mobile-sticky-actions a").forEach((link) => {
     const unavailable = link.getAttribute("aria-disabled") === "true";
     qs("small", link).textContent = unavailable ? "Nummer folgt" : "";
@@ -184,25 +185,12 @@ function renderServices(limit = 99) {
         <div class="home-service-card__body">
           <span class="home-service-card__icon" data-service-icon="${String(service.cardSteps[0]?.icon || "sparkles").replace(/[^a-z0-9-]/gi, "")}" aria-hidden="true"></span>
           <span class="home-service-card__number">${String(index + 1).padStart(2, "0")}</span>
-          <h3>${escapeHtml(service.title)}</h3>
+          <h3>${escapeHtml(service.title).replace(/aufbereitung/g, "&shy;aufbereitung")}</h3>
           <p>${escapeHtml(service.summary)}</p>
           <a class="home-service-card__details" href="/leistungen.html#service-${escapeHtml(service.slug)}" aria-label="Details zur Leistung ${escapeHtml(service.title)}">Details ansehen <span data-service-icon="arrow-up-right" aria-hidden="true"></span></a>
         </div>
       </article>
     `).join("");
-    const process = qs("[data-featured-process]");
-    const processRoot = qs("[data-featured-service]");
-    const featured = activeServices().find((service) => service.slug === processRoot?.dataset.featuredService) || services[0];
-    if (process && featured) {
-      qs("[data-featured-process-title]").textContent = `So läuft ${featured.title} ab.`;
-      process.innerHTML = featured.cardSteps.map((step, index) => `
-        <li>
-          <small>${String(index + 1).padStart(2, "0")}</small>
-          <span data-service-icon="${String(step.icon).replace(/[^a-z0-9-]/gi, "")}" aria-hidden="true"></span>
-          <strong>${escapeHtml(step.label)}</strong>
-        </li>
-      `).join("");
-    }
     return;
   }
   if (document.body.classList.contains("services-page") || document.body.classList.contains("home")) {
@@ -312,6 +300,10 @@ function initServiceDeepLinks() {
 function renderPackages() {
   const grid = qs("[data-packages-grid]");
   if (!grid) return;
+  const section = qs("[data-packages-section]");
+  const confirmed = siteConfig.packagesConfirmed === true && siteConfig.packages.length > 0;
+  if (section) section.hidden = !confirmed;
+  if (!confirmed) { grid.innerHTML = ""; return; }
   grid.innerHTML = siteConfig.packages.map((item, index) => `
     <article class="package package--${["lime", "blue", "teal"][index % 3]} ${index === 1 ? "package--featured" : ""}">
       <div class="package__top"><span class="package__label">${String(index + 1).padStart(2, "0")} / Pflegepaket</span><span class="package__icon" data-service-icon="${["brush-cleaning", "sparkles", "layers-2"][index % 3]}" aria-hidden="true"></span></div>
@@ -361,94 +353,6 @@ function renderOpeningHours() {
   `).join("");
 }
 
-function renderGallery() {
-  const grid = qs("[data-gallery]");
-  if (!grid) return;
-  const gallery = window.AUTO_DETAILING_DATA?.gallery || [];
-  grid.innerHTML = gallery.map((item, index) => `
-    <figure class="gallery-item gallery-item--${index + 1}" data-category="${escapeHtml(item.category)}">
-      <div class="image-placeholder">
-        <img src="${escapeHtml(item.src)}" alt="${escapeHtml(item.caption)}" loading="lazy">
-        <span>${escapeHtml(item.label)}</span>
-      </div>
-      <figcaption>${escapeHtml(item.caption)}</figcaption>
-    </figure>
-  `).join("");
-}
-
-function initGalleryFilters() {
-  const buttons = qsa("[data-gallery-filter]");
-  const items = qsa(".gallery-item");
-  if (!buttons.length || !items.length) return;
-  buttons.forEach((button) => button.addEventListener("click", () => {
-    const category = button.dataset.galleryFilter;
-    buttons.forEach((item) => item.classList.toggle("is-active", item === button));
-    items.forEach((item) => {
-      item.hidden = category !== "all" && item.dataset.category !== category;
-    });
-  }));
-}
-
-function initGalleryLightbox() {
-  const items = qsa(".gallery-item");
-  if (!items.length) return;
-
-  const lightbox = document.createElement("div");
-  lightbox.className = "lightbox";
-  lightbox.setAttribute("role", "dialog");
-  lightbox.setAttribute("aria-modal", "true");
-  lightbox.setAttribute("aria-label", "Galeriebild vergrößert");
-  lightbox.innerHTML = `
-    <button class="lightbox__close" type="button" aria-label="Galerie schliessen">×</button>
-    <figure class="lightbox__content">
-      <img alt="">
-      <figcaption></figcaption>
-    </figure>
-  `;
-  document.body.append(lightbox);
-
-  let trigger = null;
-  const closeButton = qs(".lightbox__close", lightbox);
-  const image = qs("img", lightbox);
-  const caption = qs("figcaption", lightbox);
-
-  const close = () => {
-    lightbox.classList.remove("is-open");
-    document.body.classList.remove("lightbox-open");
-    trigger?.focus();
-  };
-
-  items.forEach((item) => {
-    item.tabIndex = 0;
-    item.setAttribute("role", "button");
-    item.setAttribute("aria-label", `${qs("figcaption", item)?.textContent || "Galeriebild"} vergrößern`);
-    const open = () => {
-      const source = qs("img", item);
-      trigger = item;
-      image.src = source.src;
-      image.alt = source.alt;
-      caption.textContent = qs("figcaption", item)?.textContent || "";
-      lightbox.classList.add("is-open");
-      document.body.classList.add("lightbox-open");
-      closeButton.focus();
-    };
-    item.addEventListener("click", open);
-    item.addEventListener("keydown", (event) => {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        open();
-      }
-    });
-  });
-
-  closeButton.addEventListener("click", close);
-  lightbox.addEventListener("click", (event) => {
-    if (event.target === lightbox) close();
-  });
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && lightbox.classList.contains("is-open")) close();
-  });
-}
 
 function initMotion() {
   const header = qs(".site-header");
@@ -540,8 +444,8 @@ function initNav() {
   panel.insertAdjacentHTML("beforeend", `
     <div class="nav-menu-meta">
       <p>Direkter Kontakt</p>
-      <a data-call-link href="#"><span>Telefon</span><strong data-phone></strong></a>
       <a data-whatsapp-link href="#" target="_blank" rel="noopener"><span>WhatsApp</span><strong>Fotos & Anfrage senden</strong></a>
+      <a data-call-link href="#"><span>Telefon</span><strong data-phone></strong></a>
     </div>
   `);
 
@@ -608,7 +512,7 @@ function initInquiryForm() {
   const matchingService = activeServices().find((service) => service.slug === requestedService || service.title === requestedService);
   if (matchingService) serviceSelect.value = matchingService.title;
   const requestedPackage = new URLSearchParams(window.location.search).get("paket");
-  const matchingPackage = siteConfig.packages.find((item) => item.name === requestedPackage);
+  const matchingPackage = siteConfig.packagesConfirmed === true && siteConfig.packages.find((item) => item.name === requestedPackage);
   const message = qs('[name="message"]', form);
   if (matchingPackage && message && !message.value) message.value = `Ich interessiere mich für das Pflegepaket ${matchingPackage.name}.`;
 
@@ -660,7 +564,7 @@ function initContactMap() {
   if (!hasUsableAddress()) {
     button.disabled = true;
     button.textContent = "Adresse noch offen";
-    if (copy) copy.textContent = "Die Kartenansicht wird verfügbar, sobald die vollständige Kundenadresse eingetragen ist.";
+    if (copy) copy.textContent = "Die genaue Adresse wird noch ergänzt. Fragen zur Anfahrt können Sie uns über das Formular senden.";
     return;
   }
   button.addEventListener("click", () => {
@@ -681,11 +585,11 @@ function initStickyActions() {
   }
   sticky.setAttribute("aria-label", "Direkter Kontakt");
   sticky.innerHTML = `
-    <a class="button button--dark" data-call-link href="#">
-      <span data-service-icon="phone" aria-hidden="true"></span><span>Anrufen<small></small></span>
-    </a>
     <a class="button button--primary" data-whatsapp-link href="#" target="_blank" rel="noopener">
       <span data-service-icon="message-circle" aria-hidden="true"></span><span>WhatsApp<small></small></span>
+    </a>
+    <a class="button button--dark" data-call-link href="#">
+      <span data-service-icon="phone" aria-hidden="true"></span><span>Anrufen<small></small></span>
     </a>`;
   const updateKeyboardState = () => {
     sticky.classList.toggle("is-suppressed", Boolean(document.activeElement?.matches("input, textarea, select")));
@@ -709,9 +613,6 @@ async function init() {
   renderFaq();
   renderOpeningHours();
   initContactMap();
-  renderGallery();
-  initGalleryFilters();
-  initGalleryLightbox();
   renderServicePage();
   initInquiryForm();
   initServiceDeepLinks();

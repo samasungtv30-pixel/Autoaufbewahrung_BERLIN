@@ -10,6 +10,7 @@ const ROOT = path.join(__dirname, "..");
 const FRONTEND_DIR = path.join(ROOT, "frontend");
 const CONFIG_FILE = path.join(__dirname, "data", "site.json");
 const inquiryAttempts = new Map();
+const CONTENT_SECURITY_POLICY = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-src https://www.google.com; form-action 'self'; frame-ancestors 'none'; base-uri 'self'";
 
 const MIME_TYPES = {
   ".html": "text/html; charset=utf-8",
@@ -37,7 +38,7 @@ function send(res, statusCode, body, contentType = "text/plain; charset=utf-8", 
     "X-Frame-Options": "DENY",
     "Referrer-Policy": "strict-origin-when-cross-origin",
     "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
-    "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'self'",
+    "Content-Security-Policy": CONTENT_SECURITY_POLICY,
     ...headers
   });
   res.end(body);
@@ -185,7 +186,9 @@ const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
 
   if (req.method === "GET" && url.pathname === "/api/config") {
-    send(res, 200, fs.readFileSync(CONFIG_FILE, "utf8"), MIME_TYPES[".json"], { "Cache-Control": "no-store" });
+    const config = readJson(CONFIG_FILE);
+    if (config.packagesConfirmed !== true) config.packages = [];
+    send(res, 200, JSON.stringify(config), MIME_TYPES[".json"], { "Cache-Control": "no-store" });
     return;
   }
   if (req.method === "GET" && url.pathname === "/health") {
@@ -223,7 +226,7 @@ const server = http.createServer(async (req, res) => {
     "X-Frame-Options": "DENY",
     "Referrer-Policy": "strict-origin-when-cross-origin",
     "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
-    "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'self'"
+    "Content-Security-Policy": CONTENT_SECURITY_POLICY
   });
   if (req.method === "HEAD") return res.end();
   fs.createReadStream(filePath).pipe(res);

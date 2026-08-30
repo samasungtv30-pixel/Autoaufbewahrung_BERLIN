@@ -79,6 +79,7 @@
       "highlights": ["Innen- und Außencheck", "Priorisierte Maßnahmen", "Optionale Fotodokumentation"]
     }
   ],
+  "packagesConfirmed": false,
   "packages": [
     { "name": "Basis", "price": "Preis auf Anfrage", "description": "Kompakte Pflege für einen sauberen und gepflegten Gesamteindruck.", "features": ["Leistungsumfang nach Fahrzeug-Check", "Innen oder außen konfigurierbar", "Klare Abstimmung vor Beginn"] },
     { "name": "Premium", "price": "Preis auf Anfrage", "description": "Intensivere Aufbereitung mit zusätzlichen Detail- und Pflegearbeiten.", "features": ["Erweiterter Pflegeumfang", "Material- und zustandsbezogene Behandlung", "Abschlusskontrolle bei Übergabe"] },

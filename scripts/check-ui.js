@@ -42,8 +42,16 @@ assert.equal((grid.innerHTML.match(/class="service-checklist"/g) || []).length, 
 assert.ok(!grid.innerHTML.includes("service-card__timeline"));
 
 const packageGrid = { innerHTML: "" };
+const packageSection = { hidden: true };
 elements.set("[data-packages-grid]", packageGrid);
+elements.set("[data-packages-section]", packageSection);
 context.renderPackages();
+assert.equal(packageGrid.innerHTML, "");
+assert.equal(packageSection.hidden, true);
+context.configFixture = { ...config, packagesConfirmed: true };
+vm.runInContext("siteConfig = configFixture", context);
+context.renderPackages();
+assert.equal(packageSection.hidden, false);
 assert.equal((packageGrid.innerHTML.match(/class="package package--/g) || []).length, config.packages.length);
 assert.equal((packageGrid.innerHTML.match(/data-service-icon="circle-check-big"/g) || []).length, config.packages.reduce((sum, item) => sum + item.features.length, 0));
 for (const item of config.packages) {
@@ -67,6 +75,18 @@ messageField.value = "";
 context.window.location.search = "?paket=unknown";
 context.initInquiryForm();
 assert.equal(messageField.value, "");
+
+// Only an explicit business approval may publish packages or prefill inquiries.
+for (const approval of [false, undefined, "true"]) {
+  context.configFixture = { ...config, packagesConfirmed: approval };
+  vm.runInContext("siteConfig = configFixture", context);
+  context.renderPackages();
+  assert.equal(packageGrid.innerHTML, "");
+  assert.equal(packageSection.hidden, true);
+  context.window.location.search = "?paket=Premium";
+  context.initInquiryForm();
+  assert.equal(messageField.value, "");
+}
 
 const calls = [];
 elements.set("#service-lackaufbereitung", {

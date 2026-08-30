@@ -8,7 +8,6 @@ const errors = [];
 const publicCopyFiles = [
   ...htmlFiles.map((file) => path.join(frontend, file)),
   path.join(frontend, "js", "main.js"),
-  path.join(frontend, "js", "site-data.js"),
   path.join(root, "backend", "data", "site.json")
 ];
 const forbiddenPublicCopy = [
@@ -31,7 +30,7 @@ for (const file of htmlFiles) {
   if (!/<meta\s+name="viewport"/i.test(html)) errors.push(`${file}: Viewport Meta fehlt`);
   if (!html.includes("data-brand-logo")) errors.push(`${file}: gemeinsames Logo fehlt`);
   if (html.includes('class="brand-mark"')) errors.push(`${file}: altes Logo-Kürzel gefunden`);
-  if (html.includes('>Preise</a>')) errors.push(`${file}: alter Navigationsname statt Pakete`);
+  if (html.includes('>Pakete</a>')) errors.push(`${file}: Paketangebot ohne bestätigte öffentliche Freigabe`);
   for (const font of ["inter-latin.woff2", "space-grotesk-latin.woff2"]) {
     if (!html.includes(`href="/fonts/${font}" as="font" type="font/woff2" crossorigin`)) errors.push(`${file}: lokaler Font-Preload fehlt: ${font}`);
   }
@@ -51,16 +50,22 @@ for (const file of htmlFiles) {
   if (/neu\s+(?:eroeffnet|eröffnet|geoeffnet|geöffnet)|neuer\s+betrieb/i.test(html)) {
     errors.push(`${file}: unbestaetigte Neueröffnungs-Aussage gefunden`);
   }
-  if (/href="\/galerie\.html"/i.test(html)) errors.push(`${file}: öffentlicher Galerie-Link gefunden`);
+  if (/galerie|gallery/i.test(html)) errors.push(`${file}: öffentliche Galerie gefunden`);
 }
 
 const contactHtml = fs.readFileSync(path.join(frontend, "kontakt.html"), "utf8");
 for (const marker of ["data-map-load", "data-map-frame", "name=\"vehicle\"", "data-opening-hours", "id=\"inquiry-form\""]) {
   if (!contactHtml.includes(marker)) errors.push(`kontakt.html: Produktionsmarker fehlt ${marker}`);
 }
-if ((contactHtml.match(/class="contact-channel(?:\s[^"]*)?"/g) || []).length !== 4) errors.push("kontakt.html: vier direkte Kontaktkanäle erforderlich");
+if ((contactHtml.match(/class="contact-channel(?:\s[^"]*)?"/g) || []).length !== 3) errors.push("kontakt.html: drei direkte Kontaktkanäle erforderlich");
 if (contactHtml.includes('class="contact-hero"')) errors.push("kontakt.html: veralteter großer Hero gefunden");
-if (contactHtml.indexOf('id="standort"') < 0 || contactHtml.indexOf('id="standort"') > contactHtml.indexOf('id="inquiry-form"')) errors.push("kontakt.html: Standort muss vor dem Formular stehen");
+if (contactHtml.indexOf('id="standort"') < contactHtml.indexOf('id="inquiry-form"')) errors.push("kontakt.html: Standort muss nach dem Formular stehen");
+if (contactHtml.includes("contact-request-notes") || contactHtml.includes("contact-final")) errors.push("kontakt.html: doppelte Customer Journey gefunden");
+if (fs.existsSync(path.join(frontend, "galerie.html")) || fs.existsSync(path.join(frontend, "js/site-data.js"))) errors.push("Öffentliche Galerie muss entfernt sein");
+const homeHtml = fs.readFileSync(path.join(frontend, "index.html"), "utf8");
+if (homeHtml.includes("data-featured-service") || homeHtml.includes('class="section home-benefits"')) errors.push("index.html: redundante Schwerpunktsection gefunden");
+const priceHtml = fs.readFileSync(path.join(frontend, "preise.html"), "utf8");
+if (!priceHtml.includes('data-packages-section hidden')) errors.push("preise.html: Pakete müssen standardmäßig verborgen sein");
 const servicesHtml = fs.readFileSync(path.join(frontend, "leistungen.html"), "utf8");
 if (/Bereiche entdecken|data-service-jump|detail-hero--services/.test(servicesHtml)) errors.push("leistungen.html: veralteter doppelter Einstieg gefunden");
 
@@ -72,6 +77,7 @@ for (const file of publicCopyFiles) {
 }
 
 const config = JSON.parse(fs.readFileSync(path.join(root, "backend", "data", "site.json"), "utf8"));
+if (typeof config.packagesConfirmed !== "boolean") errors.push("packagesConfirmed muss ein boolescher Freigabewert sein");
 for (const font of ["inter-latin", "inter-latin-ext", "space-grotesk-latin", "space-grotesk-latin-ext"]) {
   const file = path.join(frontend, "fonts", `${font}.woff2`);
   if (!fs.existsSync(file) || fs.readFileSync(file).subarray(0, 4).toString() !== "wOF2") errors.push(`WOFF2-Schrift fehlt oder ungültig: ${font}`);
