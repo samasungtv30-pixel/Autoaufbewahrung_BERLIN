@@ -132,13 +132,14 @@ function renderServices(limit = 99) {
     grid.innerHTML = services.map((service, index) => {
       const themes = ["lime", "blue", "orange", "violet", "red", "teal", "yellow"];
       const theme = themes.includes(service.theme) ? service.theme : "lime";
-      const steps = service.cardSteps.slice(0, 2).map((step, stepIndex) => {
+      const steps = service.cardSteps.map((step, stepIndex) => {
         const icon = String(step.icon).replace(/[^a-z0-9-]/gi, "");
         return `
-          <div class="service-card__step">
+          <li class="service-card__step">
+            <small>${String(stepIndex + 1).padStart(2, "0")}</small>
             <span class="service-card__step-icon" data-service-icon="${icon}" aria-hidden="true"></span>
-            <span><small>Schritt ${stepIndex + 1}</small><strong>${escapeHtml(step.label)}</strong></span>
-          </div>
+            <strong>${escapeHtml(step.label)}</strong>
+          </li>
         `;
       }).join("");
       return `
@@ -152,7 +153,7 @@ function renderServices(limit = 99) {
               <h3>${escapeHtml(service.title)}</h3>
             </div>
             <p>${escapeHtml(service.summary)}</p>
-            <div class="service-card__steps">${steps}</div>
+            <ol class="service-card__timeline" tabindex="0" aria-label="Arbeitsschritte für ${escapeHtml(service.title)}">${steps}</ol>
             <div class="service-card__actions">
               <a class="service-card__primary" href="/${escapeHtml(service.slug)}.html">Angebot anfragen</a>
               <a class="service-card__chat" href="${whatsappUrl(`Hallo, ich möchte ein Angebot für ${service.title} anfragen.`)}" target="_blank" rel="noopener" aria-label="${escapeHtml(service.title)} per WhatsApp anfragen">
@@ -206,6 +207,17 @@ async function hydrateServiceIcons() {
     const svg = await cache.get(icon);
     target.replaceChildren(document.importNode(svg, true));
   }));
+}
+
+function initServiceTimelines() {
+  qsa(".service-card__timeline").forEach((timeline) => {
+    timeline.addEventListener("keydown", (event) => {
+      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+      event.preventDefault();
+      const direction = event.key === "ArrowRight" ? 1 : -1;
+      timeline.scrollBy({ left: direction * 72, behavior: "smooth" });
+    });
+  });
 }
 
 function renderPackages() {
@@ -548,6 +560,7 @@ async function init() {
   applyGlobalConfig();
   renderServices();
   await hydrateServiceIcons();
+  initServiceTimelines();
   initStickyActionCollision();
   renderPackages();
   renderIndividualServices();

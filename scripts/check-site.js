@@ -63,7 +63,7 @@ for (const service of config.services) {
   if (typeof service.active !== "boolean") errors.push(`Service ${service.slug}: active muss true oder false sein`);
   if (!/^#[0-9a-f]{6}$/i.test(service.accent || "")) errors.push(`Service ${service.slug}: ungültige Akzentfarbe`);
   if (!["lime", "blue", "orange", "violet", "red", "teal", "yellow"].includes(service.theme)) errors.push(`Service ${service.slug}: ungültiges Farbthema`);
-  if (!Array.isArray(service.cardSteps) || service.cardSteps.length !== 2) errors.push(`Service ${service.slug}: genau zwei Kartenschritte erforderlich`);
+  if (!Array.isArray(service.cardSteps) || service.cardSteps.length < 3 || service.cardSteps.length > 5) errors.push(`Service ${service.slug}: drei bis fünf Kartenschritte erforderlich`);
   for (const step of service.cardSteps || []) {
     if (!step.label || !step.icon) errors.push(`Service ${service.slug}: Kartenschritt unvollständig`);
     if (step.icon && !fs.existsSync(path.join(frontend, "icons", `${step.icon}.svg`))) errors.push(`Service-Icon fehlt: ${step.icon}.svg`);
