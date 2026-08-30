@@ -1197,6 +1197,9 @@ button, .button, .text-link, .nav-links, .form-grid label, summary, .contact-cha
 @media (min-width: 1051px) { .contact-visit .contact-map-shell { height: 340px; min-height: 340px; } }
 .contact-map-shell iframe, .contact-visit .contact-map-shell iframe { height: 100%; min-height: 0; }
 .contact-map-area .contact-route { width: 100%; }
+.contact-page .contact-visit-heading h2 { font-size: 36px; line-height: 1.2; }
+.contact-visit-copy { padding-top: 6px; }
+.contact-visit .contact-facts { padding-top: 22px; border-top: 1px solid var(--line); }
 .pricing-intro { background: #0c0f10; }
 .pricing-intro h1 { max-width: 800px; }
 .pricing-factors { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 0; padding: 0; margin: 0; list-style: none; border: 1px solid var(--line); }

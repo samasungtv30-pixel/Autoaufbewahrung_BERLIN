@@ -64,6 +64,7 @@ for (const marker of ["data-map-load", "data-map-frame", "name=\"vehicle\"", "da
 if ((contactHtml.match(/class="contact-channel(?:\s[^"]*)?"/g) || []).length !== 3) errors.push("kontakt.html: drei direkte Kontaktkanäle erforderlich");
 if (contactHtml.includes('class="contact-hero"')) errors.push("kontakt.html: veralteter großer Hero gefunden");
 if (contactHtml.indexOf('id="standort"') < contactHtml.indexOf('id="inquiry-form"')) errors.push("kontakt.html: Standort muss nach dem Formular stehen");
+if (!/<div class="contact-visit-copy reveal">\s*<div class="section-head contact-visit-heading">/.test(contactHtml)) errors.push("kontakt.html: Standortüberschrift muss bei den Öffnungszeiten neben der Karte stehen");
 if (contactHtml.includes("contact-request-notes") || contactHtml.includes("contact-final")) errors.push("kontakt.html: doppelte Customer Journey gefunden");
 if (contactHtml.includes('class="contact-request-layout"')) errors.push("kontakt.html: schmale Formular-Seitenspalte gefunden");
 if ((contactHtml.match(/<fieldset class="contact-form__group">/g) || []).length !== 2) errors.push("kontakt.html: zwei semantische Formulargruppen erforderlich");
