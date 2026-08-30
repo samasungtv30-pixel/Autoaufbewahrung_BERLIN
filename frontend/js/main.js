@@ -121,7 +121,46 @@ function applyGlobalConfig() {
 function renderServices(limit = 99) {
   const grid = qs("[data-services-grid]");
   if (!grid) return;
-  grid.innerHTML = activeServices().slice(0, limit).map((service, index) => `
+  const services = activeServices().slice(0, limit);
+  if (document.body.classList.contains("services-page")) {
+    grid.innerHTML = services.map((service, index) => {
+      const themes = ["lime", "blue", "orange", "violet", "red", "teal", "yellow"];
+      const theme = themes.includes(service.theme) ? service.theme : "lime";
+      const steps = service.cardSteps.slice(0, 2).map((step, stepIndex) => {
+        const icon = String(step.icon).replace(/[^a-z0-9-]/gi, "");
+        return `
+          <div class="service-card__step">
+            <span class="service-card__step-icon" data-service-icon="${icon}" aria-hidden="true"></span>
+            <span><small>Schritt ${stepIndex + 1}</small><strong>${escapeHtml(step.label)}</strong></span>
+          </div>
+        `;
+      }).join("");
+      return `
+        <article class="service-card service-card--premium service-card--${theme}">
+          <div class="service-card__media">
+            <img src="${escapeHtml(service.image)}" alt="${escapeHtml(service.imageAlt)}" width="1536" height="1024" loading="lazy">
+            <span>Leistungsvisualisierung</span>
+          </div>
+          <div class="service-card__body">
+            <div class="service-card__heading">
+              <span>${String(index + 1).padStart(2, "0")}</span>
+              <h3>${escapeHtml(service.title)}</h3>
+            </div>
+            <p>${escapeHtml(service.summary)}</p>
+            <div class="service-card__steps">${steps}</div>
+            <div class="service-card__actions">
+              <a class="service-card__primary" href="/${escapeHtml(service.slug)}.html">Angebot anfragen</a>
+              <a class="service-card__chat" href="${whatsappUrl(`Hallo, ich möchte ein Angebot für ${service.title} anfragen.`)}" target="_blank" rel="noopener" aria-label="${escapeHtml(service.title)} per WhatsApp anfragen">
+                <span data-service-icon="message-circle" aria-hidden="true"></span>
+              </a>
+            </div>
+          </div>
+        </article>
+      `;
+    }).join("");
+    return;
+  }
+  grid.innerHTML = services.map((service, index) => `
     <article class="service-card">
       <div class="service-card__media">
         <img src="${escapeHtml(service.image)}" alt="${escapeHtml(service.imageAlt)}" width="1536" height="1024" loading="lazy">
@@ -139,6 +178,30 @@ function renderServices(limit = 99) {
       </div>
     </article>
   `).join("");
+}
+
+async function hydrateServiceIcons() {
+  const targets = qsa("[data-service-icon]");
+  if (!targets.length) return;
+  const cache = new Map();
+  await Promise.all(targets.map(async (target) => {
+    const icon = String(target.dataset.serviceIcon || "").replace(/[^a-z0-9-]/gi, "");
+    if (!icon) return;
+    if (!cache.has(icon)) {
+      cache.set(icon, fetch(`/icons/${icon}.svg`).then(async (response) => {
+        if (!response.ok) throw new Error(`Icon konnte nicht geladen werden: ${icon}`);
+        const documentNode = new DOMParser().parseFromString(await response.text(), "image/svg+xml");
+        const svg = documentNode.documentElement;
+        svg.removeAttribute("width");
+        svg.removeAttribute("height");
+        svg.setAttribute("aria-hidden", "true");
+        svg.setAttribute("focusable", "false");
+        return svg;
+      }));
+    }
+    const svg = await cache.get(icon);
+    target.replaceChildren(document.importNode(svg, true));
+  }));
 }
 
 function renderPackages() {
@@ -465,6 +528,7 @@ async function init() {
   await loadConfig();
   applyGlobalConfig();
   renderServices(document.body.classList.contains("home") ? 6 : 99);
+  await hydrateServiceIcons();
   renderPackages();
   renderIndividualServices();
   renderReviews();

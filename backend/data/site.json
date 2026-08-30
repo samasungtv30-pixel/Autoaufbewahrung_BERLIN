@@ -14,7 +14,8 @@
   ],
   "services": [
     {
-      "slug": "innenreinigung", "active": true, "title": "Innenraumaufbereitung", "summary": "Materialgerechte Reinigung von Sitzen, Teppichen, Kunststoffflächen und Kofferraum.", "priceFrom": "Preis auf Anfrage", "duration": "nach Fahrzeug-Check",
+      "slug": "innenreinigung", "active": true, "title": "Innenraumaufbereitung", "summary": "Materialgerechte Reinigung von Sitzen, Teppichen, Kunststoffflächen und Kofferraum.", "priceFrom": "Preis auf Anfrage", "duration": "nach Fahrzeug-Check", "accent": "#b9f23d", "theme": "lime",
+      "cardSteps": [{ "label": "Fahrzeug-Check", "icon": "scan-search" }, { "label": "Innenraumreinigung", "icon": "sparkles" }],
       "image": "/images/service-interior.webp", "imageAlt": "Leistungsvisualisierung einer professionellen Innenraumaufbereitung",
       "suitableFor": "Fahrzeuge mit sichtbaren Alltagsspuren, Flecken, Staub oder erhöhtem Pflegebedarf im Innenraum.",
       "benefits": ["Gepflegter Gesamteindruck", "Materialgerechte Behandlung", "Individuell abgestimmter Umfang"],
@@ -22,7 +23,8 @@
       "highlights": ["Polster- und Lederpflege", "Teppich- und Kofferraumreinigung", "Detailreinigung von Kontaktflächen"]
     },
     {
-      "slug": "aussenreinigung", "active": true, "title": "Außenaufbereitung", "summary": "Schonende Fahrzeugwäsche, Lackreinigung und abgestimmte Pflege der Außenflächen.", "priceFrom": "Preis auf Anfrage", "duration": "nach Fahrzeug-Check",
+      "slug": "aussenreinigung", "active": true, "title": "Außenaufbereitung", "summary": "Schonende Fahrzeugwäsche, Lackreinigung und abgestimmte Pflege der Außenflächen.", "priceFrom": "Preis auf Anfrage", "duration": "nach Fahrzeug-Check", "accent": "#4e8cff", "theme": "blue",
+      "cardSteps": [{ "label": "Vorwäsche", "icon": "droplets" }, { "label": "Lackpflege", "icon": "shield-check" }],
       "image": "/images/service-exterior.webp", "imageAlt": "Leistungsvisualisierung einer schonenden Außenaufbereitung",
       "suitableFor": "Fahrzeuge, deren Lack, Felgen und Außenbauteile gründlich und schonend gepflegt werden sollen.",
       "benefits": ["Sauberer Gesamteindruck", "Schonende Lackpflege", "Auf den Fahrzeugzustand abgestimmter Prozess"],
@@ -30,7 +32,8 @@
       "highlights": ["Schonende Handwäsche", "Felgen- und Detailreinigung", "Optionale Lackpflege"]
     },
     {
-      "slug": "komplettaufbereitung", "active": true, "title": "Komplettaufbereitung", "summary": "Kombinierte Innen- und Außenpflege für einen ganzheitlich gepflegten Fahrzeugzustand.", "priceFrom": "Preis auf Anfrage", "duration": "nach Fahrzeug-Check",
+      "slug": "komplettaufbereitung", "active": true, "title": "Komplettaufbereitung", "summary": "Kombinierte Innen- und Außenpflege für einen ganzheitlich gepflegten Fahrzeugzustand.", "priceFrom": "Preis auf Anfrage", "duration": "nach Fahrzeug-Check", "accent": "#ff7b32", "theme": "orange",
+      "cardSteps": [{ "label": "Gesamt-Check", "icon": "clipboard-check" }, { "label": "Aufbereitung", "icon": "wand-sparkles" }],
       "image": "/images/service-complete.webp", "imageAlt": "Leistungsvisualisierung einer kombinierten Innen- und Außenaufbereitung",
       "suitableFor": "Fahrzeuge vor Verkauf, Rückgabe, besonderen Anlässen oder bei umfassendem Pflegebedarf.",
       "benefits": ["Innen und außen abgestimmt", "Ein zentraler Fahrzeug-Check", "Planbarer Leistungsumfang"],
@@ -38,7 +41,8 @@
       "highlights": ["Kombinierte Pflegebereiche", "Individuelle Zusammenstellung", "Abschlusskontrolle bei Übergabe"]
     },
     {
-      "slug": "lackaufbereitung", "active": true, "title": "Lackaufbereitung und Politur", "summary": "Lackanalyse, abgestimmte Politur und ein Finish passend zum aktuellen Lackzustand.", "priceFrom": "Preis auf Anfrage", "duration": "nach Lackanalyse",
+      "slug": "lackaufbereitung", "active": true, "title": "Lackaufbereitung und Politur", "summary": "Lackanalyse, abgestimmte Politur und ein Finish passend zum aktuellen Lackzustand.", "priceFrom": "Preis auf Anfrage", "duration": "nach Lackanalyse", "accent": "#c65cff", "theme": "violet",
+      "cardSteps": [{ "label": "Lackanalyse", "icon": "scan-line" }, { "label": "Politur & Finish", "icon": "sparkles" }],
       "image": "/images/service-paint.webp", "imageAlt": "Leistungsvisualisierung einer professionellen Lackpolitur unter Prüflicht",
       "suitableFor": "Lacke mit mattem Eindruck, feinen Gebrauchsspuren oder dem Wunsch nach mehr Glanz und Farbtiefe.",
       "benefits": ["Ruhigeres Lackbild", "Mehr Glanz und Farbtiefe", "Nachvollziehbare Lackeinschätzung"],
@@ -46,7 +50,8 @@
       "highlights": ["Lackanalyse", "Abgestimmte Polierstufen", "Finish-Kontrolle im Licht"]
     },
     {
-      "slug": "keramikversiegelung", "active": true, "title": "Keramikversiegelung", "summary": "Sorgfältige Lackvorbereitung und hydrophober Oberflächenschutz für ein hochwertiges Finish.", "priceFrom": "Preis auf Anfrage", "duration": "nach System und Fahrzeug",
+      "slug": "keramikversiegelung", "active": true, "title": "Keramikversiegelung", "summary": "Sorgfältige Lackvorbereitung und hydrophober Oberflächenschutz für ein hochwertiges Finish.", "priceFrom": "Preis auf Anfrage", "duration": "nach System und Fahrzeug", "accent": "#ff5050", "theme": "red",
+      "cardSteps": [{ "label": "Vorbereitung", "icon": "brush-cleaning" }, { "label": "Versiegelung", "icon": "shield" }],
       "image": "/images/service-ceramic.webp", "imageAlt": "Leistungsvisualisierung einer Keramikversiegelung mit hydrophobem Lackeffekt",
       "suitableFor": "Fahrzeuge, bei denen Lackschutz, Pflegeleichtigkeit und ein hochwertiges Finish im Mittelpunkt stehen.",
       "benefits": ["Hydrophober Oberflächeneffekt", "Leichtere laufende Pflege", "Schutzsystem passend zur Nutzung"],
@@ -54,7 +59,8 @@
       "highlights": ["Vorbereitung nach Lackzustand", "Kontrollierter Auftrag", "Hinweise für die Nachpflege"]
     },
     {
-      "slug": "felgenreparatur", "active": true, "title": "Felgenaufbereitung und Felgenreparatur", "summary": "Beratung und erste Einschätzung bei optischen Felgenschäden – auf Wunsch vorab per Foto.", "priceFrom": "Preis auf Anfrage", "duration": "nach Schadensprüfung",
+      "slug": "felgenreparatur", "active": true, "title": "Felgenaufbereitung und Felgenreparatur", "summary": "Beratung und erste Einschätzung bei optischen Felgenschäden – auf Wunsch vorab per Foto.", "priceFrom": "Preis auf Anfrage", "duration": "nach Schadensprüfung", "accent": "#2bd4c7", "theme": "teal",
+      "cardSteps": [{ "label": "Schadensprüfung", "icon": "scan-search" }, { "label": "Aufbereitung & Finish", "icon": "wrench" }],
       "image": "/images/service-wheel.webp", "imageAlt": "Leistungsvisualisierung einer kosmetischen Felgenaufbereitung im Fachbereich",
       "suitableFor": "Felgen mit optischen Bordsteinspuren, Kratzern oder kleineren Lackbeschädigungen.",
       "benefits": ["Schnelle Ersteinschätzung per Foto", "Reparatur statt vorschnellem Austausch", "Schadenbezogene Beratung"],
@@ -62,7 +68,8 @@
       "highlights": ["Digitale Schadensaufnahme", "Individuelle Machbarkeitsprüfung", "Abgestimmtes Oberflächenfinish"]
     },
     {
-      "slug": "leasing", "active": true, "title": "Leasingrückgabe-Aufbereitung", "summary": "Gezielte Pflege und Zustandskontrolle vor einer anstehenden Leasingrückgabe.", "priceFrom": "Preis auf Anfrage", "duration": "nach Fahrzeug-Check",
+      "slug": "leasing", "active": true, "title": "Leasingrückgabe-Aufbereitung", "summary": "Gezielte Pflege und Zustandskontrolle vor einer anstehenden Leasingrückgabe.", "priceFrom": "Preis auf Anfrage", "duration": "nach Fahrzeug-Check", "accent": "#f2c62e", "theme": "yellow",
+      "cardSteps": [{ "label": "Check & Bewertung", "icon": "clipboard-check" }, { "label": "Rückgabevorbereitung", "icon": "circle-check-big" }],
       "image": "/images/service-leasing.webp", "imageAlt": "Leistungsvisualisierung einer Fahrzeugprüfung vor der Leasingrückgabe",
       "suitableFor": "Leasingfahrzeuge vor Rückgabe oder einer vorbereitenden Prüfung des optischen Pflegezustands.",
       "benefits": ["Frühzeitige Zustandseinschätzung", "Gezielte statt pauschale Maßnahmen", "Klare Vorbereitung auf die Rückgabe"],

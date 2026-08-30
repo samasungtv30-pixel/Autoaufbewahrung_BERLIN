@@ -16,5 +16,8 @@
     "dotenv": "^17.2.2",
     "nodemailer": "^9.0.6"
   },
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "lucide-static": "^1.37.0"
+  }
 }

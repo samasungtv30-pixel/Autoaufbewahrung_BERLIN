@@ -52,7 +52,7 @@ for (const file of publicCopyFiles) {
 const config = JSON.parse(fs.readFileSync(path.join(root, "backend", "data", "site.json"), "utf8"));
 const slugs = new Set();
 for (const service of config.services) {
-  for (const key of ["slug", "title", "summary", "image", "imageAlt", "suitableFor", "benefits", "steps", "highlights"]) {
+  for (const key of ["slug", "title", "summary", "image", "imageAlt", "accent", "cardSteps", "suitableFor", "benefits", "steps", "highlights"]) {
     if (!service[key] || !service[key].length) errors.push(`Service ${service.slug || "ohne Slug"}: ${key} fehlt`);
   }
   if (slugs.has(service.slug)) errors.push(`Service-Slug doppelt: ${service.slug}`);
@@ -60,6 +60,13 @@ for (const service of config.services) {
   if (!fs.existsSync(path.join(frontend, `${service.slug}.html`))) errors.push(`Leistungsseite fehlt: ${service.slug}.html`);
   if (service.image && !existsForUrl(service.image)) errors.push(`Service-Bild fehlt: ${service.image}`);
   if (typeof service.active !== "boolean") errors.push(`Service ${service.slug}: active muss true oder false sein`);
+  if (!/^#[0-9a-f]{6}$/i.test(service.accent || "")) errors.push(`Service ${service.slug}: ungültige Akzentfarbe`);
+  if (!["lime", "blue", "orange", "violet", "red", "teal", "yellow"].includes(service.theme)) errors.push(`Service ${service.slug}: ungültiges Farbthema`);
+  if (!Array.isArray(service.cardSteps) || service.cardSteps.length !== 2) errors.push(`Service ${service.slug}: genau zwei Kartenschritte erforderlich`);
+  for (const step of service.cardSteps || []) {
+    if (!step.label || !step.icon) errors.push(`Service ${service.slug}: Kartenschritt unvollständig`);
+    if (step.icon && !fs.existsSync(path.join(frontend, "icons", `${step.icon}.svg`))) errors.push(`Service-Icon fehlt: ${step.icon}.svg`);
+  }
 }
 
 if (errors.length) {
