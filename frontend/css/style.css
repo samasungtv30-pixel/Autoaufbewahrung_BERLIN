@@ -979,9 +979,9 @@ textarea { min-height: 132px; resize: vertical; }
 }
 
 /* Kompakter Seitenrhythmus, gemeinsames Logo und sichtbarer Direktkontakt. */
-.section, .home .section, .contact-page .section { padding: 68px 0; }
-.section-head { margin-bottom: 32px; }
-.contact-heading { margin-bottom: 32px; }
+.section, .home .section, .contact-page .section { padding: 44px 0; }
+.section-head { margin-bottom: 24px; }
+.contact-heading { margin-bottom: 24px; }
 .footer-grid { padding-top: 48px; padding-bottom: 36px; }
 .brand-logo { display: block; width: 184px; height: 58px; object-fit: contain; }
 .brand--footer .brand-logo { width: 176px; height: 55px; }
@@ -1016,7 +1016,7 @@ textarea { min-height: 132px; resize: vertical; }
 .contact-page .contact-channel.is-unavailable { opacity: .76; }
 .contact-page .contact-channel.is-unavailable .contact-channel__arrow { display: none; }
 .contact-visit { background: #101314; border-bottom: 1px solid var(--line); }
-.contact-visit-layout, .contact-request-layout { display: grid; grid-template-columns: minmax(0,.8fr) minmax(0,1.2fr); gap: 64px; align-items: start; }
+.contact-visit-layout, .contact-request-layout { display: grid; grid-template-columns: minmax(0,.8fr) minmax(0,1.2fr); gap: 40px; align-items: start; }
 .contact-visit-copy, .contact-map-area, .contact-request-intro { min-width: 0; }
 .contact-visit .contact-facts { grid-template-columns: 1fr; gap: 0; margin: 24px 0 0; }
 .contact-visit .contact-facts > div { grid-template-columns: 36px minmax(0,1fr); gap: 14px; padding: 16px 0; border: 0; border-bottom: 1px solid var(--line); background: none; }
@@ -1060,7 +1060,7 @@ textarea { min-height: 132px; resize: vertical; }
 }
 @media (max-width: 760px) {
   body, .home, .contact-page { padding-bottom: calc(88px + env(safe-area-inset-bottom)); }
-  .section, .home .section, .contact-page .section { padding: 44px 0; }
+  .section, .home .section, .contact-page .section { padding: 30px 0; }
   .section-head, .home .section-head, .contact-page .section-head { margin-bottom: 24px; }
   .section-head--split { gap: 16px; }
   .contact-heading { gap: 26px; margin-bottom: 26px; }
@@ -1125,6 +1125,28 @@ button, .button, .text-link, .nav-links, .form-grid label, summary, .contact-cha
 .home-trust .promise-grid h3 { margin-top: 18px; }
 .contact-page .contact-channel-grid { grid-template-columns: 1.15fr 1fr 1fr; }
 .contact-page .contact-channel { min-height: 158px; }
+.contact-page .contact-channel > span:not(.contact-channel__icon):not(.contact-channel__arrow) { color: #dce3e0; font-size: 16px; text-transform: none; }
+.contact-page .contact-channel strong { font-size: 20px; line-height: 1.4; color: #f3f7f5; }
+.contact-page .contact-channel small { font-size: 14px; color: #bbc6c1; }
+.contact-page .contact-channel.is-unavailable { opacity: 1; }
+.contact-page .contact-channel, .contact-page .contact-surface {
+  background: linear-gradient(135deg, rgba(255,255,255,.075), transparent 42%), linear-gradient(165deg, #192121, #0e1213 75%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.16), inset 0 -1px 0 rgba(255,255,255,.025), 0 8px 22px rgba(0,0,0,.2);
+}
+.contact-page .contact-channel__icon { background: linear-gradient(145deg, rgba(255,255,255,.1), rgba(255,255,255,.015)); box-shadow: inset 0 1px rgba(255,255,255,.2), 0 0 16px color-mix(in srgb,var(--channel-accent) 12%,transparent); }
+.contact-page .contact-channel:not(.is-unavailable):hover { border-color: var(--channel-accent); box-shadow: inset 0 1px rgba(255,255,255,.2), 0 0 22px color-mix(in srgb,var(--channel-accent) 10%,transparent); }
+.contact-visit .contact-facts small { font-size: 14px; color: #c9d2cd; }
+.contact-visit .contact-facts strong, .contact-visit .hours-list li, .home .hours-list li, .home .contact-list li { font-size: 17px; line-height: 1.5; }
+.contact-visit .hours-list li > span, .home .hours-list li > span { color: #c9d2cd; }
+.contact-visit .hours-list li { padding: 10px 0; }
+.contact-page .contact-map-area .external-note, .contact-page .form-note { font-size: 14px; color: #bdc7c2; }
+.contact-page .contact-map-consent p:not(.eyebrow) { font-size: 16px; line-height: 1.5; color: #d0d8d4; }
+.contact-page .contact-map-consent { padding: 24px; }
+.contact-page .contact-map-consent__icon { margin-bottom: 10px; }
+.home .button, .contact-page .button, .pricing-page .button, .site-header .button, .section .text-link { font-size: 16px; }
+.home .price-factor-strip p, .process-line p { font-size: 16px; color: #c3cec8; }
+.home .price-factor-strip article, .process-line__item { background: linear-gradient(145deg, rgba(255,255,255,.055), transparent 55%), #101516; box-shadow: inset 0 1px rgba(255,255,255,.1); }
+.section-link { margin-top: 20px; }
 .contact-quick--primary { border-color: var(--accent) !important; background: rgba(206,242,76,.06); }
 .contact-quick--primary strong { color: var(--accent); }
 .mobile-sticky-actions { grid-template-columns: 1.15fr 1fr; }
@@ -1150,10 +1172,10 @@ button, .button, .text-link, .nav-links, .form-grid label, summary, .contact-cha
 .pricing-photo { border-top: 1px solid var(--line); }
 .pricing-photo p { max-width: 760px; color: var(--muted); }
 .pricing-photo .eyebrow { color: var(--accent); }
-.home .form-grid label, .contact-page .form-grid label { font-size: 14px; }
+.home .form-grid label, .contact-page .form-grid label { font-size: 16px; }
 .home .form-grid input, .home .form-grid select, .home .form-grid textarea,
 .contact-page .form-grid input, .contact-page .form-grid select, .contact-page .form-grid textarea { font-size: 17px; }
-.home .form-grid .privacy-check, .contact-page .form-grid .privacy-check { font-family: var(--font-body); font-size: 13px; line-height: 1.6; }
+.home .form-grid .privacy-check, .contact-page .form-grid .privacy-check { font-family: var(--font-body); font-size: 14px; line-height: 1.6; }
 @media (min-width: 1301px) { :root { --editorial-h1: 5rem; } }
 @media (min-width: 1051px) { .home .hero { min-height: min(760px, calc(100svh - 190px)); } }
 @media (min-width: 1051px) and (max-width: 1150px) { .home .hero h1 { --editorial-h1: 3.25rem; } }
@@ -1165,7 +1187,7 @@ button, .button, .text-link, .nav-links, .form-grid label, summary, .contact-cha
 @media (max-width: 760px) {
   :root { --editorial-h1: 3.25rem; --editorial-h2: 2.25rem; --editorial-h3: 1.5rem; --reading-size: 1.0625rem; }
   .home .hero-inner { padding-top: 48px; }
-  .home .section-head, .contact-page .section-head, .pricing-page .section-head { margin-bottom: 26px; }
+  .home .section-head, .contact-page .section-head, .pricing-page .section-head { margin-bottom: 20px; }
   .home .home-service-card { grid-template-columns: 30% minmax(0,1fr); }
   .home-service-card__body { padding: 20px 14px; }
   .home .home-service-card h3 { font-size: 24px; }
@@ -1178,10 +1200,16 @@ button, .button, .text-link, .nav-links, .form-grid label, summary, .contact-cha
   .home .contact-quick { margin-top: 22px; }
   .home .contact-panel { padding: 24px 18px; }
   .home .contact-list li { flex-direction: column; gap: 5px; }
-  .contact-page .contact-channel-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
-  .contact-page .contact-channel--whatsapp { grid-column: 1 / -1; min-height: 0; display: grid; grid-template-columns: 42px 1fr; column-gap: 14px; padding: 18px; }
-  .contact-page .contact-channel--whatsapp .contact-channel__icon { grid-row: 1 / 4; margin: 0; }
-  .contact-page .contact-channel--whatsapp small { padding-top: 4px; }
+  .contact-page .contact-channel-grid { grid-template-columns: minmax(0,1fr); }
+  .contact-page .contact-channel { min-height: 0; display: grid; grid-template-columns: 42px minmax(0,1fr); column-gap: 14px; row-gap: 3px; padding: 16px; }
+  .contact-page .contact-channel .contact-channel__icon { grid-row: 1 / 4; margin: 0; }
+  .contact-page .contact-channel strong { margin: 0; font-size: 18px; }
+  .contact-page .contact-channel small { padding-top: 2px; font-size: 14px; }
+  .contact-page .contact-channel > span:not(.contact-channel__icon):not(.contact-channel__arrow) { padding-right: 16px; }
+  .contact-page .contact-channel .contact-channel__arrow { top: 16px; }
+  .contact-visit .hours-list li, .home .hours-list li { display: grid; grid-template-columns: minmax(0,1fr); gap: 2px; }
+  .contact-visit .hours-list strong { margin-top: 0; text-align: left; }
+  .process-line p { font-size: 15px; }
   .contact-request-layout { gap: 20px; }
   .contact-page .contact-form__heading h3 { font-size: 24px; }
   .contact-map-shell, .contact-visit .contact-map-shell { height: 320px; min-height: 320px; }
