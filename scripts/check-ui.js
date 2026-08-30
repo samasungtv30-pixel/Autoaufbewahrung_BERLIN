@@ -10,6 +10,7 @@ const classes = new Set(["home"]);
 const listeners = new Map();
 const context = vm.createContext({
   console,
+  URLSearchParams,
   document: {
     addEventListener() {},
     body: { classList: { contains: (name) => classes.has(name) } },
@@ -39,6 +40,33 @@ grid.dataset = {};
 context.renderServices();
 assert.equal((grid.innerHTML.match(/class="service-checklist"/g) || []).length, config.services.filter((service) => service.active !== false).length);
 assert.ok(!grid.innerHTML.includes("service-card__timeline"));
+
+const packageGrid = { innerHTML: "" };
+elements.set("[data-packages-grid]", packageGrid);
+context.renderPackages();
+assert.equal((packageGrid.innerHTML.match(/class="package package--/g) || []).length, config.packages.length);
+assert.equal((packageGrid.innerHTML.match(/data-service-icon="circle-check-big"/g) || []).length, config.packages.reduce((sum, item) => sum + item.features.length, 0));
+for (const item of config.packages) {
+  assert.ok(packageGrid.innerHTML.includes(`href="/kontakt.html?paket=${encodeURIComponent(item.name)}#anfrage"`));
+}
+
+const messageField = { value: "" };
+const serviceSelect = {};
+elements.set("[data-form-status]", {});
+elements.set("#inquiry-form", {
+  querySelector: (selector) => selector === "#service" ? serviceSelect : selector === '[name="message"]' ? messageField : null,
+  addEventListener() {}
+});
+context.window.location.search = "?paket=Premium";
+context.initInquiryForm();
+assert.equal(messageField.value, "Ich interessiere mich für das Pflegepaket Premium.");
+messageField.value = "Meine eigene Nachricht";
+context.initInquiryForm();
+assert.equal(messageField.value, "Meine eigene Nachricht");
+messageField.value = "";
+context.window.location.search = "?paket=unknown";
+context.initInquiryForm();
+assert.equal(messageField.value, "");
 
 const calls = [];
 elements.set("#service-lackaufbereitung", {
@@ -82,4 +110,4 @@ assert.equal(frame.hidden, false);
 assert.equal(elements.get("[data-map-consent]").hidden, true);
 assert.equal(loadedClass, "is-loaded");
 
-console.log("UI checks passed: service links, checklists, deep links and map availability.");
+console.log("UI checks passed: service links, checklists, package inquiries, deep links and map availability.");

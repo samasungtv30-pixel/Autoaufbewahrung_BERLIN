@@ -313,13 +313,13 @@ function renderPackages() {
   const grid = qs("[data-packages-grid]");
   if (!grid) return;
   grid.innerHTML = siteConfig.packages.map((item, index) => `
-    <article class="package ${index === 1 ? "package--featured" : ""}">
-      <span class="package__label">Paket ${String(index + 1).padStart(2, "0")}</span>
+    <article class="package package--${["lime", "blue", "teal"][index % 3]} ${index === 1 ? "package--featured" : ""}">
+      <div class="package__top"><span class="package__label">${String(index + 1).padStart(2, "0")} / Pflegepaket</span><span class="package__icon" data-service-icon="${["brush-cleaning", "sparkles", "layers-2"][index % 3]}" aria-hidden="true"></span></div>
       <h3>${escapeHtml(item.name)}</h3>
-      <strong>${escapeHtml(item.price)}</strong>
       <p>${escapeHtml(item.description)}</p>
-      <ul>${item.features.map((feature) => `<li>${escapeHtml(feature)}</li>`).join("")}</ul>
-      <a class="button button--dark" href="${document.body.classList.contains("home") ? "#anfrage" : "/kontakt.html#anfrage"}">Paket anfragen</a>
+      <div class="package__price"><span>Individuelles Angebot</span><strong>${escapeHtml(item.price)}</strong></div>
+      <ul>${item.features.map((feature) => `<li><span data-service-icon="circle-check-big" aria-hidden="true"></span><span>${escapeHtml(feature)}</span></li>`).join("")}</ul>
+      <a class="button package__cta" href="/kontakt.html?paket=${encodeURIComponent(item.name)}#anfrage" aria-label="Pflegepaket ${escapeHtml(item.name)} anfragen">Paket anfragen<span data-service-icon="arrow-up-right" aria-hidden="true"></span></a>
     </article>
   `).join("");
 }
@@ -607,6 +607,10 @@ function initInquiryForm() {
   const requestedService = new URLSearchParams(window.location.search).get("service");
   const matchingService = activeServices().find((service) => service.slug === requestedService || service.title === requestedService);
   if (matchingService) serviceSelect.value = matchingService.title;
+  const requestedPackage = new URLSearchParams(window.location.search).get("paket");
+  const matchingPackage = siteConfig.packages.find((item) => item.name === requestedPackage);
+  const message = qs('[name="message"]', form);
+  if (matchingPackage && message && !message.value) message.value = `Ich interessiere mich für das Pflegepaket ${matchingPackage.name}.`;
 
   const setStatus = (message, type = "") => {
     status.textContent = message;
@@ -697,9 +701,9 @@ async function init() {
   initStickyActions();
   applyGlobalConfig();
   renderServices();
+  renderPackages();
   await hydrateServiceIcons();
   initServiceTimelines();
-  renderPackages();
   renderIndividualServices();
   renderReviews();
   renderFaq();

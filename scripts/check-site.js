@@ -69,7 +69,7 @@ for (const file of publicCopyFiles) {
 
 const config = JSON.parse(fs.readFileSync(path.join(root, "backend", "data", "site.json"), "utf8"));
 if (!config.logo || !existsForUrl(config.logo) || !config.logoAlt) errors.push("Zentrales Logo oder Alternativtext fehlt");
-for (const icon of ["circle-check-big", "phone", "message-circle"]) {
+for (const icon of ["circle-check-big", "phone", "message-circle", "layers-2", "brush-cleaning", "sparkles", "arrow-up-right", "arrow-right"]) {
   if (!fs.existsSync(path.join(frontend, "icons", `${icon}.svg`))) errors.push(`Kontakt-/Checklisten-Icon fehlt: ${icon}`);
 }
 const slugs = new Set();
