@@ -620,7 +620,7 @@ body.lightbox-open { overflow: hidden; }
   .service-card--premium .service-card__body { padding: 18px 16px 16px; }
   .service-card--premium h3 { margin: 0; font-size: 20px; }
   .service-card--premium p { min-height: 0; margin: 13px 0 17px; font-size: 12px; line-height: 1.55; }
-  .service-card__timeline { grid-auto-columns: minmax(58px, 1fr); padding-top: 10px; }
+  .service-card__timeline { grid-auto-columns: minmax(64px, 1fr); padding-top: 10px; }
   .service-card__actions { margin-top: 14px; }
   .service-card__primary, .service-card__chat { min-height: 42px; }
   .image-story { grid-template-columns: 1fr; }
