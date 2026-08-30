@@ -156,12 +156,46 @@ function applyGlobalConfig() {
 function renderServices(limit = 99) {
   const grid = qs("[data-services-grid]");
   if (!grid) return;
-  const services = activeServices().slice(0, limit);
+  const requestedSlugs = String(grid.dataset.servicesSlugs || "").split(",").map((slug) => slug.trim()).filter(Boolean);
+  const orderedServices = requestedSlugs.length
+    ? requestedSlugs.map((slug) => activeServices().find((service) => service.slug === slug)).filter(Boolean)
+    : activeServices();
+  const configuredLimit = Number.parseInt(grid.dataset.servicesLimit || "", 10);
+  const services = orderedServices.slice(0, Number.isFinite(configuredLimit) ? configuredLimit : limit);
   const jump = qs("[data-service-jump]");
   if (jump) {
     jump.innerHTML = services.map((service) => `
       <a href="#service-${escapeHtml(service.slug)}">${escapeHtml(service.navTitle || service.title)}</a>
     `).join("");
+  }
+  if (grid.dataset.servicesVariant === "home-teaser") {
+    grid.innerHTML = services.map((service, index) => `
+      <article class="home-service-card">
+        <a class="home-service-card__media" href="/${escapeHtml(service.slug)}.html">
+          <img src="${escapeHtml(service.image)}" alt="${escapeHtml(service.imageAlt)}" width="1536" height="1024" loading="lazy">
+        </a>
+        <div class="home-service-card__body">
+          <span class="home-service-card__icon" data-service-icon="${String(service.cardSteps[0]?.icon || "sparkles").replace(/[^a-z0-9-]/gi, "")}" aria-hidden="true"></span>
+          <span class="home-service-card__number">${String(index + 1).padStart(2, "0")}</span>
+          <h3><a href="/${escapeHtml(service.slug)}.html">${escapeHtml(service.title)}</a></h3>
+          <p>${escapeHtml(service.summary)}</p>
+        </div>
+      </article>
+    `).join("");
+    const process = qs("[data-featured-process]");
+    const processRoot = qs("[data-featured-service]");
+    const featured = activeServices().find((service) => service.slug === processRoot?.dataset.featuredService) || services[0];
+    if (process && featured) {
+      qs("[data-featured-process-title]").textContent = `So läuft ${featured.title} ab.`;
+      process.innerHTML = featured.cardSteps.map((step, index) => `
+        <li>
+          <small>${String(index + 1).padStart(2, "0")}</small>
+          <span data-service-icon="${String(step.icon).replace(/[^a-z0-9-]/gi, "")}" aria-hidden="true"></span>
+          <strong>${escapeHtml(step.label)}</strong>
+        </li>
+      `).join("");
+    }
+    return;
   }
   if (document.body.classList.contains("services-page") || document.body.classList.contains("home")) {
     grid.innerHTML = services.map((service, index) => {
@@ -245,7 +279,7 @@ async function hydrateServiceIcons() {
 }
 
 function initServiceTimelines() {
-  qsa(".service-card__timeline").forEach((timeline) => {
+  qsa(".service-card__timeline, .process-strip").forEach((timeline) => {
     timeline.addEventListener("keydown", (event) => {
       if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
       event.preventDefault();
