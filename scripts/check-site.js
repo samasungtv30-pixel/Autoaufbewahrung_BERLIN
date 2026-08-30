@@ -65,6 +65,9 @@ if ((contactHtml.match(/class="contact-channel(?:\s[^"]*)?"/g) || []).length !==
 if (contactHtml.includes('class="contact-hero"')) errors.push("kontakt.html: veralteter großer Hero gefunden");
 if (contactHtml.indexOf('id="standort"') < contactHtml.indexOf('id="inquiry-form"')) errors.push("kontakt.html: Standort muss nach dem Formular stehen");
 if (contactHtml.includes("contact-request-notes") || contactHtml.includes("contact-final")) errors.push("kontakt.html: doppelte Customer Journey gefunden");
+if (contactHtml.includes('class="contact-request-layout"')) errors.push("kontakt.html: schmale Formular-Seitenspalte gefunden");
+if ((contactHtml.match(/<fieldset class="contact-form__group">/g) || []).length !== 2) errors.push("kontakt.html: zwei semantische Formulargruppen erforderlich");
+if (!contactHtml.includes('aria-describedby="request-required"') || !contactHtml.includes('type="tel" name="phone"')) errors.push("kontakt.html: Formular-Beschreibung oder Telefon-Eingabetyp fehlt");
 if (fs.existsSync(path.join(frontend, "galerie.html")) || fs.existsSync(path.join(frontend, "js/site-data.js"))) errors.push("Öffentliche Galerie muss entfernt sein");
 const homeHtml = fs.readFileSync(path.join(frontend, "index.html"), "utf8");
 if (homeHtml.includes("data-featured-service") || homeHtml.includes('class="section home-benefits"')) errors.push("index.html: redundante Schwerpunktsection gefunden");

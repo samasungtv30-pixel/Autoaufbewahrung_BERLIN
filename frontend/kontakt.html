@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#090b0c">
   <meta name="description" content="Autoaufbereitung direkt per WhatsApp, Telefon, E-Mail oder Anfrageformular kontaktieren und Standort sowie Öffnungszeiten ansehen.">
   <title>Kontakt und Angebotsanfrage | Autoaufbereitung</title>
-  <link rel="preload" href="/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/css/style.css?v=25">
+  <link rel="preload" href="/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/css/style.css?v=26">
 </head>
 <body class="contact-page">
   <a class="skip-link" href="#main">Zum Inhalt springen</a>
@@ -22,29 +22,39 @@
       </div>
     </div></section>
 
-    <section class="section contact-conversion" id="anfrage"><div class="container">
-      <div class="contact-request-layout">
-        <div class="contact-request-intro reveal"><p class="eyebrow">Unverbindliche Anfrage</p><h2>Wie können<br> wir helfen?</h2><p>Beschreiben Sie Ihr Fahrzeug und die gewünschte Pflege. Gemeinsam klären wir den passenden Umfang.</p></div>
-        <form class="contact-form form-grid contact-surface reveal" id="inquiry-form">
-          <div class="contact-form__heading"><span class="contact-form__icon" data-service-icon="notebook-pen" aria-hidden="true"></span><h3>Ihr Fahrzeug. Ihr Wunsch.</h3></div>
-          <p class="form-note">Mit * gekennzeichnete Felder sind erforderlich.</p>
-          <div class="form-row"><label>Name *<input name="name" autocomplete="name" required></label><label>Telefon *<input name="phone" autocomplete="tel" inputmode="tel" required></label></div>
-          <div class="form-row"><label>E-Mail<input type="email" name="email" autocomplete="email"></label><label>Fahrzeug / Modell<input name="vehicle" autocomplete="off" placeholder="z. B. BMW 3er Touring"></label></div>
-          <label>Gewünschte Leistung<select name="service" id="service"></select></label>
-          <label>Nachricht / Fahrzeugzustand<textarea name="message" placeholder="Was soll aufbereitet werden? Welche Spuren oder Wünsche gibt es?"></textarea></label>
-          <label class="privacy-check"><input type="checkbox" name="privacy" value="accepted" required><span>Ich habe die <a href="/datenschutz.html">Datenschutzhinweise</a> gelesen und stimme der Verarbeitung meiner Angaben zur Bearbeitung der Anfrage zu. *</span></label>
-          <label class="honeypot" aria-hidden="true">Website<input name="website" tabindex="-1" autocomplete="off"></label>
-          <button class="button button--primary" type="submit">Anfrage senden <span data-service-icon="arrow-right" aria-hidden="true"></span></button>
-          <p data-form-status role="status" aria-live="polite"></p>
-        </form>
-
+    <section class="section contact-conversion" id="anfrage" aria-labelledby="request-title"><div class="container">
+      <div class="section-head contact-request-heading reveal">
+        <div><p class="eyebrow">Unverbindliche Anfrage</p><h2 id="request-title">Ihr Fahrzeug. Ihre Anfrage.</h2></div>
+        <p>Beschreiben Sie Ihren Pflegewunsch. Umfang und Angebot stimmen wir persönlich mit Ihnen ab.</p>
       </div>
+      <form class="contact-form form-grid contact-surface contact-request-form reveal" id="inquiry-form" aria-labelledby="request-title" aria-describedby="request-required">
+        <p class="form-note" id="request-required">Mit * gekennzeichnete Felder sind erforderlich.</p>
+        <div class="contact-form__groups">
+          <fieldset class="contact-form__group">
+            <legend><span data-service-icon="phone-call" aria-hidden="true"></span>Ihre Kontaktdaten</legend>
+            <div class="form-row"><label>Name *<input name="name" autocomplete="name" required></label><label>Telefon *<input type="tel" name="phone" autocomplete="tel" inputmode="tel" required></label></div>
+            <label>E-Mail<input type="email" name="email" autocomplete="email"></label>
+          </fieldset>
+          <fieldset class="contact-form__group">
+            <legend><span data-service-icon="scan-line" aria-hidden="true"></span>Ihr Fahrzeug</legend>
+            <label>Fahrzeug / Modell<input name="vehicle" autocomplete="off" placeholder="z. B. BMW 3er Touring"></label>
+            <label>Gewünschte Leistung<select name="service" id="service"></select></label>
+          </fieldset>
+        </div>
+        <label class="contact-form__message">Ihr Anliegen<textarea name="message" rows="3" placeholder="Welche Bereiche sollen gepflegt werden? Beschreiben Sie Zustand und Wünsche."></textarea></label>
+        <div class="contact-form__submit">
+          <label class="privacy-check"><input type="checkbox" name="privacy" value="accepted" required><span>Ich habe die <a href="/datenschutz.html">Datenschutzhinweise</a> gelesen und stimme der Verarbeitung meiner Angaben zur Bearbeitung der Anfrage zu. *</span></label>
+          <button class="button button--primary" type="submit">Unverbindlich anfragen <span data-service-icon="arrow-up-right" aria-hidden="true"></span></button>
+        </div>
+        <label class="honeypot" aria-hidden="true">Website<input name="website" tabindex="-1" autocomplete="off"></label>
+        <p data-form-status role="status" aria-live="polite"></p>
+      </form>
     </div></section>
 
-    <section class="section contact-visit" id="standort" aria-labelledby="location-title"><div class="container contact-visit-layout">
+    <section class="section contact-visit" id="standort" aria-labelledby="location-title"><div class="container">
+      <div class="section-head contact-visit-heading reveal"><p class="eyebrow">Ihr Weg zu uns</p><h2 id="location-title">Öffnungszeiten &amp; Anfahrt.</h2></div>
+      <div class="contact-visit-layout">
       <div class="contact-visit-copy reveal">
-        <p class="eyebrow">Standort &amp; Öffnungszeiten</p>
-        <h2 id="location-title">Besuchen Sie uns<br> vor Ort.</h2>
         <div class="contact-facts">
           <div><span data-service-icon="clock-3" aria-hidden="true"></span><div><small>Öffnungszeiten</small><ul class="hours-list" data-opening-hours></ul></div></div>
           <div><span data-service-icon="map-pinned" aria-hidden="true"></span><p><small>Adresse</small><strong data-address></strong></p></div>
@@ -54,6 +64,7 @@
         <div class="contact-map-shell"><iframe data-map-frame title="Google Maps Standort der Autoaufbereitung" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade" hidden></iframe><div class="contact-map-consent" data-map-consent><span class="contact-map-consent__icon" data-service-icon="map-pinned" aria-hidden="true"></span><p class="eyebrow">Google Maps</p><strong>Ihr Weg zu uns</strong><p data-map-copy>Die Karte wird erst nach Ihrer Zustimmung geladen.</p><button class="button button--primary" type="button" data-map-load>Karte laden</button></div></div>
         <a class="button button--ghost contact-route" data-maps-link href="#" target="_blank" rel="noopener noreferrer"><span data-service-icon="route" aria-hidden="true"></span>Route planen<span data-service-icon="arrow-up-right" aria-hidden="true"></span></a>
         <p class="external-note"><span data-service-icon="shield-check" aria-hidden="true"></span>Erst mit dem Laden der Karte werden Daten an Google übertragen.</p>
+      </div>
       </div>
     </div></section>
   </main>
