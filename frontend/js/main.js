@@ -122,7 +122,13 @@ function renderServices(limit = 99) {
   const grid = qs("[data-services-grid]");
   if (!grid) return;
   const services = activeServices().slice(0, limit);
-  if (document.body.classList.contains("services-page")) {
+  const jump = qs("[data-service-jump]");
+  if (jump) {
+    jump.innerHTML = services.map((service) => `
+      <a href="#service-${escapeHtml(service.slug)}">${escapeHtml(service.navTitle || service.title)}</a>
+    `).join("");
+  }
+  if (document.body.classList.contains("services-page") || document.body.classList.contains("home")) {
     grid.innerHTML = services.map((service, index) => {
       const themes = ["lime", "blue", "orange", "violet", "red", "teal", "yellow"];
       const theme = themes.includes(service.theme) ? service.theme : "lime";
@@ -136,7 +142,7 @@ function renderServices(limit = 99) {
         `;
       }).join("");
       return `
-        <article class="service-card service-card--premium service-card--${theme}">
+        <article class="service-card service-card--premium service-card--${theme}" id="service-${escapeHtml(service.slug)}">
           <div class="service-card__media">
             <img src="${escapeHtml(service.image)}" alt="${escapeHtml(service.imageAlt)}" width="1536" height="1024" loading="lazy">
           </div>
@@ -520,13 +526,29 @@ function initInquiryForm() {
   });
 }
 
+function initStickyActionCollision() {
+  const sticky = qs(".mobile-sticky-actions");
+  const targets = qsa(".service-card__actions, .contact-section");
+  if (!sticky || !targets.length || !("IntersectionObserver" in window)) return;
+  const visibleTargets = new Set();
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) visibleTargets.add(entry.target);
+      else visibleTargets.delete(entry.target);
+    });
+    sticky.classList.toggle("is-suppressed", visibleTargets.size > 0);
+  }, { threshold: 0.05, rootMargin: "0px 0px 64px" });
+  targets.forEach((target) => observer.observe(target));
+}
+
 async function init() {
   initNav();
   initMotion();
   await loadConfig();
   applyGlobalConfig();
-  renderServices(document.body.classList.contains("home") ? 6 : 99);
+  renderServices();
   await hydrateServiceIcons();
+  initStickyActionCollision();
   renderPackages();
   renderIndividualServices();
   renderReviews();

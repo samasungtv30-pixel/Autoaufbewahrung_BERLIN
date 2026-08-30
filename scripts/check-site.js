@@ -53,7 +53,7 @@ for (const file of publicCopyFiles) {
 const config = JSON.parse(fs.readFileSync(path.join(root, "backend", "data", "site.json"), "utf8"));
 const slugs = new Set();
 for (const service of config.services) {
-  for (const key of ["slug", "title", "summary", "image", "imageAlt", "accent", "cardSteps", "suitableFor", "benefits", "steps", "highlights"]) {
+  for (const key of ["slug", "navTitle", "title", "summary", "image", "imageAlt", "accent", "cardSteps", "suitableFor", "benefits", "steps", "highlights"]) {
     if (!service[key] || !service[key].length) errors.push(`Service ${service.slug || "ohne Slug"}: ${key} fehlt`);
   }
   if (slugs.has(service.slug)) errors.push(`Service-Slug doppelt: ${service.slug}`);

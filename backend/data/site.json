@@ -14,7 +14,7 @@
   ],
   "services": [
     {
-      "slug": "innenreinigung", "active": true, "title": "Innenraumaufbereitung", "summary": "Materialgerechte Reinigung von Sitzen, Teppichen, Kunststoffflächen und Kofferraum.", "priceFrom": "Preis auf Anfrage", "duration": "nach Fahrzeug-Check", "accent": "#b9f23d", "theme": "lime",
+      "slug": "innenreinigung", "active": true, "navTitle": "Innenraum", "title": "Innenraumaufbereitung", "summary": "Materialgerechte Reinigung von Sitzen, Teppichen, Kunststoffflächen und Kofferraum.", "priceFrom": "Preis auf Anfrage", "duration": "nach Fahrzeug-Check", "accent": "#b9f23d", "theme": "lime",
       "cardSteps": [{ "label": "Fahrzeug-Check", "icon": "scan-search" }, { "label": "Innenraumreinigung", "icon": "sparkles" }],
       "image": "/images/service-interior.webp", "imageAlt": "Darstellung einer professionellen Innenraumaufbereitung",
       "suitableFor": "Fahrzeuge mit sichtbaren Alltagsspuren, Flecken, Staub oder erhöhtem Pflegebedarf im Innenraum.",
@@ -23,7 +23,7 @@
       "highlights": ["Polster- und Lederpflege", "Teppich- und Kofferraumreinigung", "Detailreinigung von Kontaktflächen"]
     },
     {
-      "slug": "aussenreinigung", "active": true, "title": "Außenaufbereitung", "summary": "Schonende Fahrzeugwäsche, Lackreinigung und abgestimmte Pflege der Außenflächen.", "priceFrom": "Preis auf Anfrage", "duration": "nach Fahrzeug-Check", "accent": "#4e8cff", "theme": "blue",
+      "slug": "aussenreinigung", "active": true, "navTitle": "Außen", "title": "Außenaufbereitung", "summary": "Schonende Fahrzeugwäsche, Lackreinigung und abgestimmte Pflege der Außenflächen.", "priceFrom": "Preis auf Anfrage", "duration": "nach Fahrzeug-Check", "accent": "#4e8cff", "theme": "blue",
       "cardSteps": [{ "label": "Vorwäsche", "icon": "droplets" }, { "label": "Lackpflege", "icon": "shield-check" }],
       "image": "/images/service-exterior.webp", "imageAlt": "Darstellung einer schonenden Außenaufbereitung",
       "suitableFor": "Fahrzeuge, deren Lack, Felgen und Außenbauteile gründlich und schonend gepflegt werden sollen.",
@@ -32,7 +32,7 @@
       "highlights": ["Schonende Handwäsche", "Felgen- und Detailreinigung", "Optionale Lackpflege"]
     },
     {
-      "slug": "komplettaufbereitung", "active": true, "title": "Komplettaufbereitung", "summary": "Kombinierte Innen- und Außenpflege für einen ganzheitlich gepflegten Fahrzeugzustand.", "priceFrom": "Preis auf Anfrage", "duration": "nach Fahrzeug-Check", "accent": "#ff7b32", "theme": "orange",
+      "slug": "komplettaufbereitung", "active": true, "navTitle": "Komplett", "title": "Komplettaufbereitung", "summary": "Kombinierte Innen- und Außenpflege für einen ganzheitlich gepflegten Fahrzeugzustand.", "priceFrom": "Preis auf Anfrage", "duration": "nach Fahrzeug-Check", "accent": "#ff7b32", "theme": "orange",
       "cardSteps": [{ "label": "Gesamt-Check", "icon": "clipboard-check" }, { "label": "Aufbereitung", "icon": "wand-sparkles" }],
       "image": "/images/service-complete.webp", "imageAlt": "Darstellung einer kombinierten Innen- und Außenaufbereitung",
       "suitableFor": "Fahrzeuge vor Verkauf, Rückgabe, besonderen Anlässen oder bei umfassendem Pflegebedarf.",
@@ -41,7 +41,7 @@
       "highlights": ["Kombinierte Pflegebereiche", "Individuelle Zusammenstellung", "Abschlusskontrolle bei Übergabe"]
     },
     {
-      "slug": "lackaufbereitung", "active": true, "title": "Lackaufbereitung und Politur", "summary": "Lackanalyse, abgestimmte Politur und ein Finish passend zum aktuellen Lackzustand.", "priceFrom": "Preis auf Anfrage", "duration": "nach Lackanalyse", "accent": "#c65cff", "theme": "violet",
+      "slug": "lackaufbereitung", "active": true, "navTitle": "Lack", "title": "Lackaufbereitung und Politur", "summary": "Lackanalyse, abgestimmte Politur und ein Finish passend zum aktuellen Lackzustand.", "priceFrom": "Preis auf Anfrage", "duration": "nach Lackanalyse", "accent": "#c65cff", "theme": "violet",
       "cardSteps": [{ "label": "Lackanalyse", "icon": "scan-line" }, { "label": "Politur & Finish", "icon": "sparkles" }],
       "image": "/images/service-paint.webp", "imageAlt": "Darstellung einer professionellen Lackpolitur unter Prüflicht",
       "suitableFor": "Lacke mit mattem Eindruck, feinen Gebrauchsspuren oder dem Wunsch nach mehr Glanz und Farbtiefe.",
@@ -50,7 +50,7 @@
       "highlights": ["Lackanalyse", "Abgestimmte Polierstufen", "Finish-Kontrolle im Licht"]
     },
     {
-      "slug": "keramikversiegelung", "active": true, "title": "Keramikversiegelung", "summary": "Sorgfältige Lackvorbereitung und hydrophober Oberflächenschutz für ein hochwertiges Finish.", "priceFrom": "Preis auf Anfrage", "duration": "nach System und Fahrzeug", "accent": "#ff5050", "theme": "red",
+      "slug": "keramikversiegelung", "active": true, "navTitle": "Keramik", "title": "Keramikversiegelung", "summary": "Sorgfältige Lackvorbereitung und hydrophober Oberflächenschutz für ein hochwertiges Finish.", "priceFrom": "Preis auf Anfrage", "duration": "nach System und Fahrzeug", "accent": "#ff5050", "theme": "red",
       "cardSteps": [{ "label": "Vorbereitung", "icon": "brush-cleaning" }, { "label": "Versiegelung", "icon": "shield" }],
       "image": "/images/service-ceramic.webp", "imageAlt": "Darstellung einer Keramikversiegelung mit hydrophobem Lackeffekt",
       "suitableFor": "Fahrzeuge, bei denen Lackschutz, Pflegeleichtigkeit und ein hochwertiges Finish im Mittelpunkt stehen.",
@@ -59,8 +59,8 @@
       "highlights": ["Vorbereitung nach Lackzustand", "Kontrollierter Auftrag", "Hinweise für die Nachpflege"]
     },
     {
-      "slug": "felgenreparatur", "active": true, "title": "Felgenaufbereitung und Felgenreparatur", "summary": "Beratung und erste Einschätzung bei optischen Felgenschäden – auf Wunsch vorab per Foto.", "priceFrom": "Preis auf Anfrage", "duration": "nach Schadensprüfung", "accent": "#2bd4c7", "theme": "teal",
-      "cardSteps": [{ "label": "Schadensprüfung", "icon": "scan-search" }, { "label": "Aufbereitung & Finish", "icon": "wrench" }],
+      "slug": "felgenreparatur", "active": true, "navTitle": "Felgen", "title": "Felgenaufbereitung und Felgenreparatur", "summary": "Beratung und erste Einschätzung bei optischen Felgenschäden – auf Wunsch vorab per Foto.", "priceFrom": "Preis auf Anfrage", "duration": "nach Schadensprüfung", "accent": "#2bd4c7", "theme": "teal",
+      "cardSteps": [{ "label": "Schadenscheck", "icon": "scan-search" }, { "label": "Passende Aufbereitung", "icon": "wrench" }],
       "image": "/images/service-wheel.webp", "imageAlt": "Darstellung einer kosmetischen Felgenaufbereitung im Fachbereich",
       "suitableFor": "Felgen mit optischen Bordsteinspuren, Kratzern oder kleineren Lackbeschädigungen.",
       "benefits": ["Schnelle Ersteinschätzung per Foto", "Reparatur statt vorschnellem Austausch", "Schadenbezogene Beratung"],
@@ -68,7 +68,7 @@
       "highlights": ["Digitale Schadensaufnahme", "Individuelle Machbarkeitsprüfung", "Abgestimmtes Oberflächenfinish"]
     },
     {
-      "slug": "leasing", "active": true, "title": "Leasingrückgabe-Aufbereitung", "summary": "Gezielte Pflege und Zustandskontrolle vor einer anstehenden Leasingrückgabe.", "priceFrom": "Preis auf Anfrage", "duration": "nach Fahrzeug-Check", "accent": "#f2c62e", "theme": "yellow",
+      "slug": "leasing", "active": true, "navTitle": "Leasing", "title": "Leasingrückgabe-Aufbereitung", "summary": "Gezielte Pflege und Zustandskontrolle vor einer anstehenden Leasingrückgabe.", "priceFrom": "Preis auf Anfrage", "duration": "nach Fahrzeug-Check", "accent": "#f2c62e", "theme": "yellow",
       "cardSteps": [{ "label": "Check & Bewertung", "icon": "clipboard-check" }, { "label": "Rückgabevorbereitung", "icon": "circle-check-big" }],
       "image": "/images/service-leasing.webp", "imageAlt": "Darstellung einer Fahrzeugprüfung vor der Leasingrückgabe",
       "suitableFor": "Leasingfahrzeuge vor Rückgabe oder einer vorbereitenden Prüfung des optischen Pflegezustands.",
