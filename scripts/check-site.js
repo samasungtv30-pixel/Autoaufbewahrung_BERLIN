@@ -55,6 +55,10 @@ for (const marker of ["data-map-load", "data-map-frame", "name=\"vehicle\"", "da
   if (!contactHtml.includes(marker)) errors.push(`kontakt.html: Produktionsmarker fehlt ${marker}`);
 }
 if ((contactHtml.match(/class="contact-channel(?:\s[^"]*)?"/g) || []).length !== 4) errors.push("kontakt.html: vier direkte Kontaktkanäle erforderlich");
+if (contactHtml.includes('class="contact-hero"')) errors.push("kontakt.html: veralteter großer Hero gefunden");
+if (contactHtml.indexOf('id="standort"') < 0 || contactHtml.indexOf('id="standort"') > contactHtml.indexOf('id="inquiry-form"')) errors.push("kontakt.html: Standort muss vor dem Formular stehen");
+const servicesHtml = fs.readFileSync(path.join(frontend, "leistungen.html"), "utf8");
+if (/Bereiche entdecken|data-service-jump|detail-hero--services/.test(servicesHtml)) errors.push("leistungen.html: veralteter doppelter Einstieg gefunden");
 
 for (const file of publicCopyFiles) {
   const content = fs.readFileSync(file, "utf8");

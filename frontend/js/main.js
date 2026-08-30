@@ -178,14 +178,15 @@ function renderServices(limit = 99) {
   if (grid.dataset.servicesVariant === "home-teaser") {
     grid.innerHTML = services.map((service, index) => `
       <article class="home-service-card">
-        <a class="home-service-card__media" href="/${escapeHtml(service.slug)}.html">
+        <a class="home-service-card__media" href="/leistungen.html#service-${escapeHtml(service.slug)}" tabindex="-1">
           <img src="${escapeHtml(service.image)}" alt="${escapeHtml(service.imageAlt)}" width="1536" height="1024" loading="lazy">
         </a>
         <div class="home-service-card__body">
           <span class="home-service-card__icon" data-service-icon="${String(service.cardSteps[0]?.icon || "sparkles").replace(/[^a-z0-9-]/gi, "")}" aria-hidden="true"></span>
           <span class="home-service-card__number">${String(index + 1).padStart(2, "0")}</span>
-          <h3><a href="/${escapeHtml(service.slug)}.html">${escapeHtml(service.title)}</a></h3>
+          <h3>${escapeHtml(service.title)}</h3>
           <p>${escapeHtml(service.summary)}</p>
+          <a class="home-service-card__details" href="/leistungen.html#service-${escapeHtml(service.slug)}" aria-label="Details zur Leistung ${escapeHtml(service.title)}">Details ansehen <span data-service-icon="arrow-up-right" aria-hidden="true"></span></a>
         </div>
       </article>
     `).join("");
@@ -292,6 +293,20 @@ function initServiceTimelines() {
       timeline.scrollBy({ left: direction * 72, behavior: "smooth" });
     });
   });
+}
+
+function initServiceDeepLinks() {
+  if (!document.body.classList.contains("services-page")) return;
+  const revealTarget = () => {
+    const target = document.getElementById(window.location.hash.slice(1));
+    if (!target?.classList.contains("service-card--premium")) return;
+    // The service cards are loaded from config after the browser's initial anchor jump.
+    target.setAttribute("tabindex", "-1");
+    target.scrollIntoView({ behavior: "instant", block: "start" });
+    target.focus({ preventScroll: true });
+  };
+  revealTarget();
+  window.addEventListener("hashchange", revealTarget);
 }
 
 function renderPackages() {
@@ -695,6 +710,7 @@ async function init() {
   initGalleryLightbox();
   renderServicePage();
   initInquiryForm();
+  initServiceDeepLinks();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
