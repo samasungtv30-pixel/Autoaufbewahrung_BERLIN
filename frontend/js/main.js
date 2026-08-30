@@ -12,6 +12,7 @@ let siteConfig = null;
 
 const qs = (selector, root = document) => root.querySelector(selector);
 const qsa = (selector, root = document) => [...root.querySelectorAll(selector)];
+const activeServices = () => siteConfig.services.filter((service) => service.active !== false);
 
 function escapeHtml(value) {
   return String(value || "")
@@ -110,7 +111,7 @@ function applyGlobalConfig() {
   });
   qsa("[data-call-link]").forEach((el) => { el.href = `tel:${cleanPhone(siteConfig.phone)}`; });
   qsa("[data-whatsapp-link]").forEach((el) => {
-    el.href = whatsappUrl("Hallo, ich moechte ein Angebot fuer eine Autoaufbereitung anfragen.");
+    el.href = whatsappUrl("Hallo, ich möchte ein Angebot für eine Autoaufbereitung anfragen.");
   });
   qsa("[data-mail-link]").forEach((el) => { el.href = `mailto:${siteConfig.email}`; });
   qsa("[data-email]").forEach((el) => { el.textContent = siteConfig.email; });
@@ -120,7 +121,7 @@ function applyGlobalConfig() {
 function renderServices(limit = 99) {
   const grid = qs("[data-services-grid]");
   if (!grid) return;
-  grid.innerHTML = siteConfig.services.slice(0, limit).map((service, index) => `
+  grid.innerHTML = activeServices().slice(0, limit).map((service, index) => `
     <article class="service-card">
       <div class="service-card__media">
         <img src="${escapeHtml(service.image)}" alt="${escapeHtml(service.imageAlt)}" width="1536" height="1024" loading="lazy">
@@ -132,10 +133,9 @@ function renderServices(limit = 99) {
       </div>
       <h3>${escapeHtml(service.title)}</h3>
       <p>${escapeHtml(service.summary)}</p>
-      ${service.confirmed ? "" : '<span class="content-status">Leistungsumfang noch zu bestaetigen</span>'}
       <div class="service-card__footer">
         <strong>${escapeHtml(service.priceFrom)}</strong>
-        <a href="/${escapeHtml(service.slug)}.html">Details</a>
+        <a href="/${escapeHtml(service.slug)}.html">Angebot anfragen</a>
       </div>
     </article>
   `).join("");
@@ -146,7 +146,7 @@ function renderPackages() {
   if (!grid) return;
   grid.innerHTML = siteConfig.packages.map((item, index) => `
     <article class="package ${index === 1 ? "package--featured" : ""}">
-      <span class="package__label">Paketstruktur ${String(index + 1).padStart(2, "0")}</span>
+      <span class="package__label">Paket ${String(index + 1).padStart(2, "0")}</span>
       <h3>${escapeHtml(item.name)}</h3>
       <strong>${escapeHtml(item.price)}</strong>
       <p>${escapeHtml(item.description)}</p>
@@ -229,7 +229,7 @@ function initGalleryLightbox() {
   lightbox.className = "lightbox";
   lightbox.setAttribute("role", "dialog");
   lightbox.setAttribute("aria-modal", "true");
-  lightbox.setAttribute("aria-label", "Galeriebild vergrössert");
+  lightbox.setAttribute("aria-label", "Galeriebild vergrößert");
   lightbox.innerHTML = `
     <button class="lightbox__close" type="button" aria-label="Galerie schliessen">×</button>
     <figure class="lightbox__content">
@@ -253,7 +253,7 @@ function initGalleryLightbox() {
   items.forEach((item) => {
     item.tabIndex = 0;
     item.setAttribute("role", "button");
-    item.setAttribute("aria-label", `${qs("figcaption", item)?.textContent || "Galeriebild"} vergrössern`);
+    item.setAttribute("aria-label", `${qs("figcaption", item)?.textContent || "Galeriebild"} vergrößern`);
     const open = () => {
       const source = qs("img", item);
       trigger = item;
@@ -319,7 +319,10 @@ function renderServicePage() {
   const slug = SERVICE_PAGE_SLUGS[window.location.pathname];
   if (!slug) return;
   const service = siteConfig.services.find((item) => item.slug === slug);
-  if (!service) return;
+  if (!service || service.active === false) {
+    window.location.replace("/leistungen.html");
+    return;
+  }
   document.title = `${service.title} | ${siteConfig.siteName}`;
   qs("[data-service-title]").textContent = service.title;
   qs("[data-service-summary]").textContent = service.summary;
@@ -331,8 +334,6 @@ function renderServicePage() {
   if (benefits) benefits.innerHTML = service.benefits.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
   const steps = qs("[data-service-steps]");
   if (steps) steps.innerHTML = service.steps.map((item, index) => `<li><span>${String(index + 1).padStart(2, "0")}</span>${escapeHtml(item)}</li>`).join("");
-  const status = qs("[data-service-status]");
-  if (status) status.hidden = service.confirmed;
   const hero = qs(".service-hero");
   if (hero && !qs(".service-hero__media", hero)) {
     const image = document.createElement("img");
@@ -349,7 +350,7 @@ function renderServicePage() {
     hero.prepend(image);
   }
   qsa("[data-service-whatsapp]").forEach((link) => {
-    link.href = whatsappUrl(`Hallo, ich moechte ein Angebot fuer ${service.title} anfragen.`);
+    link.href = whatsappUrl(`Hallo, ich möchte ein Angebot für ${service.title} anfragen.`);
   });
 }
 
@@ -375,7 +376,7 @@ function initNav() {
 
   const close = (restoreFocus = false) => {
     toggle.setAttribute("aria-expanded", "false");
-    toggle.setAttribute("aria-label", "Menue oeffnen");
+    toggle.setAttribute("aria-label", "Menü öffnen");
     toggle.classList.remove("is-open");
     panel.classList.remove("is-open");
     backdrop.classList.remove("is-open");
@@ -385,7 +386,7 @@ function initNav() {
 
   const open = () => {
     toggle.setAttribute("aria-expanded", "true");
-    toggle.setAttribute("aria-label", "Menue schliessen");
+    toggle.setAttribute("aria-label", "Menü schließen");
     toggle.classList.add("is-open");
     panel.classList.add("is-open");
     backdrop.classList.add("is-open");
@@ -426,7 +427,7 @@ function initInquiryForm() {
   if (!form) return;
   const status = qs("[data-form-status]");
   const serviceSelect = qs("#service", form);
-  serviceSelect.innerHTML = siteConfig.services.map((service) => `<option value="${escapeHtml(service.title)}">${escapeHtml(service.title)}</option>`).join("");
+  serviceSelect.innerHTML = activeServices().map((service) => `<option value="${escapeHtml(service.title)}">${escapeHtml(service.title)}</option>`).join("");
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -443,11 +444,11 @@ function initInquiryForm() {
       const result = await response.json();
       if (!response.ok || !result.success) throw new Error(result.error || "Anfrage konnte nicht gesendet werden.");
       if (result.emailSent) {
-        status.textContent = "Vielen Dank. Ihre Anfrage wurde per E-Mail uebermittelt.";
+        status.textContent = "Vielen Dank. Ihre Anfrage wurde per E-Mail übermittelt.";
       } else if (result.emailStatus === "not_configured") {
-        status.textContent = "Vielen Dank. Ihre Anfrage wurde gespeichert; der E-Mail-Versand wird noch eingerichtet.";
+        status.textContent = "Vielen Dank. Ihre Anfrage wurde erfasst. Wir melden uns schnellstmöglich bei Ihnen.";
       } else {
-        status.textContent = "Ihre Anfrage wurde gespeichert, aber die E-Mail-Zustellung konnte nicht bestaetigt werden. Bitte nutzen Sie bei dringenden Anliegen Telefon oder WhatsApp.";
+        status.textContent = "Ihre Anfrage wurde gespeichert, aber die E-Mail-Zustellung konnte nicht bestätigt werden. Bitte nutzen Sie bei dringenden Anliegen Telefon oder WhatsApp.";
       }
       form.reset();
     } catch (error) {
@@ -480,6 +481,6 @@ document.addEventListener("DOMContentLoaded", () => {
   init().catch((error) => {
     console.error(error);
     const fallback = qs("[data-app-error]");
-    if (fallback) fallback.textContent = "Die Website konnte nicht vollstaendig geladen werden.";
+    if (fallback) fallback.textContent = "Die Website konnte nicht vollständig geladen werden.";
   });
 });

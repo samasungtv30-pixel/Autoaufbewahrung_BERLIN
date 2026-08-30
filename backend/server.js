@@ -127,7 +127,7 @@ async function handleInquiry(req, res) {
     const now = Date.now();
     const recentAttempts = (inquiryAttempts.get(clientIp) || []).filter((time) => now - time < 10 * 60 * 1000);
     if (recentAttempts.length >= 5) {
-      send(res, 429, JSON.stringify({ error: "Zu viele Anfragen. Bitte versuchen Sie es spaeter erneut oder nutzen Sie Telefon beziehungsweise WhatsApp." }), MIME_TYPES[".json"]);
+      send(res, 429, JSON.stringify({ error: "Zu viele Anfragen. Bitte versuchen Sie es später erneut oder nutzen Sie Telefon beziehungsweise WhatsApp." }), MIME_TYPES[".json"]);
       return;
     }
     recentAttempts.push(now);
@@ -152,7 +152,7 @@ async function handleInquiry(req, res) {
 
     const emailIsValid = !inquiry.email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inquiry.email);
     if (inquiry.name.length < 2 || inquiry.phone.length < 5 || !emailIsValid || payload.privacy !== "accepted") {
-      send(res, 400, JSON.stringify({ error: "Bitte Pflichtfelder ausfuellen und die Datenschutzhinweise bestaetigen." }), MIME_TYPES[".json"]);
+      send(res, 400, JSON.stringify({ error: "Bitte Pflichtfelder ausfüllen und die Datenschutzhinweise bestätigen." }), MIME_TYPES[".json"]);
       return;
     }
 
@@ -228,5 +228,5 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Autoaufbereitung Website laeuft auf http://localhost:${PORT}`);
+  console.log(`Autoaufbereitung Website läuft auf http://localhost:${PORT}`);
 });

@@ -57,7 +57,7 @@ async function sendInquiryEmail(inquiry, siteConfig) {
     text: rows.map(([label, value]) => `${label}: ${value}`).join("\n\n"),
     html: `
       <div style="font-family:Arial,sans-serif;max-width:640px;margin:auto;color:#171b1d">
-        <h1 style="font-size:24px">Neue Anfrage ueber die Website</h1>
+        <h1 style="font-size:24px">Neue Anfrage über die Website</h1>
         <table style="width:100%;border-collapse:collapse">
           ${rows.map(([label, value]) => `
             <tr>

@@ -330,9 +330,6 @@ textarea { min-height: 132px; resize: vertical; }
 .gallery-item figcaption { height: 44px; margin: 0; padding: 12px 14px; color: var(--muted); font-size: 12px; }
 
 .detail-hero__actions { display: flex; align-items: center; gap: 24px; margin-top: 32px; }
-.content-status { display: inline-flex; width: fit-content; margin: 0 0 18px; padding: 6px 9px; border: 1px solid rgba(206,242,76,.3); color: var(--accent); background: rgba(206,242,76,.035); font-size: 9px; font-weight: 850; line-height: 1.3; text-transform: uppercase; }
-.service-card .content-status { margin: 0 0 22px; }
-.content-status--hero { margin-top: 26px; margin-bottom: 0; }
 
 .gallery-filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
 .gallery-filters button { min-height: 40px; padding: 8px 14px; border: 1px solid var(--line); color: var(--muted); background: transparent; cursor: pointer; font-size: 11px; font-weight: 800; transition: color .25s ease, border-color .25s ease, background .25s ease; }
@@ -602,7 +599,6 @@ body.lightbox-open { overflow: hidden; }
   .hero-inner, .container { width: calc(100% - 40px); }
   h1 { font-size: 42px; }
   h2 { font-size: 34px; }
-  .hero-proof span { display: none; }
   .contact-quick { grid-template-columns: 1fr; }
   .footer-grid { grid-template-columns: 1fr; }
   .footer-grid > div:first-child { grid-column: auto; }

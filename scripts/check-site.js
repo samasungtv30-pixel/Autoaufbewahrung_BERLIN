@@ -5,6 +5,16 @@ const root = path.join(__dirname, "..");
 const frontend = path.join(root, "frontend");
 const htmlFiles = fs.readdirSync(frontend).filter((file) => file.endsWith(".html"));
 const errors = [];
+const publicCopyFiles = [
+  ...htmlFiles.map((file) => path.join(frontend, file)),
+  path.join(frontend, "js", "main.js"),
+  path.join(root, "backend", "data", "site.json")
+];
+const forbiddenPublicCopy = [
+  { pattern: /neu\s+(?:eröffnet|eroeffnet)|neu eröffneter|neu eroeffneter/i, label: "unbestätigte Neueröffnungs-Aussage" },
+  { pattern: /Go-Live|Prüffassung|Prueffassung|Kundenfreigabe|Kundendaten|Paketstruktur|Leistungsstruktur|vorbereiteter Leistungsbereich|wird noch eingerichtet/i, label: "interner Entwicklungsbegriff" },
+  { pattern: /\b(?:fuer|spaeter|eroeffnet|Qualitaet|Flaeche|koennen|persoenlich|Rueckmeldung|Einschaetzung|Pruefung|Uebergabe|Oeffnungszeiten|gewuenscht\w*|Moeglich\w*)\b/, label: "ASCII-Ersatzschreibweise" }
+];
 
 function existsForUrl(url) {
   const pathname = url.split(/[?#]/)[0];
@@ -32,6 +42,13 @@ for (const file of htmlFiles) {
   }
 }
 
+for (const file of publicCopyFiles) {
+  const content = fs.readFileSync(file, "utf8");
+  for (const rule of forbiddenPublicCopy) {
+    if (rule.pattern.test(content)) errors.push(`${path.relative(root, file)}: ${rule.label} gefunden`);
+  }
+}
+
 const config = JSON.parse(fs.readFileSync(path.join(root, "backend", "data", "site.json"), "utf8"));
 const slugs = new Set();
 for (const service of config.services) {
@@ -42,6 +59,7 @@ for (const service of config.services) {
   slugs.add(service.slug);
   if (!fs.existsSync(path.join(frontend, `${service.slug}.html`))) errors.push(`Leistungsseite fehlt: ${service.slug}.html`);
   if (service.image && !existsForUrl(service.image)) errors.push(`Service-Bild fehlt: ${service.image}`);
+  if (typeof service.active !== "boolean") errors.push(`Service ${service.slug}: active muss true oder false sein`);
 }
 
 if (errors.length) {
