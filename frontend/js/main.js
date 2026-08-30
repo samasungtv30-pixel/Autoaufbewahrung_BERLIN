@@ -509,6 +509,14 @@ function initNav() {
 
   panel.id = "mobile-navigation";
   toggle.setAttribute("aria-controls", panel.id);
+  const currentPath = window.location.pathname;
+  qsa(":scope > a", panel).forEach((link) => {
+    const href = link.getAttribute("href") || "";
+    const isServiceArea = href === "/leistungen.html" && (currentPath === "/leistungen.html" || SERVICE_PAGE_SLUGS[currentPath]);
+    const isCurrent = href === currentPath || isServiceArea;
+    if (isCurrent) link.setAttribute("aria-current", "page");
+    else link.removeAttribute("aria-current");
+  });
   panel.insertAdjacentHTML("beforeend", `
     <div class="nav-menu-meta">
       <p>Direkter Kontakt</p>
@@ -576,6 +584,9 @@ function initInquiryForm() {
   const status = qs("[data-form-status]");
   const serviceSelect = qs("#service", form);
   serviceSelect.innerHTML = `<option value="">Bitte wählen</option>${activeServices().map((service) => `<option value="${escapeHtml(service.title)}">${escapeHtml(service.title)}</option>`).join("")}`;
+  const requestedService = new URLSearchParams(window.location.search).get("service");
+  const matchingService = activeServices().find((service) => service.slug === requestedService || service.title === requestedService);
+  if (matchingService) serviceSelect.value = matchingService.title;
 
   const setStatus = (message, type = "") => {
     status.textContent = message;
@@ -639,7 +650,7 @@ function initContactMap() {
 
 function initStickyActionCollision() {
   const sticky = qs(".mobile-sticky-actions");
-  const targets = qsa(".service-card__actions, .contact-section");
+  const targets = qsa(".service-card__actions, .contact-conversion, .contact-final, .site-footer");
   if (!sticky || !targets.length || !("IntersectionObserver" in window)) return;
   const visibleTargets = new Set();
   const observer = new IntersectionObserver((entries) => {

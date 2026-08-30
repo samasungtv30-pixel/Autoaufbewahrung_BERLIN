@@ -87,7 +87,6 @@ function handleSitemap(req, res) {
     "/keramikversiegelung.html",
     "/leasing.html",
     "/preise.html",
-    "/galerie.html",
     "/kontakt.html"
   ];
   const urls = pages.map((page, index) => [
