@@ -51,6 +51,7 @@ function serverHarness(deliver, env = {}) {
       if (name === "fs") return disk;
       if (name === "dotenv") return { config() {} };
       if (name === "./mailer") return { sendInquiryEmail: deliver };
+      if (name === "./render") return require("../backend/render");
       return require(name);
     },
   });
@@ -283,7 +284,10 @@ test("a failed decorative icon cannot block form initialization", async () => {
   const calls = [];
   const context = vm.createContext({
     console,
-    document: { addEventListener() {}, querySelectorAll: () => [{ dataset: { serviceIcon: "phone" } }] },
+    document: {
+      addEventListener() {},
+      querySelectorAll: () => [{ dataset: { serviceIcon: "phone" }, querySelector: () => null }],
+    },
     fetch: async () => {
       throw new Error("Icon unavailable");
     },
@@ -295,15 +299,8 @@ test("a failed decorative icon cannot block form initialization", async () => {
     "initNav",
     "initMotion",
     "loadConfig",
-    "renderServicePage",
+    "initImageFallbacks",
     "applyGlobalConfig",
-    "renderServices",
-    "renderPackages",
-    "initServiceTimelines",
-    "renderIndividualServices",
-    "renderReviews",
-    "renderFaq",
-    "renderOpeningHours",
     "initContactMap",
     "initInquiryForm",
     "initServiceDeepLinks",
@@ -315,7 +312,7 @@ test("a failed decorative icon cannot block form initialization", async () => {
   }
   await context.init();
   assert.ok(calls.indexOf("initInquiryForm") < calls.indexOf("hydrateServiceIcons"));
-  assert.ok(calls.indexOf("renderServicePage") < calls.indexOf("applyGlobalConfig"));
+  assert.ok(calls.indexOf("loadConfig") < calls.indexOf("applyGlobalConfig"));
 });
 
 test("form resets only after confirmed mail acceptance; failures preserve input", async () => {
@@ -330,7 +327,8 @@ test("form resets only after confirmed mail acceptance; failures preserve input"
     const button = {};
     const status = { classList: { toggle() {} } };
     const form = {
-      querySelector: (selector) => (selector === 'button[type="submit"]' ? button : {}),
+      querySelector: (selector) =>
+        selector === 'button[type="submit"]' ? button : selector === '[name="phone"]' ? null : {},
       addEventListener: (_, callback) => {
         submit = callback;
       },

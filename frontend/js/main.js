@@ -22,49 +22,12 @@ function escapeHtml(value) {
     .replace(/"/g, "&quot;");
 }
 
-function cleanPhone(phone) {
-  return String(phone || "").replace(/[^\d+]/g, "");
-}
+const hasUsableAddress = () => Boolean(window.AutoBusiness.mapDestination(siteConfig.address));
 
-function whatsappUrl(message) {
-  const base = siteConfig?.whatsapp || "";
-  const separator = base.includes("?") ? "&" : "?";
-  return `${base}${separator}text=${encodeURIComponent(message)}`;
-}
-
-function hasPlaceholder(value) {
-  return /\[[^\]]+\]/.test(String(value || ""));
-}
-
-function hasUsablePhone(value) {
-  const digits = cleanPhone(value).replace(/\D/g, "").replace(/^49/, "");
-  return digits.length >= 6 && !/^0+$/.test(digits);
-}
-
-function hasUsableWhatsapp(value) {
-  try {
-    const url = new URL(value);
-    return (
-      url.protocol === "https:" &&
-      url.hostname === "wa.me" &&
-      /^\/\d+$/.test(url.pathname) &&
-      hasUsablePhone(url.pathname)
-    );
-  } catch {
-    return false;
-  }
-}
-
-function hasUsableEmail(value) {
-  const email = String(value || "").trim();
-  return !hasPlaceholder(email) && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && !/\.example$/i.test(email);
-}
-
-function hasUsableAddress() {
-  if (!siteConfig?.address) return false;
-  return [siteConfig.address.street, siteConfig.address.zip, siteConfig.address.city].every(
-    (value) => String(value || "").trim() && !hasPlaceholder(value),
-  );
+function loadConfig() {
+  const element = document.getElementById("site-config");
+  if (!element) throw new Error("Seitenkonfiguration fehlt.");
+  siteConfig = JSON.parse(element.textContent);
 }
 
 function setActionAvailability(selector, available, href) {
@@ -82,226 +45,26 @@ function setActionAvailability(selector, available, href) {
   });
 }
 
-async function loadConfig() {
-  const response = await fetch(`/api/config?v=${Date.now()}`, { cache: "no-store" });
-  if (!response.ok) throw new Error("Konfiguration konnte nicht geladen werden.");
-  siteConfig = await response.json();
-  window.siteConfig = siteConfig;
-}
-
 function applyGlobalConfig() {
-  if (document.body.classList.contains("home")) {
-    document.title = `${siteConfig.siteName} | Premium Autoaufbereitung`;
-  } else if (document.title.endsWith("| Autoaufbereitung")) {
-    document.title = document.title.replace(/\| Autoaufbereitung$/, `| ${siteConfig.siteName}`);
-  }
-  const descriptionMeta = qs('meta[name="description"]');
-  if (descriptionMeta && !descriptionMeta.content.trim()) descriptionMeta.content = siteConfig.claim;
-  const canonicalUrl = `${siteConfig.publicUrl.replace(/\/+$/, "")}${window.location.pathname === "/index.html" ? "/" : window.location.pathname}`;
-  let canonical = qs('link[rel="canonical"]');
-  if (!canonical) {
-    canonical = document.createElement("link");
-    canonical.rel = "canonical";
-    document.head.append(canonical);
-  }
-  canonical.href = canonicalUrl;
-  const socialMeta = {
-    "og:title": document.title,
-    "og:description": descriptionMeta?.content || siteConfig.claim,
-    "og:type": "website",
-    "og:url": canonicalUrl,
-    "og:image": `${siteConfig.publicUrl.replace(/\/+$/, "")}/images/premium-hero.webp`,
-  };
-  Object.entries(socialMeta).forEach(([property, content]) => {
-    let meta = qs(`meta[property="${property}"]`);
-    if (!meta) {
-      meta = document.createElement("meta");
-      meta.setAttribute("property", property);
-      document.head.append(meta);
-    }
-    meta.content = content;
-  });
-  const businessDataIsComplete =
-    siteConfig.indexingEnabled === true &&
-    hasUsablePhone(siteConfig.phone) &&
-    hasUsableEmail(siteConfig.email) &&
-    ![
-      siteConfig.siteName,
-      siteConfig.phone,
-      siteConfig.email,
-      siteConfig.address.street,
-      siteConfig.address.zip,
-      siteConfig.address.city,
-    ].some(hasPlaceholder);
-  if (businessDataIsComplete) {
-    const schema = document.createElement("script");
-    schema.type = "application/ld+json";
-    schema.textContent = JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "AutoRepair",
-      name: siteConfig.siteName,
-      url: siteConfig.publicUrl,
-      telephone: siteConfig.phone,
-      email: siteConfig.email,
-      address: {
-        "@type": "PostalAddress",
-        streetAddress: siteConfig.address.street,
-        postalCode: siteConfig.address.zip,
-        addressLocality: siteConfig.address.city,
-        addressCountry: "DE",
-      },
-    });
-    document.head.append(schema);
-  }
-  qsa("[data-site-name]").forEach((el) => {
-    el.textContent = siteConfig.siteName;
-  });
-  qsa("[data-brand-logo]").forEach((el) => {
-    el.src = siteConfig.logo || "/images/brand-logo.svg";
-    el.alt = siteConfig.logoAlt || "Autoaufbereitung Berlin";
-  });
-  qsa("[data-claim]").forEach((el) => {
-    el.textContent = siteConfig.claim;
-  });
   qsa("[data-phone]").forEach((el) => {
     el.textContent = siteConfig.phone;
   });
-  qsa("[data-address]").forEach((el) => {
-    el.textContent = `${siteConfig.address.street}, ${siteConfig.address.zip} ${siteConfig.address.city}`;
-  });
-  qsa("[data-email]").forEach((el) => {
-    el.textContent = siteConfig.email;
-  });
-  const phoneAvailable = hasUsablePhone(siteConfig.phone);
-  const whatsappAvailable = hasUsableWhatsapp(siteConfig.whatsapp);
-  const emailAvailable = hasUsableEmail(siteConfig.email);
-  const mapsAvailable = hasUsableAddress();
-  const destination = `${siteConfig.address.street}, ${siteConfig.address.zip} ${siteConfig.address.city}`;
-  setActionAvailability("[data-call-link]", phoneAvailable, `tel:${cleanPhone(siteConfig.phone)}`);
-  setActionAvailability(
-    "[data-whatsapp-link]",
-    whatsappAvailable,
-    whatsappUrl("Hallo, ich möchte ein Angebot für eine Autoaufbereitung anfragen."),
-  );
-  setActionAvailability("[data-mail-link]", emailAvailable, `mailto:${siteConfig.email}`);
-  setActionAvailability(
-    "[data-maps-link]",
-    mapsAvailable,
-    `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`,
-  );
+  const links = window.AutoBusiness.contactLinks(siteConfig);
+  for (const [selector, href] of Object.entries({
+    "[data-call-link]": links.phone,
+    "[data-whatsapp-link]": links.whatsapp,
+    "[data-mail-link]": links.email,
+    "[data-maps-link]": links.route,
+  }))
+    setActionAvailability(selector, Boolean(href), href);
   qsa(".mobile-sticky-actions a").forEach((link) => {
     const unavailable = link.getAttribute("aria-disabled") === "true";
-    qs("small", link).textContent = unavailable ? "Nummer folgt" : "";
+    const note = qs("small", link);
+    if (note) note.textContent = unavailable ? "Nummer folgt" : "";
     link.title = unavailable
       ? "Die Kontaktnummer wird noch ergänzt. Bitte nutzen Sie das Anfrageformular."
       : "";
   });
-}
-
-function renderServices(limit = 99) {
-  const grid = qs("[data-services-grid]");
-  if (!grid) return;
-  const requestedSlugs = String(grid.dataset.servicesSlugs || "")
-    .split(",")
-    .map((slug) => slug.trim())
-    .filter(Boolean);
-  const orderedServices = requestedSlugs.length
-    ? requestedSlugs.map((slug) => activeServices().find((service) => service.slug === slug)).filter(Boolean)
-    : activeServices();
-  const configuredLimit = Number.parseInt(grid.dataset.servicesLimit || "", 10);
-  const services = orderedServices.slice(0, Number.isFinite(configuredLimit) ? configuredLimit : limit);
-  const jump = qs("[data-service-jump]");
-  if (jump) {
-    jump.innerHTML = services
-      .map(
-        (service) => `
-      <a href="#service-${escapeHtml(service.slug)}">${escapeHtml(service.navTitle || service.title)}</a>
-    `,
-      )
-      .join("");
-  }
-  if (grid.dataset.servicesVariant === "home-teaser") {
-    grid.innerHTML = services
-      .map(
-        (service, index) => `
-      <article class="home-service-card">
-        <a class="home-service-card__media" href="/leistungen.html#service-${escapeHtml(service.slug)}" tabindex="-1">
-          <img src="${escapeHtml(service.image)}" alt="${escapeHtml(service.imageAlt)}" width="1536" height="1024" loading="lazy">
-        </a>
-        <div class="home-service-card__body">
-          <span class="home-service-card__icon" data-service-icon="${String(service.cardSteps[0]?.icon || "sparkles").replace(/[^a-z0-9-]/gi, "")}" aria-hidden="true"></span>
-          <span class="home-service-card__number">${String(index + 1).padStart(2, "0")}</span>
-          <h3>${escapeHtml(service.title).replace(/aufbereitung/g, "&shy;aufbereitung")}</h3>
-          <p>${escapeHtml(service.summary)}</p>
-          <a class="home-service-card__details" href="/leistungen.html#service-${escapeHtml(service.slug)}" aria-label="Details zur Leistung ${escapeHtml(service.title)}">Details ansehen <span data-service-icon="arrow-up-right" aria-hidden="true"></span></a>
-        </div>
-      </article>
-    `,
-      )
-      .join("");
-    return;
-  }
-  if (document.body.classList.contains("services-page") || document.body.classList.contains("home")) {
-    grid.innerHTML = services
-      .map((service, index) => {
-        const themes = ["lime", "blue", "orange", "violet", "red", "teal", "yellow"];
-        const theme = themes.includes(service.theme) ? service.theme : "lime";
-        const steps = service.cardSteps
-          .map((step) => {
-            return `
-          <li>
-            <span data-service-icon="circle-check-big" aria-hidden="true"></span>
-            <span>${escapeHtml(step.label)}</span>
-          </li>
-        `;
-          })
-          .join("");
-        return `
-        <article class="service-card service-card--premium service-card--${theme}" id="service-${escapeHtml(service.slug)}">
-          <div class="service-card__media">
-            <img src="${escapeHtml(service.image)}" alt="${escapeHtml(service.imageAlt)}" width="1536" height="1024" loading="lazy">
-          </div>
-          <div class="service-card__body">
-            <div class="service-card__heading">
-              <span>${String(index + 1).padStart(2, "0")}</span>
-              <h3>${escapeHtml(service.title)}</h3>
-            </div>
-            <p>${escapeHtml(service.summary)}</p>
-            <ul class="service-checklist" aria-label="Typische Arbeitsschritte für ${escapeHtml(service.title)}">${steps}</ul>
-            <div class="service-card__actions">
-              <a class="service-card__primary" href="/${escapeHtml(service.slug)}.html">Angebot anfragen</a>
-              <a class="service-card__chat${hasUsableWhatsapp(siteConfig.whatsapp) ? "" : " is-unavailable"}" ${hasUsableWhatsapp(siteConfig.whatsapp) ? `href="${escapeHtml(whatsappUrl(`Hallo, ich möchte ein Angebot für ${service.title} anfragen.`))}"` : 'aria-disabled="true" tabindex="-1" title="WhatsApp-Nummer folgt"'} target="_blank" rel="noopener" aria-label="${escapeHtml(service.title)} per WhatsApp anfragen">
-                <span data-service-icon="message-circle" aria-hidden="true"></span>
-              </a>
-            </div>
-          </div>
-        </article>
-      `;
-      })
-      .join("");
-    return;
-  }
-  grid.innerHTML = services
-    .map(
-      (service, index) => `
-    <article class="service-card">
-      <div class="service-card__media">
-        <img src="${escapeHtml(service.image)}" alt="${escapeHtml(service.imageAlt)}" width="1536" height="1024" loading="lazy">
-      </div>
-      <div class="service-card__top">
-        <span class="icon-badge" aria-hidden="true">${String(index + 1).padStart(2, "0")}</span>
-        <span>${escapeHtml(service.duration)}</span>
-      </div>
-      <h3>${escapeHtml(service.title)}</h3>
-      <p>${escapeHtml(service.summary)}</p>
-      <div class="service-card__footer">
-        <strong>${escapeHtml(service.priceFrom)}</strong>
-        <a href="/${escapeHtml(service.slug)}.html">Angebot anfragen</a>
-      </div>
-    </article>
-  `,
-    )
-    .join("");
 }
 
 async function hydrateServiceIcons() {
@@ -311,7 +74,7 @@ async function hydrateServiceIcons() {
   await Promise.allSettled(
     targets.map(async (target) => {
       const icon = String(target.dataset.serviceIcon || "").replace(/[^a-z0-9-]/gi, "");
-      if (!icon) return;
+      if (!icon || qs("svg", target)) return;
       if (!cache.has(icon)) {
         cache.set(
           icon,
@@ -333,106 +96,18 @@ async function hydrateServiceIcons() {
   );
 }
 
-function initServiceTimelines() {
-  qsa(".service-card__timeline, .process-strip").forEach((timeline) => {
-    timeline.addEventListener("keydown", (event) => {
-      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
-      event.preventDefault();
-      const direction = event.key === "ArrowRight" ? 1 : -1;
-      timeline.scrollBy({ left: direction * 72, behavior: "smooth" });
-    });
-  });
-}
-
 function initServiceDeepLinks() {
   if (!document.body.classList.contains("services-page")) return;
   const revealTarget = () => {
     const target = document.getElementById(window.location.hash.slice(1));
     if (!target?.classList.contains("service-card--premium")) return;
-    // The service cards are loaded from config after the browser's initial anchor jump.
+    // Keep the selected service reachable by keyboard after a deep link.
     target.setAttribute("tabindex", "-1");
     target.scrollIntoView({ behavior: "instant", block: "start" });
     target.focus({ preventScroll: true });
   };
   revealTarget();
   window.addEventListener("hashchange", revealTarget);
-}
-
-function renderPackages() {
-  const grid = qs("[data-packages-grid]");
-  if (!grid) return;
-  const section = qs("[data-packages-section]");
-  const confirmed = siteConfig.packagesConfirmed === true && siteConfig.packages.length > 0;
-  if (section) section.hidden = !confirmed;
-  if (!confirmed) {
-    grid.innerHTML = "";
-    return;
-  }
-  grid.innerHTML = siteConfig.packages
-    .map(
-      (item, index) => `
-    <article class="package package--${["lime", "blue", "teal"][index % 3]} ${index === 1 ? "package--featured" : ""}">
-      <div class="package__top"><span class="package__label">${String(index + 1).padStart(2, "0")} / Pflegepaket</span><span class="package__icon" data-service-icon="${["brush-cleaning", "sparkles", "layers-2"][index % 3]}" aria-hidden="true"></span></div>
-      <h3>${escapeHtml(item.name)}</h3>
-      <p>${escapeHtml(item.description)}</p>
-      <div class="package__price"><span>Individuelles Angebot</span><strong>${escapeHtml(item.price)}</strong></div>
-      <ul>${item.features.map((feature) => `<li><span data-service-icon="circle-check-big" aria-hidden="true"></span><span>${escapeHtml(feature)}</span></li>`).join("")}</ul>
-      <a class="button package__cta" href="/kontakt.html?paket=${encodeURIComponent(item.name)}#anfrage" aria-label="Pflegepaket ${escapeHtml(item.name)} anfragen">Paket anfragen<span data-service-icon="arrow-up-right" aria-hidden="true"></span></a>
-    </article>
-  `,
-    )
-    .join("");
-}
-
-function renderIndividualServices() {
-  const list = qs("[data-individual-services]");
-  if (!list) return;
-  list.innerHTML = siteConfig.individualServices
-    .map((item) => `<li>${escapeHtml(item)}<span>Preis auf Anfrage</span></li>`)
-    .join("");
-}
-
-function renderReviews() {
-  const grid = qs("[data-reviews-grid]");
-  if (!grid) return;
-  grid.innerHTML = siteConfig.reviews
-    .map(
-      (review) => `
-    <figure class="review-card">
-      <div aria-label="${review.rating} von 5 Sternen">${"★".repeat(review.rating)}</div>
-      <blockquote>${escapeHtml(review.text)}</blockquote>
-      <figcaption>${escapeHtml(review.name)}</figcaption>
-    </figure>
-  `,
-    )
-    .join("");
-}
-
-function renderFaq() {
-  const list = qs("[data-faq]");
-  if (!list) return;
-  list.innerHTML = siteConfig.faq
-    .map(
-      (item) => `
-    <details>
-      <summary>${escapeHtml(item.question)}</summary>
-      <p>${escapeHtml(item.answer)}</p>
-    </details>
-  `,
-    )
-    .join("");
-}
-
-function renderOpeningHours() {
-  const list = qs("[data-opening-hours]");
-  if (!list) return;
-  list.innerHTML = siteConfig.openingHours
-    .map(
-      (item) => `
-    <li><span>${escapeHtml(item.day)}</span><strong>${escapeHtml(item.hours)}</strong></li>
-  `,
-    )
-    .join("");
 }
 
 function initMotion() {
@@ -472,55 +147,6 @@ function initMotion() {
   items.forEach((item) => {
     item.classList.add("is-pending");
     observer.observe(item);
-  });
-}
-
-function renderServicePage() {
-  const slug = SERVICE_PAGE_SLUGS[window.location.pathname];
-  if (!slug) return;
-  const service = siteConfig.services.find((item) => item.slug === slug);
-  if (!service || service.active === false) {
-    window.location.replace("/leistungen.html");
-    return;
-  }
-  document.title = `${service.title} | ${siteConfig.siteName}`;
-  qs("[data-service-title]").textContent = service.title;
-  qs("[data-service-summary]").textContent = service.summary;
-  qs("[data-service-price]").textContent = service.priceFrom;
-  qs("[data-service-duration]").textContent = service.duration;
-  qs("[data-service-list]").innerHTML = service.highlights
-    .map((item) => `<li>${escapeHtml(item)}</li>`)
-    .join("");
-  qs("[data-service-suitable]")?.replaceChildren(document.createTextNode(service.suitableFor));
-  const benefits = qs("[data-service-benefits]");
-  if (benefits) benefits.innerHTML = service.benefits.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
-  const steps = qs("[data-service-steps]");
-  if (steps)
-    steps.innerHTML = service.steps
-      .map((item, index) => `<li><span>${String(index + 1).padStart(2, "0")}</span>${escapeHtml(item)}</li>`)
-      .join("");
-  const hero = qs(".service-hero");
-  if (hero && !qs(".service-hero__media", hero)) {
-    const image = document.createElement("img");
-    image.className = "service-hero__media";
-    image.src = service.image;
-    image.alt = service.imageAlt;
-    image.width = 1536;
-    image.height = 1024;
-    image.fetchPriority = "high";
-    const shade = document.createElement("span");
-    shade.className = "service-hero__shade";
-    shade.setAttribute("aria-hidden", "true");
-    hero.prepend(shade);
-    hero.prepend(image);
-  }
-  setActionAvailability(
-    "[data-service-whatsapp]",
-    hasUsableWhatsapp(siteConfig.whatsapp),
-    whatsappUrl(`Hallo, ich möchte ein Angebot für ${service.title} anfragen.`),
-  );
-  qsa('[href="/kontakt.html#anfrage"]', qs("main")).forEach((link) => {
-    link.href = `/kontakt.html?service=${encodeURIComponent(service.slug)}#anfrage`;
   });
 }
 
@@ -619,9 +245,10 @@ function initInquiryForm() {
   if (!form) return;
   const status = qs("[data-form-status]");
   const serviceSelect = qs("#service", form);
-  serviceSelect.innerHTML = `<option value="">Bitte wählen</option>${activeServices()
-    .map((service) => `<option value="${escapeHtml(service.title)}">${escapeHtml(service.title)}</option>`)
-    .join("")}`;
+  if (!serviceSelect.options?.length)
+    serviceSelect.innerHTML = `<option value="">Bitte wählen</option>${activeServices()
+      .map((service) => `<option value="${escapeHtml(service.title)}">${escapeHtml(service.title)}</option>`)
+      .join("")}`;
   const requestedService = new URLSearchParams(window.location.search).get("service");
   const matchingService = activeServices().find(
     (service) => service.slug === requestedService || service.title === requestedService,
@@ -643,10 +270,17 @@ function initInquiryForm() {
 
   let submitting = false;
   const readyButton = qs('button[type="submit"]', form);
+  const phoneField = qs('[name="phone"]', form);
+  phoneField?.addEventListener("input", () => phoneField.setCustomValidity(""));
   if (readyButton) readyButton.disabled = false;
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (submitting) return;
+    if (phoneField && !window.AutoBusiness.validInquiryPhone(phoneField.value)) {
+      phoneField.setCustomValidity("Bitte geben Sie eine Telefonnummer mit mindestens fünf Ziffern ein.");
+      phoneField.reportValidity();
+      return;
+    }
     submitting = true;
     const data = Object.fromEntries(new FormData(form).entries());
     const submitButton = qs('button[type="submit"]', form);
@@ -704,17 +338,58 @@ function initContactMap() {
         "Die genaue Adresse wird noch ergänzt. Fragen zur Anfahrt können Sie uns über das Formular senden.";
     return;
   }
-  button.addEventListener(
-    "click",
-    () => {
-      const address = `${siteConfig.address.street}, ${siteConfig.address.zip} ${siteConfig.address.city}`;
-      frame.src = `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
-      frame.hidden = false;
-      consent.hidden = true;
-      shell.classList.add("is-loaded");
-    },
-    { once: true },
-  );
+  let loading = false;
+  let timer;
+  const clear = () => {
+    loading = false;
+    window.clearTimeout(timer);
+    frame.removeEventListener("load", loaded);
+    frame.removeEventListener("error", failed);
+    shell.removeAttribute("aria-busy");
+    button.disabled = false;
+  };
+  const loaded = () => {
+    if (!loading) return;
+    clear();
+    consent.hidden = true;
+    shell.classList.add("is-loaded");
+  };
+  const failed = () => {
+    if (!loading) return;
+    clear();
+    frame.hidden = true;
+    frame.removeAttribute("src");
+    if (copy)
+      copy.textContent =
+        "Die Karte konnte nicht geladen werden. Versuchen Sie es erneut oder nutzen Sie Route planen.";
+    button.textContent = "Erneut versuchen";
+  };
+  button.addEventListener("click", () => {
+    if (loading) return;
+    loading = true;
+    button.disabled = true;
+    button.textContent = "Karte wird geladen…";
+    shell.setAttribute("aria-busy", "true");
+    frame.addEventListener("load", loaded);
+    frame.addEventListener("error", failed);
+    timer = window.setTimeout(failed, 15000);
+    frame.src = window.AutoBusiness.contactLinks(siteConfig).map;
+    frame.hidden = false;
+  });
+}
+
+function initImageFallbacks() {
+  const failed = (image) => {
+    if (!(image instanceof HTMLImageElement) || image.dataset.fallback) return;
+    image.dataset.fallback = "true";
+    image.removeAttribute("srcset");
+    image.alt = "Fahrzeugdarstellung";
+    image.src = "/images/premium-hero.webp";
+  };
+  document.addEventListener("error", (event) => failed(event.target), true);
+  qsa("img")
+    .filter((image) => image.complete && image.naturalWidth === 0)
+    .forEach(failed);
 }
 
 function initStickyActions() {
@@ -743,19 +418,12 @@ function initStickyActions() {
 }
 
 async function init() {
+  loadConfig();
+  initImageFallbacks();
   initStickyActions();
   initNav();
   initMotion();
-  await loadConfig();
-  renderServicePage();
   applyGlobalConfig();
-  renderServices();
-  renderPackages();
-  initServiceTimelines();
-  renderIndividualServices();
-  renderReviews();
-  renderFaq();
-  renderOpeningHours();
   initContactMap();
   initInquiryForm();
   initServiceDeepLinks();
@@ -765,10 +433,6 @@ async function init() {
 document.addEventListener("DOMContentLoaded", () => {
   init().catch(() => {
     console.error("Die Website konnte nicht vollständig geladen werden.");
-    setActionAvailability(
-      "[data-call-link], [data-whatsapp-link], [data-service-whatsapp], [data-mail-link], [data-maps-link]",
-      false,
-    );
     let fallback = qs("[data-app-error]");
     if (!fallback) {
       fallback = document.createElement("p");

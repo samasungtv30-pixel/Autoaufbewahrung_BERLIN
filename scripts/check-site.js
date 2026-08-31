@@ -8,6 +8,8 @@ const errors = [];
 const publicCopyFiles = [
   ...htmlFiles.map((file) => path.join(frontend, file)),
   path.join(frontend, "js", "main.js"),
+  path.join(frontend, "js", "business.js"),
+  path.join(root, "backend", "render.js"),
   path.join(root, "backend", "data", "site.json"),
 ];
 const forbiddenPublicCopy = [

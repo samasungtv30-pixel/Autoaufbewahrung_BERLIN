@@ -9,7 +9,16 @@
   "phone": "+49 000 00000000",
   "whatsapp": "https://wa.me/4900000000000",
   "email": "kontakt@kundenname.example",
-  "address": { "street": "[Straße und Hausnummer]", "zip": "[PLZ]", "city": "[Ort]", "mapsUrl": "https://www.google.com/maps/search/?api=1&query=Autoaufbereitung" },
+  "address": { "street": "[Straße und Hausnummer]", "zip": "[PLZ]", "city": "[Ort]", "country": "DE", "latitude": null, "longitude": null },
+  "socialLinks": [],
+  "legal": {
+    "owner": "[VOLLSTÄNDIGER NAME DES INHABERS]",
+    "legalForm": "[RECHTSFORM]",
+    "register": "[REGISTERGERICHT UND REGISTERNUMMER, FALLS ZUTREFFEND]",
+    "vatId": "[UMSATZSTEUER-ID, FALLS ZUTREFFEND]",
+    "contentResponsible": "[VOLLSTÄNDIGER NAME UND ANSCHRIFT DER VERANTWORTLICHEN PERSON]",
+    "reviewed": false
+  },
   "openingHours": [
     { "day": "Montag – Freitag", "hours": "[ÖFFNUNGSZEIT]" },
     { "day": "Samstag", "hours": "[ÖFFNUNGSZEIT]" },
@@ -86,8 +95,6 @@
     { "name": "Premium", "price": "Preis auf Anfrage", "description": "Intensivere Aufbereitung mit zusätzlichen Detail- und Pflegearbeiten.", "features": ["Erweiterter Pflegeumfang", "Material- und zustandsbezogene Behandlung", "Abschlusskontrolle bei Übergabe"] },
     { "name": "Komplett", "price": "Preis auf Anfrage", "description": "Individuell kombinierte Innen- und Außenaufbereitung für umfassenden Pflegebedarf.", "features": ["Innen- und Außenbereiche", "Individuell zusammengestellte Optionen", "Persönliche Angebotserstellung"] }
   ],
-  "individualServices": ["Innenraumpflege", "Außenpflege", "Lackanalyse und Politur", "Oberflächenschutz", "Felgenpflege oder Reparaturanfrage", "Leasing-Vorabcheck"],
-  "reviews": [],
   "faq": [
     { "question": "Kann ich vorab Fotos per WhatsApp schicken?", "answer": "Ja. Fotos von Fahrzeugzustand, Felge oder Lackbereich helfen bei einer ersten unverbindlichen Einschätzung. Ein verbindliches Angebot kann eine Prüfung vor Ort erfordern." },
     { "question": "Wie wird der Preis für eine Aufbereitung bestimmt?", "answer": "Fahrzeugklasse, Zustand, gewünschter Leistungsumfang und Arbeitsaufwand beeinflussen den Preis. Deshalb wird das Angebot individuell erstellt." },

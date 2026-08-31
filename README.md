@@ -7,13 +7,15 @@ Produktionsnahe Website-Basis fuer einen Autoaufbereitungsbetrieb. Inhalte, Leis
 - `frontend/` enthaelt die oeffentlichen Seiten, CSS und Browser-JavaScript.
 - `backend/server.js` liefert die Website, `robots.txt`, `sitemap.xml`, `/api/config` und eine einfache Angebotsanfrage unter `/api/inquiry`.
 - `backend/data/site.json` ist die zentrale Inhaltsdatei fuer Kundendaten, Leistungsdetails, Preise, Oeffnungszeiten und FAQ.
+- `backend/render.js` rendert diese Inhalte serverseitig in die bestehenden HTML-Vorlagen; Cheerio verarbeitet die HTML-Struktur. Browser-JavaScript ergaenzt Interaktionen, nicht die grundlegenden Inhalte.
+- `frontend/js/business.js` vereinheitlicht Kontaktlinks und Maps-Ziele im Browser und auf dem Server. `/api/config` liefert nur eine explizit begrenzte oeffentliche Projektion, keine internen Zusatzfelder.
 - `scripts/check-site.js` prueft Seitenstruktur, interne Links, Assets und Leistungsdaten vor jedem Deployment.
 
 ## Oeffentliche Freigaben
 
 - Pakete bleiben mit `packagesConfirmed: false` in `backend/data/site.json` intern vorbereitet. Die API liefert sie dann nicht aus; Paketbereich und Formular-Vorauswahl bleiben deaktiviert. Erst nach Freigabe echter Paketbestandteile und Preise auf den booleschen Wert `true` setzen.
 - Die Galerie ist aus dem oeffentlichen Frontend entfernt. Eine spaetere Galerie benoetigt echte, freigegebene Kundenarbeiten.
-- Karte und Route verwenden die vollstaendige Adresse aus der Konfiguration. Ohne Adresse bleiben sie deaktiviert; Google Maps wird erst nach einem ausdruecklichen Klick geladen.
+- Karte und Route verwenden die vollstaendige Adresse oder numerische `address.latitude`/`address.longitude` aus der Konfiguration. Ohne gueltiges Ziel bleiben sie deaktiviert; Google Maps wird erst nach einem ausdruecklichen Klick geladen. Ladefehler bieten einen erneuten Versuch.
 - Fehlende Kontaktangaben werden nicht als funktionsfaehige Telefonnummern oder E-Mail-Adressen verlinkt.
 
 ## Start
@@ -50,7 +52,10 @@ Danach ist die Website unter `http://localhost:3100` erreichbar.
 - Das In-Memory-Limit gilt je Serverprozess, wird beim Neustart zurueckgesetzt und
   ersetzt keinen vorgelagerten DDoS-/Bot-Schutz. Es gibt keine Anfrage-Datenbank.
 
-Details und verbleibende Abnahmen: `docs/AUDIT-2026-08-31.md`.
+Aktueller Hardening-Bericht, zentrale Datenfelder und verbleibende Abnahmen:
+[`docs/PRODUCTION-READINESS-2026-08-31.md`](docs/PRODUCTION-READINESS-2026-08-31.md).
+`legal.reviewed` darf erst nach Pruefung der tatsaechlichen Rechtstexte aktiviert werden.
+`check:launch` ersetzt keine Rechts-, Geraete- oder echte Posteingangsabnahme.
 
 ## E-Mail-Versand fuer Anfragen
 

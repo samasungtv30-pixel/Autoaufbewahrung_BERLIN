@@ -4,6 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { spawn } = require("node:child_process");
 const { once } = require("node:events");
+const { gunzipSync } = require("node:zlib");
 const { before, after, test } = require("node:test");
 
 const root = path.join(__dirname, "..");
@@ -74,6 +75,7 @@ function request(url, { method = "GET", headers = {}, body, chunks } = {}) {
             status: res.statusCode,
             headers: res.headers,
             body: Buffer.concat(parts).toString("utf8"),
+            bytes: Buffer.concat(parts),
           }),
         );
         res.on("error", reject);
@@ -131,13 +133,38 @@ test("canonical routes, HEAD and supported methods behave consistently", async (
   assert.equal((await request("/", { method: "DELETE" })).status, 405);
 });
 
+test("public HTML compresses without changing content and assets revalidate", async () => {
+  const plain = await request("/leistungen.html");
+  const compressed = await request("/leistungen.html", { headers: { "Accept-Encoding": "gzip" } });
+  assert.equal(compressed.headers["content-encoding"], "gzip");
+  assert.equal(compressed.headers.vary, "Accept-Encoding");
+  assert.equal(gunzipSync(compressed.bytes).toString("utf8"), plain.body);
+  assert.ok(compressed.bytes.length < plain.bytes.length / 2);
+  assert.equal(
+    (await request("/leistungen.html", { headers: { "Accept-Encoding": "gzip;q=0" } })).headers[
+      "content-encoding"
+    ],
+    undefined,
+  );
+  const asset = await request("/js/main.js");
+  assert.ok(asset.headers.etag);
+  const cached = await request("/js/main.js", { headers: { "If-None-Match": asset.headers.etag } });
+  assert.equal(cached.status, 304);
+  assert.equal(cached.body, "");
+  assert.equal(
+    (await request("/api/config", { headers: { "Accept-Encoding": "gzip" } })).headers["content-encoding"],
+    undefined,
+  );
+});
+
 test("HTML includes canonical and social metadata before JavaScript", async () => {
   for (const page of ["/", "/kontakt.html", "/innenreinigung.html"]) {
     const result = await request(page, { headers: { Host: "attacker.invalid" } });
     assert.match(result.body, /<meta property="og:title" content="[^"]+">/);
-    assert.match(
-      result.body,
-      /<meta property="og:image" content="https:\/\/[^\"]+\/images\/premium-hero.webp">/,
+    const service = site.services.find((item) => `/${item.slug}.html` === page);
+    const image = service?.image || "/images/premium-hero.webp";
+    assert.ok(
+      result.body.includes(`<meta property="og:image" content="${new URL(site.publicUrl).origin}${image}">`),
     );
     assert.ok(result.body.includes(`<link rel="canonical" href="${new URL(site.publicUrl).origin}${page}">`));
     assert.ok(!result.body.includes("attacker.invalid"));

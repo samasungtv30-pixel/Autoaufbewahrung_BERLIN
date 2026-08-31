@@ -3,8 +3,11 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const { isIP } = require("node:net");
+const { gzipSync } = require("node:zlib");
 require("dotenv").config({ quiet: true });
 const { sendInquiryEmail } = require("./mailer");
+const { renderHtml, publicConfig } = require("./render");
+const { validInquiryPhone } = require("../frontend/js/business");
 
 const PORT = Number(process.env.PORT || 3100);
 const ROOT = path.join(__dirname, "..");
@@ -15,6 +18,7 @@ const rateLimitSalt = crypto.randomBytes(32);
 const RATE_LIMIT_WINDOW = 10 * 60 * 1000;
 const MAX_RATE_LIMIT_KEYS = 10000;
 const MAX_BODY_BYTES = 20000;
+const compressedResponses = new Map();
 const TRUST_PROXY_HOPS = Number(process.env.TRUST_PROXY_HOPS || (process.env.RENDER === "true" ? 1 : 0));
 // Only short-lived abuse counters are retained, never inquiry contents or raw IPs.
 setInterval(() => {
@@ -57,6 +61,32 @@ function securityHeaders() {
 }
 
 function send(res, statusCode, body, contentType = "text/plain; charset=utf-8", headers = {}) {
+  const request = res.req;
+  const compressible = /^(text\/|application\/(javascript|json)|image\/svg)/.test(contentType);
+  const cacheable =
+    request?.method === "GET" &&
+    statusCode === 200 &&
+    !String(headers["Cache-Control"] || "").includes("no-store");
+  if (compressible && cacheable) {
+    headers = { ...headers, Vary: "Accept-Encoding" };
+    const acceptsGzip = String(request.headers["accept-encoding"] || "")
+      .split(",")
+      .some((part) => {
+        const [coding, quality] = part.trim().split(/\s*;\s*q=/);
+        return coding === "gzip" && (quality === undefined || Number(quality) > 0);
+      });
+    if (acceptsGzip && Buffer.byteLength(body) >= 1024) {
+      const key = crypto.createHash("sha256").update(body).digest("hex");
+      let compressed = compressedResponses.get(key);
+      if (!compressed) {
+        compressed = gzipSync(body);
+        if (compressedResponses.size >= 24) compressedResponses.clear();
+        compressedResponses.set(key, compressed);
+      }
+      body = compressed;
+      headers["Content-Encoding"] = "gzip";
+    }
+  }
   res.writeHead(statusCode, {
     "Content-Type": contentType,
     ...securityHeaders(),
@@ -135,34 +165,6 @@ function handleSitemap(req, res) {
     MIME_TYPES[".xml"],
     { "Cache-Control": "public, max-age=3600" },
   );
-}
-
-function renderHtml(filePath, config) {
-  const html = fs.readFileSync(filePath, "utf8");
-  const filename = path.basename(filePath);
-  const service = config.services.find((item) => `${item.slug}.html` === filename);
-  const staticTitle = html.match(/<title>([^<]*)<\/title>/i)?.[1] || config.siteName;
-  const title = service
-    ? `${service.title} | ${config.siteName}`
-    : filename === "index.html"
-      ? `${config.siteName} | Premium Autoaufbereitung`
-      : staticTitle.replace(/\| Autoaufbereitung$/, `| ${config.siteName}`);
-  const canonical = `${publicOrigin()}${filename === "index.html" ? "/" : `/${filename}`}`;
-  // The description is already an escaped attribute in our checked static templates.
-  const description =
-    html.match(/<meta name="description" content="([^"]*)"/i)?.[1] || escapeXml(config.claim);
-  const metadata = [
-    `<link rel="canonical" href="${escapeXml(canonical)}">`,
-    `<meta property="og:title" content="${escapeXml(title)}">`,
-    `<meta property="og:description" content="${description}">`,
-    '<meta property="og:type" content="website">',
-    '<meta property="og:locale" content="de_DE">',
-    `<meta property="og:url" content="${escapeXml(canonical)}">`,
-    `<meta property="og:image" content="${escapeXml(`${publicOrigin()}/images/premium-hero.webp`)}">`,
-  ].join("\n");
-  return html
-    .replace(/<title>[^<]*<\/title>/i, `<title>${escapeXml(title)}</title>`)
-    .replace("</head>", `${metadata}\n</head>`);
 }
 
 function handleRobots(req, res) {
@@ -341,8 +343,7 @@ async function handleInquiry(req, res) {
     };
 
     const emailIsValid = !inquiry.email || /^[^\s@<>,;"]+@[^\s@<>,;"]+\.[^\s@<>,;"]+$/.test(inquiry.email);
-    const phoneIsValid =
-      /^[+\d\s().\/-]+$/.test(inquiry.phone) && inquiry.phone.replace(/\D/g, "").length >= 5;
+    const phoneIsValid = validInquiryPhone(inquiry.phone);
     if (inquiry.name.length < 2 || !phoneIsValid || !emailIsValid || payload.privacy !== "accepted") {
       send(
         res,
@@ -416,8 +417,9 @@ const server = http.createServer(async (req, res) => {
 
     const readOnly = req.method === "GET" || req.method === "HEAD";
     if (readOnly && url.pathname === "/api/config") {
-      if (config.packagesConfirmed !== true) config.packages = [];
-      send(res, 200, JSON.stringify(config), MIME_TYPES[".json"], { "Cache-Control": "no-store" });
+      send(res, 200, JSON.stringify(publicConfig(config)), MIME_TYPES[".json"], {
+        "Cache-Control": "no-store",
+      });
       return;
     }
     if (readOnly && url.pathname === "/health") {
@@ -444,13 +446,10 @@ const server = http.createServer(async (req, res) => {
     const filePath = resolveStaticPath(url.pathname);
     if (!filePath) {
       const notFoundFile = path.join(FRONTEND_DIR, "404.html");
-      send(
-        res,
-        404,
-        req.method === "HEAD" ? "" : fs.readFileSync(notFoundFile, "utf8"),
-        MIME_TYPES[".html"],
-        { "Cache-Control": "no-cache", "X-Robots-Tag": "noindex" },
-      );
+      send(res, 404, req.method === "HEAD" ? "" : renderHtml(notFoundFile, config), MIME_TYPES[".html"], {
+        "Cache-Control": "no-cache",
+        "X-Robots-Tag": "noindex",
+      });
       return;
     }
 
@@ -463,6 +462,19 @@ const server = http.createServer(async (req, res) => {
       send(res, 308, "", MIME_TYPES[".txt"], { Location: `${canonicalPath}${url.search}` });
       return;
     }
+    if (
+      ext === ".html" &&
+      config.services.some((item) => `${item.slug}.html` === path.basename(filePath) && item.active === false)
+    ) {
+      send(
+        res,
+        404,
+        req.method === "HEAD" ? "" : renderHtml(path.join(FRONTEND_DIR, "404.html"), config),
+        MIME_TYPES[".html"],
+        { "Cache-Control": "no-cache", "X-Robots-Tag": "noindex" },
+      );
+      return;
+    }
     if (ext === ".html") {
       send(res, 200, req.method === "HEAD" ? "" : renderHtml(filePath, config), MIME_TYPES[".html"], {
         "Cache-Control": "no-cache",
@@ -473,9 +485,23 @@ const server = http.createServer(async (req, res) => {
     const cache = [".html", ".css", ".js"].includes(ext)
       ? "no-cache"
       : "public, max-age=604800, stale-while-revalidate=86400";
+    const stat = fs.statSync(filePath);
+    const etag = `W/"${stat.size}-${stat.mtimeMs}"`;
+    if (req.headers["if-none-match"] === etag) {
+      send(res, 304, "", contentType, { "Cache-Control": cache, ETag: etag, Vary: "Accept-Encoding" });
+      return;
+    }
+    if ([".css", ".js", ".svg", ".json", ".txt"].includes(ext)) {
+      send(res, 200, req.method === "HEAD" ? "" : fs.readFileSync(filePath), contentType, {
+        "Cache-Control": cache,
+        ETag: etag,
+      });
+      return;
+    }
     res.writeHead(200, {
       "Content-Type": contentType,
       "Cache-Control": cache,
+      ETag: etag,
       ...securityHeaders(),
     });
     if (req.method === "HEAD") return res.end();

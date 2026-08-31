@@ -2,11 +2,9 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
-
-const root = path.join(__dirname, "..");
-const config = JSON.parse(fs.readFileSync(path.join(root, "backend/data/site.json"), "utf8"));
+const business = require("../frontend/js/business");
+const config = require("../backend/data/site.json");
 const elements = new Map();
-const classes = new Set(["home"]);
 const listeners = new Map();
 const context = vm.createContext({
   console,
@@ -14,65 +12,27 @@ const context = vm.createContext({
   URL,
   document: {
     addEventListener() {},
-    body: { classList: { contains: (name) => classes.has(name) } },
+    body: { classList: { contains: (name) => name === "services-page" } },
     querySelector: (selector) => elements.get(selector) || null,
     getElementById: (id) => elements.get(`#${id}`) || null,
   },
   window: {
-    location: { hash: "" },
+    AutoBusiness: business,
+    location: { hash: "", search: "" },
     addEventListener: (name, callback) => listeners.set(name, callback),
+    setTimeout: (callback) => {
+      context.timeoutCallback = callback;
+      return 1;
+    },
+    clearTimeout() {},
   },
 });
-vm.runInContext(fs.readFileSync(path.join(root, "frontend/js/main.js"), "utf8"), context);
-context.configFixture = config;
-vm.runInContext("siteConfig = configFixture", context);
-
-const grid = {
-  dataset: {
-    servicesVariant: "home-teaser",
-    servicesSlugs: "innenreinigung,lackaufbereitung,komplettaufbereitung",
-  },
-  innerHTML: "",
-};
-elements.set("[data-services-grid]", grid);
-context.renderServices();
-assert.equal((grid.innerHTML.match(/class="home-service-card__details"/g) || []).length, 3);
-for (const slug of grid.dataset.servicesSlugs.split(",")) {
-  assert.ok(grid.innerHTML.includes(`href="/leistungen.html#service-${slug}"`));
+vm.runInContext(fs.readFileSync(path.join(__dirname, "../frontend/js/main.js"), "utf8"), context);
+function fixture(value) {
+  context.configFixture = value;
+  vm.runInContext("siteConfig = configFixture", context);
 }
-
-classes.clear();
-classes.add("services-page");
-grid.dataset = {};
-context.renderServices();
-assert.equal(
-  (grid.innerHTML.match(/class="service-checklist"/g) || []).length,
-  config.services.filter((service) => service.active !== false).length,
-);
-assert.ok(!grid.innerHTML.includes("service-card__timeline"));
-
-const packageGrid = { innerHTML: "" };
-const packageSection = { hidden: true };
-elements.set("[data-packages-grid]", packageGrid);
-elements.set("[data-packages-section]", packageSection);
-context.renderPackages();
-assert.equal(packageGrid.innerHTML, "");
-assert.equal(packageSection.hidden, true);
-context.configFixture = { ...config, packagesConfirmed: true };
-vm.runInContext("siteConfig = configFixture", context);
-context.renderPackages();
-assert.equal(packageSection.hidden, false);
-assert.equal((packageGrid.innerHTML.match(/class="package package--/g) || []).length, config.packages.length);
-assert.equal(
-  (packageGrid.innerHTML.match(/data-service-icon="circle-check-big"/g) || []).length,
-  config.packages.reduce((sum, item) => sum + item.features.length, 0),
-);
-for (const item of config.packages) {
-  assert.ok(
-    packageGrid.innerHTML.includes(`href="/kontakt.html?paket=${encodeURIComponent(item.name)}#anfrage"`),
-  );
-}
-
+fixture(config);
 const messageField = { value: "" };
 const serviceSelect = {};
 elements.set("[data-form-status]", {});
@@ -81,29 +41,22 @@ elements.set("#inquiry-form", {
     selector === "#service" ? serviceSelect : selector === '[name="message"]' ? messageField : null,
   addEventListener() {},
 });
+fixture({ ...config, packagesConfirmed: true });
 context.window.location.search = "?paket=Premium";
 context.initInquiryForm();
 assert.equal(messageField.value, "Ich interessiere mich für das Pflegepaket Premium.");
 messageField.value = "Meine eigene Nachricht";
 context.initInquiryForm();
 assert.equal(messageField.value, "Meine eigene Nachricht");
-messageField.value = "";
-context.window.location.search = "?paket=unknown";
-context.initInquiryForm();
-assert.equal(messageField.value, "");
-
-// Only an explicit business approval may publish packages or prefill inquiries.
 for (const approval of [false, undefined, "true"]) {
-  context.configFixture = { ...config, packagesConfirmed: approval };
-  vm.runInContext("siteConfig = configFixture", context);
-  context.renderPackages();
-  assert.equal(packageGrid.innerHTML, "");
-  assert.equal(packageSection.hidden, true);
-  context.window.location.search = "?paket=Premium";
+  messageField.value = "";
+  fixture({ ...config, packagesConfirmed: approval });
   context.initInquiryForm();
   assert.equal(messageField.value, "");
 }
-
+context.window.location.search = "?service=lackaufbereitung";
+context.initInquiryForm();
+assert.equal(serviceSelect.value, config.services.find((s) => s.slug === "lackaufbereitung").title);
 const calls = [];
 elements.set("#service-lackaufbereitung", {
   classList: { contains: (name) => name === "service-card--premium" },
@@ -118,59 +71,81 @@ assert.deepEqual(calls, [
   ["scroll", "start"],
   ["focus", true],
 ]);
-assert.ok(listeners.has("hashchange"));
 context.window.location.hash = "#unknown-service";
 listeners.get("hashchange")();
 assert.equal(calls.length, 3);
 
-// Missing customer data must not produce a live map.
-const mapButton = { disabled: false, textContent: "Karte laden" };
-const frame = {};
-for (const selector of [".contact-map-shell", "[data-map-consent]"]) elements.set(selector, {});
-elements.set("[data-map-frame]", frame);
-elements.set("[data-map-load]", mapButton);
-elements.set("[data-map-copy]", {});
-context.configFixture = { ...config, address: { street: "[Adresse]", zip: "[PLZ]", city: "[Ort]" } };
-vm.runInContext("siteConfig = configFixture", context);
-context.initContactMap();
-assert.equal(mapButton.disabled, true);
-assert.equal(frame.src, undefined);
-
-let loadMap;
-let loadedClass;
-elements.set(".contact-map-shell", {
-  classList: {
-    add: (name) => {
-      loadedClass = name;
+function mapFixture(address) {
+  let click;
+  const events = new Map();
+  const frame = {
+    hidden: true,
+    addEventListener: (name, cb) => events.set(name, cb),
+    removeEventListener: (name) => events.delete(name),
+    removeAttribute: (name) => {
+      delete frame[name];
     },
-  },
-});
-elements.set("[data-map-load]", {
-  addEventListener: (name, callback) => {
-    assert.equal(name, "click");
-    loadMap = callback;
-  },
-});
-context.configFixture = { ...config, address: { street: "Teststrasse 1", zip: "12345", city: "Teststadt" } };
-vm.runInContext("siteConfig = configFixture", context);
-context.initContactMap();
-assert.equal(frame.src, undefined);
-loadMap();
-assert.equal(frame.src, "https://www.google.com/maps?q=Teststrasse%201%2C%2012345%20Teststadt&output=embed");
-assert.equal(frame.hidden, false);
-assert.equal(elements.get("[data-map-consent]").hidden, true);
-assert.equal(loadedClass, "is-loaded");
+  };
+  const button = {
+    addEventListener: (_, cb) => {
+      click = cb;
+    },
+  };
+  const consent = { hidden: false };
+  const copy = {};
+  const shell = { classList: { add() {} }, setAttribute() {}, removeAttribute() {} };
+  for (const [selector, element] of [
+    [".contact-map-shell", shell],
+    ["[data-map-consent]", consent],
+    ["[data-map-frame]", frame],
+    ["[data-map-load]", button],
+    ["[data-map-copy]", copy],
+  ])
+    elements.set(selector, element);
+  fixture({ ...config, address });
+  context.initContactMap();
+  return { frame, button, consent, copy, events, click: () => click() };
+}
+const missing = mapFixture(config.address);
+assert.equal(missing.button.disabled, true);
+assert.equal(missing.frame.src, undefined);
+const map = mapFixture({ street: "Teststraße 1", zip: "12345", city: "Teststadt" });
+assert.equal(map.frame.src, undefined);
+map.click();
+assert.match(map.frame.src, /^https:\/\/www.google.com\/maps\?q=/);
+assert.equal(map.button.disabled, true);
+assert.equal(map.consent.hidden, false);
+map.events.get("load")();
+assert.equal(map.consent.hidden, true);
+const failure = mapFixture({ latitude: 52, longitude: 13 });
+failure.click();
+assert.match(failure.frame.src, /q=52%2C13/);
+context.timeoutCallback();
+assert.equal(failure.frame.src, undefined);
+assert.equal(failure.frame.hidden, true);
+assert.equal(failure.button.disabled, false);
+assert.match(failure.copy.textContent, /nicht geladen/);
+failure.click();
+failure.events.get("error")();
+assert.equal(failure.button.textContent, "Erneut versuchen");
+assert.equal(failure.consent.hidden, false);
 
-assert.equal(context.hasUsableWhatsapp("https://wa.me/493012345678"), true);
+assert.equal(business.hasUsableWhatsapp("https://wa.me/493012345678"), true);
 for (const value of [
   "javascript:alert(493012345678)",
   "https://attacker.invalid/493012345678",
   "https://wa.me/4900000000000",
   "http://wa.me/493012345678",
-]) {
-  assert.equal(context.hasUsableWhatsapp(value), false);
-}
-
+])
+  assert.equal(business.hasUsableWhatsapp(value), false);
+assert.equal(
+  new URL(business.whatsappUrl("https://wa.me/493012345678?text=old", "Felgen & Lack? ü")).searchParams.get(
+    "text",
+  ),
+  "Felgen & Lack? ü",
+);
+assert.equal(business.coordinates({ latitude: null, longitude: null }), "");
+assert.equal(business.coordinates({ latitude: 91, longitude: 0 }), "");
 console.log(
-  "UI checks passed: service links, checklists, package inquiries, deep links and map availability.",
+  "UI checks passed: package/service prefill, deep links, shared contact links, map consent/loading/failure/retry.",
 );

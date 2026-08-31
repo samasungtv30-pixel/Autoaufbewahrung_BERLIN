@@ -13,7 +13,8 @@ Diese Liste trennt technische Fertigstellung von den noch ausstehenden Kundendat
 - Antwortadresse des Interessenten als `Reply-To`, sofern eine E-Mail angegeben wurde
 - Direkte Kontaktwege für Telefon, WhatsApp, E-Mail und Route
 - Deaktivierte Kontaktaktionen, solange nur Platzhalterdaten vorhanden sind
-- Google Maps erst nach aktiver Zustimmung und nur bei vollständiger Adresse
+- Google Maps erst nach aktiver Zustimmung und nur bei vollständiger Adresse oder validen Koordinaten; Ladefehler mit Wiederholungsversuch
+- Leistungen, FAQ und Betriebsangaben bereits im serverseitigen HTML; sichere öffentliche Konfigurationsprojektion
 - SEO-Grundlagen, Sitemap, Robots, Social-Metadaten und strukturierte Unternehmensdaten bei vollständiger Konfiguration
 - Automatische Struktur-, Link-, Icon-, Text- und Konfigurationsprüfungen mit `npm run check`
 - HTTP-Sicherheitstests, feste Node-24-LTS-Linie und Prüfungen bei GitHub/Render
@@ -26,8 +27,8 @@ Diese Liste trennt technische Fertigstellung von den noch ausstehenden Kundendat
 - Öffnungszeiten und Ablauf für Fahrzeugannahme und Übergabe bestätigen
 - Tatsächlich angebotene Leistungen, Arbeitsschritte, Preise und Dauerangaben freigeben
 - Echte Werkstatt- und Ergebnisbilder inklusive Nutzungsrechten bereitstellen
-- Google-Maps-Link mit dem echten Unternehmensprofil eintragen
-- Impressum und Datenschutz durch den Betreiber beziehungsweise fachlich prüfen lassen
+- Adresse oder numerische Koordinaten unter `address` eintragen und Kartenposition prüfen
+- Impressum und Datenschutz fachlich prüfen lassen; anschließend `legal.reviewed: true` setzen
 - Finale Domain in `publicUrl`, Sitemap, Canonical URLs und Render hinterlegen
 - `npm run check:launch` ausführen und verbleibende Freigaben dokumentieren
 - `indexingEnabled` erst nach vollständiger Betreiberfreigabe auf `true` setzen
@@ -63,7 +64,7 @@ Anfrage-Dateien und Backups aus älteren Installationen separat auf vorhandene D
 
 ## Abnahme
 
-Technischer Prüfstand vom 31.08.2026: siehe `AUDIT-2026-08-31.md`.
+Aktueller technischer Prüfstand vom 31.08.2026: siehe `PRODUCTION-READINESS-2026-08-31.md`.
 Eine technisch bestandene Prüfung ersetzt keine fachliche oder rechtliche Freigabe.
 
 - Smartphone-Test mit 320, 360, 375, 390 und 430 Pixel Breite

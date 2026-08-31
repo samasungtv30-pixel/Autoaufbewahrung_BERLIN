@@ -229,6 +229,7 @@ h1, h2, h3, h4, button, .button, .eyebrow, .nav-links, summary {
 .service-card--premium .service-card__body { padding: 24px 20px; }
 .service-card--premium p { font-size: var(--studio-detail-size); line-height: 1.65; min-height: 0; margin: 16px 0 20px; }
 .service-card__heading > span { font-size: 2rem; }
+.section .service-card--premium h2 { margin: 0; font-size: 19px; line-height: 1.15; text-wrap: initial; text-shadow: none; }
 .service-checklist { gap: 12px; padding-block: 18px; }
 .service-checklist li { font-size: 1.0625rem; line-height: 1.55; }
 .service-card__primary, .service-card__chat { min-height: 48px; border-radius: var(--studio-radius-small); }
@@ -432,6 +433,7 @@ h1, h2, h3, h4, button, .button, .eyebrow, .nav-links, summary {
   .home .home-service-card h3 { font-size: 1.375rem; margin-top: 14px; }
   .home .home-service-card p { font-size: var(--studio-detail-size); line-height: 1.6; }
   .services-intro h1 { font-size: 2.375rem; }
+  .section .service-card--premium h2 { font-size: 20px; }
   .home-service-card__number { top: 20px; right: 14px; }
   .home-service-card__details { font-size: 1rem; margin-top: 10px; }
   .service-card--premium .service-card__body { padding: 22px 18px; }
@@ -469,6 +471,9 @@ h1, h2, h3, h4, button, .button, .eyebrow, .nav-links, summary {
   .process-line__icon, .process-line__icon svg { width: 14px; height: 14px; }
   .contact-page .contact-channel--email strong { font-size: 1.0625rem; }
 }
+@media (max-width: 360px) {
+  .services-intro h1 { font-size: 2rem; }
+}
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -480,6 +485,8 @@ h1, h2, h3, h4, button, .button, .eyebrow, .nav-links, summary {
 /* Status messages are functional copy and share the readable body scale. */
 [data-form-status] { font-size: 1rem; line-height: 1.6; overflow-wrap: anywhere; }
 .app-notice { margin: 24px auto; padding: 16px 20px; width: min(var(--content), calc(100% - 40px)); border: 1px solid var(--studio-border-strong); border-radius: var(--studio-radius); }
+/* Containment without off-screen negative coordinates prevents honeypot overflow. */
+.form-grid .honeypot { position: absolute !important; inset: 0 auto auto 0; width: 1px; height: 1px; padding: 0; margin: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 :where(main, section[id], article[id]) { scroll-margin-top: 100px; }
 .contact-form__group, .form-grid label, .service-overview > *, .footer-grid > * { min-width: 0; }
 .site-footer a { overflow-wrap: anywhere; }
