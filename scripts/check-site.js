@@ -86,8 +86,14 @@ if ((contactHtml.match(/class="contact-channel(?:\s[^"]*)?"/g) || []).length !==
   errors.push("kontakt.html: drei direkte Kontaktkanäle erforderlich");
 if (contactHtml.includes('class="contact-hero"'))
   errors.push("kontakt.html: veralteter großer Hero gefunden");
-if (contactHtml.indexOf('id="standort"') < contactHtml.indexOf('id="inquiry-form"'))
-  errors.push("kontakt.html: Standort muss nach dem Formular stehen");
+const contactLocationPosition = contactHtml.indexOf('id="standort"');
+const contactRequestPosition = contactHtml.indexOf('id="anfrage"');
+if (
+  contactLocationPosition < 0 ||
+  contactRequestPosition < 0 ||
+  contactLocationPosition >= contactRequestPosition
+)
+  errors.push("kontakt.html: Standort muss vor dem Anfragebereich stehen");
 if (
   !/<div class="contact-visit-copy reveal">\s*<div class="section-head contact-visit-heading">/.test(
     contactHtml,
