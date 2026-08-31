@@ -357,9 +357,41 @@ h1, h2, h3, h4, button, .button, .eyebrow, .nav-links, summary {
   :root { --content: 1440px; --studio-hero-size: 4.75rem; --studio-page-size: 3.75rem; --studio-section-size: 2.75rem; }
 }
 @media (min-width: 1051px) {
-  .site-header .button { min-height: 44px; padding: 10px 18px; }
+  .site-header { height: 88px; }
+  .site-header .nav { gap: 24px; }
+  .site-header .brand-logo { width: 204px; height: 64px; }
+  .site-header .nav-actions { gap: 12px; }
+  .site-header .button, .site-header .nav-phone { min-height: 50px; padding: 12px 18px; }
+  .site-header .nav-phone {
+    border: 1px solid rgba(159,228,234,.48);
+    border-radius: var(--studio-radius-small);
+    color: #c0f0f4;
+    background: linear-gradient(145deg, #253d41, #15262a);
+    box-shadow: var(--studio-highlight);
+    font-size: 1rem;
+    line-height: 1.35;
+    gap: 10px;
+    transition: border-color var(--studio-fast) ease, background var(--studio-fast) ease;
+  }
+  .site-header .nav-phone > span:first-child { color: var(--studio-ice); width: 20px; height: 20px; }
+  .site-header .nav-phone svg { width: 20px; height: 20px; }
+  .site-header .nav-phone:not(.is-unavailable):hover { border-color: var(--studio-ice); background: linear-gradient(145deg, #304d51, #1b3034); }
+  .site-header .nav-quote {
+    color: #111806;
+    border-color: #d8f987;
+    background: linear-gradient(165deg, #e1ff8b, #d2f65a 45%, #bfe747);
+    box-shadow: inset 0 1px rgba(255,255,255,.7), inset 0 -2px rgba(82,112,19,.32), 0 4px 12px rgba(164,207,55,.1);
+    white-space: nowrap;
+  }
+  .site-header .nav-quote:hover { color: #111806; border-color: #e1ff8b; background: linear-gradient(165deg, #ebffac, #dcfa79 45%, #cbef59); }
   .home .hero-inner { gap: 28px; padding-block: 72px 40px; }
   .home .hero h1 { max-width: 800px; }
+}
+@media (min-width: 1051px) and (max-width: 1399px) {
+  .site-header .nav { gap: 18px; }
+  .site-header .brand-logo { width: 184px; height: 58px; }
+  .site-header .nav-links { gap: 18px; }
+  .site-header .button, .site-header .nav-phone { padding-inline: 14px; }
 }
 @media (min-width: 1051px) and (max-width: 1300px) {
   :root { --studio-hero-size: 3.5rem; }
