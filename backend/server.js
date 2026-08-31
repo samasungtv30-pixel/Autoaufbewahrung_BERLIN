@@ -10,6 +10,15 @@ const ROOT = path.join(__dirname, "..");
 const FRONTEND_DIR = path.join(ROOT, "frontend");
 const CONFIG_FILE = path.join(__dirname, "data", "site.json");
 const inquiryAttempts = new Map();
+const rateLimitSalt = crypto.randomBytes(32);
+const RATE_LIMIT_WINDOW = 10 * 60 * 1000;
+// Only short-lived abuse counters are retained, never inquiry contents or raw IPs.
+setInterval(() => {
+  const cutoff = Date.now() - RATE_LIMIT_WINDOW;
+  for (const [key, attempts] of inquiryAttempts) {
+    if (attempts[attempts.length - 1] <= cutoff) inquiryAttempts.delete(key);
+  }
+}, 60 * 1000).unref();
 const CONTENT_SECURITY_POLICY = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-src https://www.google.com; form-action 'self'; frame-ancestors 'none'; base-uri 'self'";
 
 const MIME_TYPES = {
@@ -123,19 +132,31 @@ function collectRequestBody(req) {
 }
 
 async function handleInquiry(req, res) {
+  res.setHeader("Cache-Control", "no-store");
   try {
     const clientIp = String(req.headers["x-forwarded-for"] || req.socket.remoteAddress || "unknown").split(",")[0].trim();
+    const clientKey = crypto.createHmac("sha256", rateLimitSalt).update(clientIp).digest("hex");
     const now = Date.now();
-    const recentAttempts = (inquiryAttempts.get(clientIp) || []).filter((time) => now - time < 10 * 60 * 1000);
+    const recentAttempts = (inquiryAttempts.get(clientKey) || []).filter((time) => now - time < RATE_LIMIT_WINDOW);
     if (recentAttempts.length >= 5) {
       send(res, 429, JSON.stringify({ error: "Zu viele Anfragen. Bitte versuchen Sie es später erneut oder nutzen Sie Telefon beziehungsweise WhatsApp." }), MIME_TYPES[".json"]);
       return;
     }
     recentAttempts.push(now);
-    inquiryAttempts.set(clientIp, recentAttempts);
+    inquiryAttempts.set(clientKey, recentAttempts);
 
     const raw = await collectRequestBody(req);
-    const payload = JSON.parse(raw || "{}");
+    let payload;
+    try {
+      payload = JSON.parse(raw || "{}");
+    } catch {
+      send(res, 400, JSON.stringify({ error: "Ungültige Anfrage. Bitte prüfen Sie Ihre Eingaben." }), MIME_TYPES[".json"]);
+      return;
+    }
+    if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+      send(res, 400, JSON.stringify({ error: "Ungültige Anfrage. Bitte prüfen Sie Ihre Eingaben." }), MIME_TYPES[".json"]);
+      return;
+    }
     if (String(payload.website || "").trim()) {
       send(res, 200, JSON.stringify({ success: true, emailSent: false, emailStatus: "filtered" }), MIME_TYPES[".json"]);
       return;
@@ -153,32 +174,37 @@ async function handleInquiry(req, res) {
       message: clean(payload.message, 1200)
     };
 
-    const emailIsValid = !inquiry.email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inquiry.email);
+    const emailIsValid = !inquiry.email || /^[^\s@<>,;"]+@[^\s@<>,;"]+\.[^\s@<>,;"]+$/.test(inquiry.email);
     if (inquiry.name.length < 2 || inquiry.phone.length < 5 || !emailIsValid || payload.privacy !== "accepted") {
       send(res, 400, JSON.stringify({ error: "Bitte Pflichtfelder ausfüllen und die Datenschutzhinweise bestätigen." }), MIME_TYPES[".json"]);
       return;
     }
 
-    const target = path.join(__dirname, "data", "inquiries.json");
-    const existing = fs.existsSync(target) ? readJson(target) : [];
-    existing.unshift(inquiry);
-    fs.writeFileSync(target, JSON.stringify(existing.slice(0, 200), null, 2), "utf8");
     const siteConfig = readJson(CONFIG_FILE);
     let emailResult;
     try {
       emailResult = await sendInquiryEmail(inquiry, siteConfig);
-    } catch (error) {
-      console.error("E-Mail-Versand der Anfrage fehlgeschlagen:", error.message);
+    } catch {
+      // Provider errors can contain addresses or message contents. Do not log them.
+      console.error("E-Mail-Versand der Anfrage fehlgeschlagen.");
       emailResult = { sent: false, reason: "delivery_failed" };
     }
-    send(res, emailResult.sent ? 200 : 202, JSON.stringify({
+    if (!emailResult.sent) {
+      send(res, 503, JSON.stringify({
+        success: false,
+        emailSent: false,
+        error: "Der E-Mail-Versand konnte nicht bestätigt werden. Ihre Eingaben bleiben im Formular. Bitte versuchen Sie es später erneut."
+      }), MIME_TYPES[".json"]);
+      return;
+    }
+    send(res, 200, JSON.stringify({
       success: true,
       id: inquiry.id,
       emailSent: emailResult.sent,
       emailStatus: emailResult.reason || "sent"
     }), MIME_TYPES[".json"]);
   } catch {
-    send(res, 500, JSON.stringify({ error: "Anfrage konnte nicht gespeichert werden." }), MIME_TYPES[".json"]);
+    send(res, 500, JSON.stringify({ error: "Anfrage konnte nicht gesendet werden. Bitte versuchen Sie es später erneut." }), MIME_TYPES[".json"]);
   }
 }
 

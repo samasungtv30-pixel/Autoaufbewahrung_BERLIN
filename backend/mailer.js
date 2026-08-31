@@ -9,13 +9,10 @@ function escapeHtml(value) {
     .replace(/'/g, "&#039;");
 }
 
-function isMailConfigured() {
-  return Boolean(
-    process.env.SMTP_HOST
-    && process.env.SMTP_USER
-    && process.env.SMTP_PASS
-    && process.env.SMTP_FROM_EMAIL
-  );
+function usableAddress(value) {
+  return /^[^\s@<>,;"]+@[^\s@<>,;"]+\.[^\s@<>,;"]+$/.test(value)
+    && !/@(?:.*\.)?example\.(?:com|org|net|de)$/i.test(value)
+    && !/\.(?:example|invalid|test)$/i.test(value);
 }
 
 function createTransporter() {
@@ -23,6 +20,12 @@ function createTransporter() {
     host: process.env.SMTP_HOST,
     port: Number(process.env.SMTP_PORT || 587),
     secure: String(process.env.SMTP_SECURE).toLowerCase() === "true",
+    requireTLS: true,
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
+    logger: false,
+    debug: false,
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS
@@ -31,13 +34,18 @@ function createTransporter() {
 }
 
 async function sendInquiryEmail(inquiry, siteConfig) {
-  if (!isMailConfigured()) {
+  const transport = process.env.MAIL_TRANSPORT || "smtp";
+  const recipient = (process.env.INQUIRY_RECIPIENT || siteConfig.email || "").trim();
+  const fromEmail = (process.env.MAIL_FROM_EMAIL || process.env.SMTP_FROM_EMAIL || "").trim();
+  const credentialsReady = transport === "resend"
+    ? Boolean(process.env.RESEND_API_KEY)
+    : transport === "smtp" && Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+  if (!credentialsReady || !usableAddress(recipient) || !usableAddress(fromEmail)) {
     return { sent: false, reason: "not_configured" };
   }
 
-  const recipient = process.env.INQUIRY_RECIPIENT || siteConfig.email;
-  const fromName = process.env.SMTP_FROM_NAME || `${siteConfig.siteName} Website`;
-  const subject = `Neue Website-Anfrage: ${inquiry.service || "Autoaufbereitung"}`;
+  const fromName = (process.env.MAIL_FROM_NAME || process.env.SMTP_FROM_NAME || `${siteConfig.siteName} Website`).replace(/[\r\n<>"]/g, " ").slice(0, 90);
+  const subject = `Neue Website-Anfrage: ${inquiry.service || "Autoaufbereitung"}`.replace(/[\r\n]/g, " ");
   const replyTo = inquiry.email || undefined;
   const rows = [
     ["Name", inquiry.name],
@@ -51,8 +59,8 @@ async function sendInquiryEmail(inquiry, siteConfig) {
     ["Anfrage-ID", inquiry.id]
   ];
 
-  await createTransporter().sendMail({
-    from: { name: fromName, address: process.env.SMTP_FROM_EMAIL },
+  const message = {
+    from: { name: fromName, address: fromEmail },
     to: recipient,
     replyTo,
     subject,
@@ -71,9 +79,34 @@ async function sendInquiryEmail(inquiry, siteConfig) {
         ${replyTo ? `<p style="margin-top:24px">Auf diese E-Mail kann direkt geantwortet werden.</p>` : ""}
       </div>
     `
-  });
+  };
 
-  return { sent: true };
+  if (transport === "resend") {
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+        "Content-Type": "application/json",
+        "Idempotency-Key": inquiry.id
+      },
+      signal: AbortSignal.timeout(15000),
+      body: JSON.stringify({
+        from: `${fromName} <${fromEmail}>`,
+        to: [recipient],
+        reply_to: replyTo,
+        subject,
+        text: message.text,
+        html: message.html
+      })
+    });
+    if (!response.ok) return { sent: false, reason: "delivery_failed" };
+    const result = await response.json();
+    return { sent: Boolean(result.id), reason: result.id ? "sent" : "delivery_failed" };
+  }
+
+  const result = await createTransporter().sendMail(message);
+  const sent = result.accepted?.some((address) => String(address).toLowerCase() === recipient.toLowerCase());
+  return { sent: Boolean(sent), reason: sent ? "sent" : "delivery_failed" };
 }
 
 module.exports = { sendInquiryEmail };

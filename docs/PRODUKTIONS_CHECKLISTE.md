@@ -7,7 +7,9 @@ Diese Liste trennt technische Fertigstellung von den noch ausstehenden Kundendat
 - Responsive Website mit Startseite, Leistungen, Preisen, Galerie, Kontakt und Rechtstexten
 - Zentrale Konfiguration in `backend/data/site.json`
 - Angebotsformular mit Spam-Falle, Rate-Limit, Datenschutzbestätigung und serverseitiger Validierung
-- Speicherung der letzten 200 Anfragen und optionaler SMTP-E-Mail-Versand
+- Direkter E-Mail-Versand ohne Anfrage-Datei, Datenbank oder dauerhafte Versandwarteschlange
+- Erfolg erst nach Annahme durch den Versanddienst; bei Fehler bleiben die Formulareingaben erhalten
+- Wahlweise HTTPS-Versand mit Resend oder TLS-gesicherter SMTP-Versand
 - Antwortadresse des Interessenten als `Reply-To`, sofern eine E-Mail angegeben wurde
 - Direkte Kontaktwege für Telefon, WhatsApp, E-Mail und Route
 - Deaktivierte Kontaktaktionen, solange nur Platzhalterdaten vorhanden sind
@@ -28,7 +30,17 @@ Diese Liste trennt technische Fertigstellung von den noch ausstehenden Kundendat
 
 ## Render und E-Mail
 
-Folgende Werte ausschließlich als Render Environment Variables setzen:
+Render Free sperrt SMTP-Ports 25, 465 und 587. Für diesen Tarif den vorbereiteten
+HTTPS-Transport nach Freigabe des Versanddienstes einrichten. Folgende Werte
+ausschließlich als Render Environment Variables setzen:
+
+- `MAIL_TRANSPORT=resend`
+- `RESEND_API_KEY`
+- `MAIL_FROM_EMAIL` (verifizierte Absenderdomain)
+- `MAIL_FROM_NAME`
+- `INQUIRY_RECIPIENT`
+
+Alternativ auf einem Hosting mit erlaubtem SMTP `MAIL_TRANSPORT=smtp` und zusätzlich:
 
 - `SMTP_HOST`
 - `SMTP_PORT`
@@ -40,6 +52,9 @@ Folgende Werte ausschließlich als Render Environment Variables setzen:
 - `INQUIRY_RECIPIENT`
 
 Nach der Einrichtung eine echte Testanfrage senden und Eingang, Absender, `Reply-To` sowie Spam-Ordner prüfen.
+Die Annahme durch den Versanddienst allein bestätigt noch nicht den Eingang im Zielpostfach.
+Versanddienst, Postfach-Aufbewahrung und Hosting-Protokolle mit dem Betreiber klären.
+Anfrage-Dateien und Backups aus älteren Installationen separat auf vorhandene Daten prüfen.
 
 ## Abnahme
 

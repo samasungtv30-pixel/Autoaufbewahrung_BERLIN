@@ -536,14 +536,10 @@ function initInquiryForm() {
         body: JSON.stringify(data)
       });
       const result = await response.json();
-      if (!response.ok || !result.success) throw new Error(result.error || "Anfrage konnte nicht gesendet werden.");
-      if (result.emailSent) {
-        setStatus("Vielen Dank. Ihre Anfrage wurde per E-Mail übermittelt.", "success");
-      } else if (result.emailStatus === "not_configured") {
-        setStatus("Vielen Dank. Ihre Anfrage wurde erfasst. Wir melden uns schnellstmöglich bei Ihnen.", "success");
-      } else {
-        setStatus("Ihre Anfrage wurde gespeichert, aber die E-Mail-Zustellung konnte nicht bestätigt werden. Bitte nutzen Sie bei dringenden Anliegen Telefon oder WhatsApp.", "error");
+      if (!response.ok || !result.success || !result.emailSent) {
+        throw new Error(result.error || "Der E-Mail-Versand konnte nicht bestätigt werden. Ihre Eingaben bleiben im Formular. Bitte versuchen Sie es später erneut.");
       }
+      setStatus("Vielen Dank. Ihre Anfrage wurde per E-Mail übermittelt.", "success");
       form.reset();
     } catch (error) {
       setStatus(error.message, "error");

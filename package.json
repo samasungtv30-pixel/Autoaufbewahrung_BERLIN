@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node backend/server.js",
     "dev": "node backend/server.js",
-    "check": "node --check backend/server.js && node --check backend/mailer.js && node --check frontend/js/main.js && node scripts/check-site.js && node scripts/check-ui.js"
+    "check": "node --check backend/server.js && node --check backend/mailer.js && node --check frontend/js/main.js && node scripts/check-site.js && node scripts/check-ui.js && node --test scripts/check-inquiry.js"
   },
   "engines": {
     "node": ">=20.9.0"
