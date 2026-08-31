@@ -11,22 +11,29 @@ const listeners = new Map();
 const context = vm.createContext({
   console,
   URLSearchParams,
+  URL,
   document: {
     addEventListener() {},
     body: { classList: { contains: (name) => classes.has(name) } },
     querySelector: (selector) => elements.get(selector) || null,
-    getElementById: (id) => elements.get(`#${id}`) || null
+    getElementById: (id) => elements.get(`#${id}`) || null,
   },
   window: {
     location: { hash: "" },
-    addEventListener: (name, callback) => listeners.set(name, callback)
-  }
+    addEventListener: (name, callback) => listeners.set(name, callback),
+  },
 });
 vm.runInContext(fs.readFileSync(path.join(root, "frontend/js/main.js"), "utf8"), context);
 context.configFixture = config;
 vm.runInContext("siteConfig = configFixture", context);
 
-const grid = { dataset: { servicesVariant: "home-teaser", servicesSlugs: "innenreinigung,lackaufbereitung,komplettaufbereitung" }, innerHTML: "" };
+const grid = {
+  dataset: {
+    servicesVariant: "home-teaser",
+    servicesSlugs: "innenreinigung,lackaufbereitung,komplettaufbereitung",
+  },
+  innerHTML: "",
+};
 elements.set("[data-services-grid]", grid);
 context.renderServices();
 assert.equal((grid.innerHTML.match(/class="home-service-card__details"/g) || []).length, 3);
@@ -38,7 +45,10 @@ classes.clear();
 classes.add("services-page");
 grid.dataset = {};
 context.renderServices();
-assert.equal((grid.innerHTML.match(/class="service-checklist"/g) || []).length, config.services.filter((service) => service.active !== false).length);
+assert.equal(
+  (grid.innerHTML.match(/class="service-checklist"/g) || []).length,
+  config.services.filter((service) => service.active !== false).length,
+);
 assert.ok(!grid.innerHTML.includes("service-card__timeline"));
 
 const packageGrid = { innerHTML: "" };
@@ -53,17 +63,23 @@ vm.runInContext("siteConfig = configFixture", context);
 context.renderPackages();
 assert.equal(packageSection.hidden, false);
 assert.equal((packageGrid.innerHTML.match(/class="package package--/g) || []).length, config.packages.length);
-assert.equal((packageGrid.innerHTML.match(/data-service-icon="circle-check-big"/g) || []).length, config.packages.reduce((sum, item) => sum + item.features.length, 0));
+assert.equal(
+  (packageGrid.innerHTML.match(/data-service-icon="circle-check-big"/g) || []).length,
+  config.packages.reduce((sum, item) => sum + item.features.length, 0),
+);
 for (const item of config.packages) {
-  assert.ok(packageGrid.innerHTML.includes(`href="/kontakt.html?paket=${encodeURIComponent(item.name)}#anfrage"`));
+  assert.ok(
+    packageGrid.innerHTML.includes(`href="/kontakt.html?paket=${encodeURIComponent(item.name)}#anfrage"`),
+  );
 }
 
 const messageField = { value: "" };
 const serviceSelect = {};
 elements.set("[data-form-status]", {});
 elements.set("#inquiry-form", {
-  querySelector: (selector) => selector === "#service" ? serviceSelect : selector === '[name="message"]' ? messageField : null,
-  addEventListener() {}
+  querySelector: (selector) =>
+    selector === "#service" ? serviceSelect : selector === '[name="message"]' ? messageField : null,
+  addEventListener() {},
 });
 context.window.location.search = "?paket=Premium";
 context.initInquiryForm();
@@ -93,11 +109,15 @@ elements.set("#service-lackaufbereitung", {
   classList: { contains: (name) => name === "service-card--premium" },
   setAttribute: (name, value) => calls.push([name, value]),
   scrollIntoView: (options) => calls.push(["scroll", options.block]),
-  focus: (options) => calls.push(["focus", options.preventScroll])
+  focus: (options) => calls.push(["focus", options.preventScroll]),
 });
 context.window.location.hash = "#service-lackaufbereitung";
 context.initServiceDeepLinks();
-assert.deepEqual(calls, [["tabindex", "-1"], ["scroll", "start"], ["focus", true]]);
+assert.deepEqual(calls, [
+  ["tabindex", "-1"],
+  ["scroll", "start"],
+  ["focus", true],
+]);
 assert.ok(listeners.has("hashchange"));
 context.window.location.hash = "#unknown-service";
 listeners.get("hashchange")();
@@ -118,8 +138,19 @@ assert.equal(frame.src, undefined);
 
 let loadMap;
 let loadedClass;
-elements.set(".contact-map-shell", { classList: { add: (name) => { loadedClass = name; } } });
-elements.set("[data-map-load]", { addEventListener: (name, callback) => { assert.equal(name, "click"); loadMap = callback; } });
+elements.set(".contact-map-shell", {
+  classList: {
+    add: (name) => {
+      loadedClass = name;
+    },
+  },
+});
+elements.set("[data-map-load]", {
+  addEventListener: (name, callback) => {
+    assert.equal(name, "click");
+    loadMap = callback;
+  },
+});
 context.configFixture = { ...config, address: { street: "Teststrasse 1", zip: "12345", city: "Teststadt" } };
 vm.runInContext("siteConfig = configFixture", context);
 context.initContactMap();
@@ -130,4 +161,16 @@ assert.equal(frame.hidden, false);
 assert.equal(elements.get("[data-map-consent]").hidden, true);
 assert.equal(loadedClass, "is-loaded");
 
-console.log("UI checks passed: service links, checklists, package inquiries, deep links and map availability.");
+assert.equal(context.hasUsableWhatsapp("https://wa.me/493012345678"), true);
+for (const value of [
+  "javascript:alert(493012345678)",
+  "https://attacker.invalid/493012345678",
+  "https://wa.me/4900000000000",
+  "http://wa.me/493012345678",
+]) {
+  assert.equal(context.hasUsableWhatsapp(value), false);
+}
+
+console.log(
+  "UI checks passed: service links, checklists, package inquiries, deep links and map availability.",
+);

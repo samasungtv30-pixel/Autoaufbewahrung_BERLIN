@@ -7,10 +7,13 @@
   "scripts": {
     "start": "node backend/server.js",
     "dev": "node backend/server.js",
-    "check": "node --check backend/server.js && node --check backend/mailer.js && node --check frontend/js/main.js && node scripts/check-site.js && node scripts/check-ui.js && node --test scripts/check-inquiry.js"
+    "check": "node --check backend/server.js && node --check backend/mailer.js && node --check frontend/js/main.js && node scripts/check-site.js && node scripts/check-ui.js && node --test scripts/check-inquiry.js scripts/check-security.js",
+    "format": "prettier --write \"backend/*.js\" \"frontend/js/*.js\" \"scripts/*.js\"",
+    "format:check": "prettier --check \"backend/*.js\" \"frontend/js/*.js\" \"scripts/*.js\"",
+    "check:launch": "node scripts/check-launch.js"
   },
   "engines": {
-    "node": ">=20.9.0"
+    "node": "24.x"
   },
   "dependencies": {
     "dotenv": "^17.2.2",
@@ -18,6 +21,7 @@
   },
   "license": "UNLICENSED",
   "devDependencies": {
-    "lucide-static": "^1.37.0"
+    "lucide-static": "^1.37.0",
+    "prettier": "3.9.6"
   }
 }

@@ -7,7 +7,7 @@
   <meta name="description" content="Autoaufbereitung direkt per WhatsApp, Telefon, E-Mail oder Anfrageformular kontaktieren und Standort sowie Öffnungszeiten ansehen.">
   <title>Kontakt und Angebotsanfrage | Autoaufbereitung</title>
   <link rel="preload" href="/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/css/style.css?v=28">
-  <link rel="stylesheet" href="/css/studio.css?v=2">
+  <link rel="stylesheet" href="/css/studio.css?v=3">
 </head>
 <body class="contact-page">
   <a class="skip-link" href="#main">Zum Inhalt springen</a>
@@ -28,27 +28,28 @@
         <div><p class="eyebrow">Unverbindliche Anfrage</p><h2 id="request-title">Ihr Fahrzeug. Ihre Anfrage.</h2></div>
         <p>Beschreiben Sie Ihren Pflegewunsch. Umfang und Angebot stimmen wir persönlich mit Ihnen ab.</p>
       </div>
-      <form class="contact-form form-grid contact-surface contact-request-form reveal" id="inquiry-form" aria-labelledby="request-title" aria-describedby="request-required">
+      <form class="contact-form form-grid contact-surface contact-request-form reveal" id="inquiry-form" method="post" action="/api/inquiry" aria-labelledby="request-title" aria-describedby="request-required">
         <p class="form-note" id="request-required">Mit * gekennzeichnete Felder sind erforderlich.</p>
         <div class="contact-form__groups">
           <fieldset class="contact-form__group">
             <legend><span data-service-icon="phone-call" aria-hidden="true"></span>Ihre Kontaktdaten</legend>
-            <div class="form-row"><label>Name *<input name="name" autocomplete="name" required></label><label>Telefon *<input type="tel" name="phone" autocomplete="tel" inputmode="tel" required></label></div>
-            <label>E-Mail<input type="email" name="email" autocomplete="email"></label>
+            <div class="form-row"><label>Name *<input name="name" autocomplete="name" minlength="2" maxlength="90" required></label><label>Telefon *<input type="tel" name="phone" autocomplete="tel" inputmode="tel" minlength="5" maxlength="40" required></label></div>
+            <label>E-Mail<input type="email" name="email" autocomplete="email" maxlength="120"></label>
           </fieldset>
           <fieldset class="contact-form__group">
             <legend><span data-service-icon="scan-line" aria-hidden="true"></span>Ihr Fahrzeug</legend>
-            <label>Fahrzeug / Modell<input name="vehicle" autocomplete="off" placeholder="z. B. BMW 3er Touring"></label>
+            <label>Fahrzeug / Modell<input name="vehicle" autocomplete="off" maxlength="120" placeholder="z. B. BMW 3er Touring"></label>
             <label>Gewünschte Leistung<select name="service" id="service"></select></label>
           </fieldset>
         </div>
-        <label class="contact-form__message">Ihr Anliegen<textarea name="message" rows="3" placeholder="Welche Bereiche sollen gepflegt werden? Beschreiben Sie Zustand und Wünsche."></textarea></label>
+        <label class="contact-form__message">Ihr Anliegen<textarea name="message" rows="3" maxlength="1200" placeholder="Welche Bereiche sollen gepflegt werden? Beschreiben Sie Zustand und Wünsche."></textarea></label>
         <div class="contact-form__submit">
           <label class="privacy-check"><input type="checkbox" name="privacy" value="accepted" required><span>Ich habe die <a href="/datenschutz.html">Datenschutzhinweise</a> gelesen und stimme der Verarbeitung meiner Angaben zur Bearbeitung der Anfrage zu. *</span></label>
-          <button class="button button--primary" type="submit">Unverbindlich anfragen <span data-service-icon="arrow-up-right" aria-hidden="true"></span></button>
+          <button class="button button--primary" type="submit" disabled>Unverbindlich anfragen <span data-service-icon="arrow-up-right" aria-hidden="true"></span></button>
         </div>
         <label class="honeypot" aria-hidden="true">Website<input name="website" tabindex="-1" autocomplete="off"></label>
         <p data-form-status role="status" aria-live="polite"></p>
+        <noscript><p>Bitte aktivieren Sie JavaScript, um das Anfrageformular zu nutzen.</p></noscript>
       </form>
     </div></section>
 
@@ -72,6 +73,6 @@
 
   <footer class="site-footer"><div class="footer-grid"><div><a class="brand brand--footer" href="/"><img class="brand-logo" data-brand-logo src="/images/brand-logo.svg" alt="Autoaufbereitung Berlin" width="184" height="58"></a><p data-claim></p></div><div><h3>Kontakt</h3><p data-address></p><p><a data-call-link href="#" data-phone></a></p><p><a data-mail-link href="#" data-email></a></p></div><div><h3>Navigation</h3><p><a href="/leistungen.html">Leistungen</a><br><a href="/preise.html">Pakete</a><br><a href="/#ablauf">Ablauf</a><br><a href="/kontakt.html">Kontakt</a><br><a href="/#faq">FAQ</a></p></div><div><h3>Rechtliches</h3><p><a href="/impressum.html">Impressum</a><br><a href="/datenschutz.html">Datenschutz</a></p></div></div><div class="footer-bottom">© 2026 <span data-site-name>[KUNDENNAME]</span>.</div></footer>
   <div class="mobile-sticky-actions"><a class="button button--primary" data-whatsapp-link href="#" target="_blank" rel="noopener">WhatsApp</a><a class="button button--dark" data-call-link href="#">Anrufen</a></div>
-  <script src="/js/main.js?v=23"></script>
+  <script src="/js/main.js?v=24"></script>
 </body>
 </html>

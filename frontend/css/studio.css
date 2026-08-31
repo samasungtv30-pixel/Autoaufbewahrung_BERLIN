@@ -263,7 +263,8 @@ h1, h2, h3, h4, button, .button, .eyebrow, .nav-links, summary {
 .mobile-sticky-actions small { font-size: .75rem; }
 
 /* Reuse the existing observer. Stagger only elements already participating in reveal. */
-.reveal { transform: translateY(12px); transition-duration: var(--studio-reveal); transition-timing-function: var(--studio-ease); }
+.reveal { opacity: 1; transform: none; transition-duration: var(--studio-reveal); transition-timing-function: var(--studio-ease); }
+.reveal.is-pending:not(.is-visible):not(:focus-within) { opacity: 0; transform: translateY(12px); }
 .reveal.is-visible { transform: none; }
 .home-service-grid.is-visible > .home-service-card,
 .process-line.is-visible > .process-line__item { animation: studio-card 420ms var(--studio-ease) backwards; }
@@ -369,7 +370,22 @@ h1, h2, h3, h4, button, .button, .eyebrow, .nav-links, summary {
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
-  .reveal, .reveal.is-visible { opacity: 1; transform: none; }
+  .reveal, .reveal.is-visible, .reveal.is-pending { opacity: 1 !important; transform: none !important; }
   .home-service-card:hover, .service-card--premium:hover, .package:hover, .contact-page .contact-channel:hover,
   .home-service-card:hover img, .service-card--premium:hover img, .button:active:not(:disabled):not(.is-unavailable) { transform: none; }
+}
+
+/* Status messages are functional copy and share the readable body scale. */
+[data-form-status] { font-size: 1rem; line-height: 1.6; overflow-wrap: anywhere; }
+.app-notice { margin: 24px auto; padding: 16px 20px; width: min(var(--content), calc(100% - 40px)); border: 1px solid var(--studio-border-strong); border-radius: var(--studio-radius); }
+:where(main, section[id], article[id]) { scroll-margin-top: 100px; }
+.contact-form__group, .form-grid label, .service-overview > *, .footer-grid > * { min-width: 0; }
+.site-footer a { overflow-wrap: anywhere; }
+.service-scope > p, .service-scope li { font-size: 1rem; line-height: 1.65; }
+.service-scope > span { font-size: .875rem; }
+.service-steps li { min-height: 144px; justify-content: flex-start; gap: 16px; font-size: 1.125rem; line-height: 1.5; }
+.service-steps span { font-family: var(--font-heading); font-size: 1.75rem; line-height: 1.2; font-variant-numeric: tabular-nums; }
+@media (max-width: 760px) {
+  .service-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .service-steps li { min-height: 144px; padding: 18px 14px; font-size: 1rem; hyphens: auto; overflow-wrap: break-word; }
 }

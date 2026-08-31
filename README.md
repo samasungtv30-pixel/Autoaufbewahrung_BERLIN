@@ -18,11 +18,39 @@ Produktionsnahe Website-Basis fuer einen Autoaufbereitungsbetrieb. Inhalte, Leis
 
 ## Start
 
+Node.js 24 LTS verwenden. Render bleibt innerhalb dieser Hauptversion und installiert
+deren aktuelle Patch-Version. JavaScript wird mit `npm run format` einheitlich formatiert;
+`npm run format:check` prueft die Formatierung ohne Dateien zu aendern.
+
 ```bash
 npm run dev
 ```
 
 Danach ist die Website unter `http://localhost:3100` erreichbar.
+
+## Qualitaet und Produktionsfreigabe
+
+- `npm run check`: Struktur-, UI-, Formular- und HTTP-Sicherheitstests. Versanddienste
+  sind simuliert beziehungsweise im lokalen Integrationstest deaktiviert.
+- `npm run check:launch`: separate Vorpruefung echter Betriebsdaten und der
+  Versandkonfiguration. Ein Fehler ist in der Vorschau mit Platzhaltern zu erwarten.
+- GitHub Actions fuehrt Tests, Formatierungspruefung und Dependency-Audit aus.
+- Render fuehrt Tests auch vor dem Start einer neuen Version aus.
+- `indexingEnabled: false` in `backend/data/site.json` setzt den HTTP-Header
+  `X-Robots-Tag: noindex, nofollow`. Erst nach Betreiberfreigabe, vervollstaendigten
+  Rechtstexten und funktionierendem Kontakt auf `true` setzen. Dies ist kein
+  Zugangsschutz: Die Vorschau bleibt unter ihrem Link oeffentlich erreichbar.
+- Sitemap und Robots verwenden ausschliesslich `publicUrl`, nicht den eingehenden
+  Host-Header. Nach einem Domainwechsel `publicUrl` aktualisieren; der Formular-Endpunkt
+  akzeptiert im Produktivbetrieb nur diese Browser-Origin.
+- `TRUST_PROXY_HOPS` ist direkt gehostet standardmaessig `0`, auf Render `1`.
+  Nur nach verifizierter Proxy-Kette aendern. Die Auswahl erfolgt von rechts im
+  Forwarded-Header; bei mehreren gemeinsamen Proxy-Hops kann das Limit Nutzer
+  zusammenfassen. Vor echtem Betrieb von zwei Netzen pruefen.
+- Das In-Memory-Limit gilt je Serverprozess, wird beim Neustart zurueckgesetzt und
+  ersetzt keinen vorgelagerten DDoS-/Bot-Schutz. Es gibt keine Anfrage-Datenbank.
+
+Details und verbleibende Abnahmen: `docs/AUDIT-2026-08-31.md`.
 
 ## E-Mail-Versand fuer Anfragen
 
