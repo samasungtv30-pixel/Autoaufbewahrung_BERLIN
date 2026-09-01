@@ -242,6 +242,7 @@ h1, h2, h3, h4, button, .button, .eyebrow, .nav-links, summary {
   margin-inline: auto;
   color: #d0d8d5;
 }
+.home .service-intro h2 > span { color: var(--accent); }
 .home-service-directory {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
