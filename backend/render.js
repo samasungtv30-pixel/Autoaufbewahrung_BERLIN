@@ -57,6 +57,15 @@ function serviceCard(service, index, teaser, config) {
         <a class="service-card__chat${whatsapp ? "" : " is-unavailable"}" ${whatsapp ? `href="${escape(whatsapp)}"` : 'aria-disabled="true" tabindex="-1" title="WhatsApp-Nummer folgt"'} target="_blank" rel="noopener noreferrer" aria-label="${escape(service.title)} per WhatsApp anfragen">${icon("message-circle")}</a>
       </div></div></article>`;
 }
+function serviceDirectoryItem(service, index) {
+  const slug = escape(service.slug);
+  return `<a class="home-service-directory__item" href="/leistungen.html#service-${slug}" aria-label="${escape(service.title)} ansehen">
+    <span class="home-service-directory__check" aria-hidden="true">${icon("circle-check-big")}</span>
+    <span class="home-service-directory__number">${number(index)}</span>
+    <strong>${escape(service.title)}</strong>
+    ${icon("arrow-up-right")}
+  </a>`;
+}
 function packageCard(item, index) {
   const titleId = `package-title-${number(index)}`;
   const features = Array.isArray(item.features) ? item.features : [];
@@ -136,7 +145,7 @@ function renderHtml(filePath, config) {
   const active = config.services.filter((item) => item.active !== false);
   const setText = (selector, value) => $(selector).text(value ?? "");
   const links = business.contactLinks(config);
-  $('link[href^="/css/studio.css"]').attr("href", "/css/studio.css?v=10");
+  $('link[href^="/css/studio.css"]').attr("href", "/css/studio.css?v=11");
   $('script[src^="/js/main.js"]').attr("src", "/js/main.js?v=27");
   const action = (selector, href) => {
     $(selector).each((_, element) => {
@@ -172,11 +181,14 @@ function renderHtml(filePath, config) {
       ? requested.map((slug) => active.find((item) => item.slug === slug)).filter(Boolean)
       : active;
     const limit = Number.parseInt(grid.attr("data-services-limit"), 10);
+    const variant = grid.attr("data-services-variant");
     grid.html(
       selected
         .slice(0, Number.isFinite(limit) ? limit : selected.length)
         .map((item, index) =>
-          serviceCard(item, index, grid.attr("data-services-variant") === "home-teaser", config),
+          variant === "home-directory"
+            ? serviceDirectoryItem(item, index)
+            : serviceCard(item, index, variant === "home-teaser", config),
         )
         .join(""),
     );

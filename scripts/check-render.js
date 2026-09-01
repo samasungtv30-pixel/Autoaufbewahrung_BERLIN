@@ -18,7 +18,13 @@ test("public configuration allow-lists fields rather than exposing arbitrary int
 
 test("services, FAQ, business data and detail content exist in the initial HTML", () => {
   const home = render("index.html");
-  assert.equal(home(".home-service-card").length, 3);
+  assert.equal(home(".home-service-directory__item").length, config.services.length);
+  assert.deepEqual(
+    home(".home-service-directory__item strong")
+      .map((_, item) => home(item).text())
+      .get(),
+    config.services.map((service) => service.title),
+  );
   assert.equal(home(".faq-list details").length, config.faq.length);
   assert.equal(home("[data-opening-hours] li").length, config.openingHours.length);
   for (const service of config.services) {
