@@ -89,11 +89,12 @@
       "highlights": ["Innen- und Außencheck", "Priorisierte Maßnahmen", "Optionale Fotodokumentation"]
     }
   ],
+  "packagesEnabled": true,
   "packagesConfirmed": false,
   "packages": [
-    { "name": "Basis", "price": "Preis auf Anfrage", "description": "Kompakte Pflege für einen sauberen und gepflegten Gesamteindruck.", "features": ["Leistungsumfang nach Fahrzeug-Check", "Innen oder außen konfigurierbar", "Klare Abstimmung vor Beginn"] },
-    { "name": "Premium", "price": "Preis auf Anfrage", "description": "Intensivere Aufbereitung mit zusätzlichen Detail- und Pflegearbeiten.", "features": ["Erweiterter Pflegeumfang", "Material- und zustandsbezogene Behandlung", "Abschlusskontrolle bei Übergabe"] },
-    { "name": "Komplett", "price": "Preis auf Anfrage", "description": "Individuell kombinierte Innen- und Außenaufbereitung für umfassenden Pflegebedarf.", "features": ["Innen- und Außenbereiche", "Individuell zusammengestellte Optionen", "Persönliche Angebotserstellung"] }
+    { "name": "Basis", "shortDescription": "Grundlegender Leistungsumfang.", "features": [], "price": "Preis auf Anfrage", "priceSuffix": "", "cta": "Paket anfragen", "highlighted": false },
+    { "name": "Intensiv", "shortDescription": "Umfangreichere Fahrzeugpflege.", "features": [], "price": "Preis auf Anfrage", "priceSuffix": "", "cta": "Paket anfragen", "highlighted": false },
+    { "name": "Premium", "shortDescription": "Umfassender, detailorientierter Leistungsumfang.", "features": [], "price": "Preis auf Anfrage", "priceSuffix": "", "cta": "Paket anfragen", "highlighted": false }
   ],
   "faq": [
     { "question": "Kann ich vorab Fotos per WhatsApp schicken?", "answer": "Ja. Fotos von Fahrzeugzustand, Felge oder Lackbereich helfen bei einer ersten unverbindlichen Einschätzung. Ein verbindliches Angebot kann eine Prüfung vor Ort erfordern." },

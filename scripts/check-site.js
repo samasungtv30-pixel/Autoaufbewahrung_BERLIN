@@ -138,6 +138,28 @@ for (const file of publicCopyFiles) {
 const config = JSON.parse(fs.readFileSync(path.join(root, "backend", "data", "site.json"), "utf8"));
 if (typeof config.packagesConfirmed !== "boolean")
   errors.push("packagesConfirmed muss ein boolescher Freigabewert sein");
+if (typeof config.packagesEnabled !== "boolean")
+  errors.push("packagesEnabled muss ein boolescher Sichtbarkeitswert sein");
+if (!Array.isArray(config.packages)) errors.push("packages muss eine Liste sein");
+if (config.packagesEnabled === true && config.packages.length !== 3)
+  errors.push("Die aktive Paket-Sektion muss genau drei Pakete enthalten");
+const packageNames = new Set();
+for (const item of config.packages || []) {
+  for (const field of ["name", "shortDescription", "price", "priceSuffix", "cta"]) {
+    if (typeof item[field] !== "string")
+      errors.push(`Paket ${item.name || "ohne Namen"}: ${field} muss Text sein`);
+  }
+  if (!item.name || !item.shortDescription || !item.price || !item.cta)
+    errors.push(`Paket ${item.name || "ohne Namen"}: Pflichtangaben fehlen`);
+  if (!Array.isArray(item.features))
+    errors.push(`Paket ${item.name || "ohne Namen"}: features muss eine Liste sein`);
+  if ((item.features || []).some((feature) => typeof feature !== "string" || !feature.trim()))
+    errors.push(`Paket ${item.name || "ohne Namen"}: features darf nur nichtleere Texte enthalten`);
+  if (typeof item.highlighted !== "boolean")
+    errors.push(`Paket ${item.name || "ohne Namen"}: highlighted muss true oder false sein`);
+  if (packageNames.has(item.name)) errors.push(`Paketname doppelt: ${item.name}`);
+  packageNames.add(item.name);
+}
 for (const font of ["inter-latin", "inter-latin-ext", "space-grotesk-latin", "space-grotesk-latin-ext"]) {
   const file = path.join(frontend, "fonts", `${font}.woff2`);
   if (!fs.existsSync(file) || fs.readFileSync(file).subarray(0, 4).toString() !== "wOF2")

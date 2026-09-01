@@ -41,7 +41,7 @@ elements.set("#inquiry-form", {
     selector === "#service" ? serviceSelect : selector === '[name="message"]' ? messageField : null,
   addEventListener() {},
 });
-fixture({ ...config, packagesConfirmed: true });
+fixture({ ...config, packagesEnabled: true });
 context.window.location.search = "?paket=Premium";
 context.initInquiryForm();
 assert.equal(messageField.value, "Ich interessiere mich für das Pflegepaket Premium.");
@@ -50,7 +50,7 @@ context.initInquiryForm();
 assert.equal(messageField.value, "Meine eigene Nachricht");
 for (const approval of [false, undefined, "true"]) {
   messageField.value = "";
-  fixture({ ...config, packagesConfirmed: approval });
+  fixture({ ...config, packagesEnabled: approval });
   context.initInquiryForm();
   assert.equal(messageField.value, "");
 }

@@ -401,8 +401,7 @@ function initInquiryForm() {
   if (matchingService) serviceSelect.value = matchingService.title;
   const requestedPackage = new URLSearchParams(window.location.search).get("paket");
   const matchingPackage =
-    siteConfig.packagesConfirmed === true &&
-    siteConfig.packages.find((item) => item.name === requestedPackage);
+    siteConfig.packagesEnabled === true && siteConfig.packages.find((item) => item.name === requestedPackage);
   const message = qs('[name="message"]', form);
   if (matchingPackage && message && !message.value)
     message.value = `Ich interessiere mich für das Pflegepaket ${matchingPackage.name}.`;

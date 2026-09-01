@@ -115,7 +115,7 @@ test("security headers, cache policy and preview indexing guard apply", async ()
   }
   assert.equal((await request("/api/config")).headers["cache-control"], "no-store");
   const config = JSON.parse((await request("/api/config")).body);
-  if (site.packagesConfirmed !== true) assert.deepEqual(config.packages, []);
+  if (site.packagesEnabled !== true) assert.deepEqual(config.packages, []);
   assert.ok(!Object.keys(config).some((key) => /smtp|recipient|password|secret|api.?key/i.test(key)));
 });
 

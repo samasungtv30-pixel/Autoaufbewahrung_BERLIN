@@ -35,20 +35,42 @@ test("services, FAQ, business data and detail content exist in the initial HTML"
   assert.equal(services(".service-card img").first().attr("loading"), "eager");
   assert.ok(home("[data-service-icon] svg").length > 10);
 });
-test("only confirmed packages and active services are rendered", () => {
-  for (const approved of [false, undefined, "true"]) {
-    const doc = render("preise.html", { ...config, packagesConfirmed: approved });
+test("only enabled packages and active services are rendered", () => {
+  for (const enabled of [false, undefined, "true"]) {
+    const doc = render("preise.html", { ...config, packagesEnabled: enabled });
     assert.equal(doc(".package").length, 0);
     assert.deepEqual(JSON.parse(doc("#site-config").text()).packages, []);
   }
-  const doc = render("preise.html", { ...config, packagesConfirmed: true });
-  assert.equal(doc(".package").length, config.packages.length);
-  assert.ok(!doc("[data-packages-section]").is("[hidden]"));
   const active = render("leistungen.html", {
     ...config,
     services: config.services.map((s, i) => ({ ...s, active: i !== 0 })),
   });
   assert.equal(active("#service-innenreinigung").length, 0);
+});
+
+test("enabled package section renders exactly the configured cards in server HTML", () => {
+  const doc = render("preise.html");
+  const cards = doc("[data-packages-grid] > .package");
+  assert.equal(cards.length, config.packages.length);
+  assert.deepEqual(
+    cards.map((_, card) => doc(card).attr("data-package-name")).get(),
+    config.packages.map((item) => item.name),
+  );
+  config.packages.forEach((item, index) => {
+    const card = cards.eq(index);
+    assert.equal(card.find("h3").text(), item.name);
+    assert.equal(card.find("p").text(), item.shortDescription);
+    assert.equal(card.find("li").length, item.features.length);
+    assert.equal(card.find(".package__price strong").text(), item.price);
+    assert.equal(card.find(".package__price small").text(), item.priceSuffix);
+    assert.equal(card.find(".package__cta").text().trim(), item.cta);
+    assert.equal(card.hasClass("package--featured"), item.highlighted);
+    assert.equal(
+      card.find(".package__cta").attr("href"),
+      `/kontakt.html?paket=${encodeURIComponent(item.name)}#anfrage`,
+    );
+  });
+  assert.ok(!doc("[data-packages-section]").is("[hidden]"));
 });
 test("config values cannot inject HTML or escape embedded JSON", () => {
   const attack = '</script><script src="https://evil.invalid/x.js"></script><img src=x onerror=alert(1)>';
@@ -61,6 +83,20 @@ test("config values cannot inject HTML or escape embedded JSON", () => {
   assert.equal(doc("[onerror]").length, 0);
   assert.equal(doc('img[src^="javascript:"]').length, 0);
   assert.equal(JSON.parse(doc("#site-config").text()).siteName, attack);
+  const packages = render("preise.html", {
+    ...config,
+    packages: config.packages.map((item) => ({
+      ...item,
+      name: attack,
+      shortDescription: attack,
+      features: [attack],
+      price: attack,
+      priceSuffix: attack,
+      cta: attack,
+    })),
+  });
+  assert.equal(packages('script[src^="https:"]').length, 0);
+  assert.equal(packages("[onerror]").length, 0);
 });
 test("central data updates legal pages, hero location and public contact data", () => {
   const fixture = {
