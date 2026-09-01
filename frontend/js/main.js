@@ -150,6 +150,151 @@ function initMotion() {
   });
 }
 
+function initPremiumMotion() {
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  document.body.classList.add(reducedMotion ? "motion-reduced" : "motion-ready");
+  if (reducedMotion) return;
+
+  const imageShells = qsa(
+    ".home-service-card__media, .service-card__media, .image-story__media, .image-placeholder, .contact-map-shell",
+  );
+  imageShells.forEach((element) => element.classList.add("motion-image-reveal"));
+
+  const processLines = qsa(".process-line");
+  if ("IntersectionObserver" in window) {
+    const imageObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          imageShells
+            .filter((shell) => entry.target === shell || entry.target.contains(shell))
+            .forEach((shell) => shell.classList.add("is-revealed"));
+          imageObserver.unobserve(entry.target);
+        });
+      },
+      { rootMargin: "0px 0px -8%", threshold: 0.08 },
+    );
+    [...new Set(imageShells.map((element) => element.parentElement || element))].forEach((element) =>
+      imageObserver.observe(element),
+    );
+
+    const processObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          const line = entry.target;
+          const items = qsa(".process-line__item", line);
+          line.style.setProperty("--process-progress", "1");
+          items.forEach((item, index) => {
+            window.setTimeout(() => item.classList.add("is-active"), index * 120);
+          });
+          processObserver.unobserve(line);
+        });
+      },
+      { rootMargin: "0px 0px -18%", threshold: 0.2 },
+    );
+    processLines.forEach((line) => processObserver.observe(line));
+
+    const footer = qs(".site-footer");
+    if (footer) {
+      const footerObserver = new IntersectionObserver(
+        ([entry]) => {
+          if (!entry?.isIntersecting) return;
+          footer.classList.add("is-revealed");
+          footerObserver.disconnect();
+        },
+        { rootMargin: "0px 0px -4%", threshold: 0.08 },
+      );
+      footerObserver.observe(footer);
+    }
+  } else {
+    imageShells.forEach((element) => element.classList.add("is-revealed"));
+    qs(".site-footer")?.classList.add("is-revealed");
+  }
+
+  if (window.matchMedia("(min-width: 761px)").matches) {
+    let scrollFrame = 0;
+    const updateParallax = () => {
+      scrollFrame = 0;
+      const offset = Math.max(-28, Math.min(28, window.scrollY * 0.025));
+      qsa(".hero-media, .service-hero__media").forEach((image) =>
+        image.style.setProperty("--motion-image-y", `${offset}px`),
+      );
+    };
+    const scheduleParallax = () => {
+      if (!scrollFrame) scrollFrame = window.requestAnimationFrame(updateParallax);
+    };
+    updateParallax();
+    window.addEventListener("scroll", scheduleParallax, { passive: true });
+  }
+
+  if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+  const interactiveCards = qsa(
+    ".home-service-card, .service-card--premium, .package, .promise-grid article, .price-factor-strip article, .contact-surface, .contact-channel",
+  );
+  interactiveCards.forEach((card) => {
+    let pointerFrame = 0;
+    let pointerX = 0;
+    let pointerY = 0;
+    card.classList.add("motion-spotlight");
+    card.addEventListener(
+      "pointermove",
+      (event) => {
+        pointerX = event.clientX;
+        pointerY = event.clientY;
+        if (pointerFrame) return;
+        pointerFrame = window.requestAnimationFrame(() => {
+          pointerFrame = 0;
+          const rect = card.getBoundingClientRect();
+          const x = pointerX - rect.left;
+          const y = pointerY - rect.top;
+          card.style.setProperty("--spot-x", `${x}px`);
+          card.style.setProperty("--spot-y", `${y}px`);
+          if (card.matches(".service-card--premium, .package, .contact-surface")) {
+            card.style.setProperty("--tilt-x", `${((y / rect.height - 0.5) * -2).toFixed(2)}deg`);
+            card.style.setProperty("--tilt-y", `${((x / rect.width - 0.5) * 2).toFixed(2)}deg`);
+          }
+        });
+      },
+      { passive: true },
+    );
+    card.addEventListener("pointerleave", () => {
+      if (pointerFrame) window.cancelAnimationFrame(pointerFrame);
+      pointerFrame = 0;
+      card.style.setProperty("--tilt-x", "0deg");
+      card.style.setProperty("--tilt-y", "0deg");
+    });
+  });
+
+  qsa(".button--primary").forEach((button) => {
+    let pointerFrame = 0;
+    let pointerX = 0;
+    let pointerY = 0;
+    button.classList.add("motion-magnetic");
+    button.addEventListener(
+      "pointermove",
+      (event) => {
+        pointerX = event.clientX;
+        pointerY = event.clientY;
+        if (pointerFrame) return;
+        pointerFrame = window.requestAnimationFrame(() => {
+          pointerFrame = 0;
+          const rect = button.getBoundingClientRect();
+          button.style.setProperty("--magnet-x", `${((pointerX - rect.left) / rect.width - 0.5) * 6}px`);
+          button.style.setProperty("--magnet-y", `${((pointerY - rect.top) / rect.height - 0.5) * 4}px`);
+        });
+      },
+      { passive: true },
+    );
+    button.addEventListener("pointerleave", () => {
+      if (pointerFrame) window.cancelAnimationFrame(pointerFrame);
+      pointerFrame = 0;
+      button.style.setProperty("--magnet-x", "0px");
+      button.style.setProperty("--magnet-y", "0px");
+    });
+  });
+}
+
 function initNav() {
   const toggle = qs(".nav-toggle");
   const panel = qs(".nav-links");
@@ -423,6 +568,7 @@ async function init() {
   initStickyActions();
   initNav();
   initMotion();
+  initPremiumMotion();
   applyGlobalConfig();
   initContactMap();
   initInquiryForm();

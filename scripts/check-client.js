@@ -213,3 +213,60 @@ test("mobile navigation confines focus and Escape restores the toggle", () => {
   assert.equal(toggle.getAttribute("aria-expanded"), "false");
   assert.equal(main.inert, false);
 });
+
+test("premium motion respects reduced motion before creating observers", () => {
+  const classes = [];
+  let observers = 0;
+  const context = vm.createContext({
+    document: {
+      addEventListener() {},
+      body: { classList: { add: (name) => classes.push(name) } },
+      querySelectorAll: () => [],
+    },
+    window: { matchMedia: () => ({ matches: true }) },
+    IntersectionObserver: class {
+      constructor() {
+        observers++;
+      }
+    },
+  });
+  vm.runInContext(source, context);
+  context.initPremiumMotion();
+  assert.deepEqual(classes, ["motion-reduced"]);
+  assert.equal(observers, 0);
+});
+
+test("image reveal observes a visible parent instead of the closed clip mask", () => {
+  const observerCallbacks = [];
+  const shellClasses = [];
+  const parent = { contains: (element) => element === shell };
+  const shell = { parentElement: parent, classList: { add: (name) => shellClasses.push(name) } };
+  class Observer {
+    constructor(callback) {
+      observerCallbacks.push(callback);
+    }
+    observe() {}
+    unobserve() {}
+  }
+  const context = vm.createContext({
+    document: {
+      addEventListener() {},
+      body: { classList: { add() {} } },
+      querySelector: () => null,
+      querySelectorAll: (selector) => (selector.includes("home-service-card__media") ? [shell] : []),
+    },
+    window: {
+      scrollY: 0,
+      addEventListener() {},
+      requestAnimationFrame() {},
+      matchMedia: () => ({ matches: false }),
+      IntersectionObserver: Observer,
+    },
+    IntersectionObserver: Observer,
+  });
+  vm.runInContext(source, context);
+  context.initPremiumMotion();
+  observerCallbacks[0]([{ isIntersecting: true, target: parent }]);
+  assert.ok(shellClasses.includes("motion-image-reveal"));
+  assert.ok(shellClasses.includes("is-revealed"));
+});

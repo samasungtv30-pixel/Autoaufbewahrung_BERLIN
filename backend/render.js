@@ -130,6 +130,8 @@ function renderHtml(filePath, config) {
   const active = config.services.filter((item) => item.active !== false);
   const setText = (selector, value) => $(selector).text(value ?? "");
   const links = business.contactLinks(config);
+  $('link[href^="/css/studio.css"]').attr("href", "/css/studio.css?v=7");
+  $('script[src^="/js/main.js"]').attr("src", "/js/main.js?v=26");
   const action = (selector, href) => {
     $(selector).each((_, element) => {
       const el = $(element).toggleClass("is-unavailable", !href);

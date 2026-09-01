@@ -298,6 +298,7 @@ test("a failed decorative icon cannot block form initialization", async () => {
     "initStickyActions",
     "initNav",
     "initMotion",
+    "initPremiumMotion",
     "loadConfig",
     "initImageFallbacks",
     "applyGlobalConfig",
