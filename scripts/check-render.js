@@ -18,10 +18,10 @@ test("public configuration allow-lists fields rather than exposing arbitrary int
 
 test("services, FAQ, business data and detail content exist in the initial HTML", () => {
   const home = render("index.html");
-  assert.equal(home(".home-service-directory__item").length, config.services.length);
+  assert.equal(home(".home-service-card").length, config.services.length);
   assert.deepEqual(
-    home(".home-service-directory__item strong")
-      .map((_, item) => home(item).text())
+    home(".home-service-card h3")
+      .map((_, item) => home(item).text().replaceAll("\u00ad", ""))
       .get(),
     config.services.map((service) => service.title),
   );
