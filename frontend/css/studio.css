@@ -181,11 +181,15 @@ h1, h2, h3, h4, button, .button, .eyebrow, .nav-links, summary {
 .home .hero-actions { gap: 24px; margin-top: var(--studio-space-5); }
 .text-link, .home-service-card__details { font-family: var(--font-heading); line-height: 1.4; }
 
-/* Keep the vehicle visible and the copy readable, without a heavy uniform tint. */
-.hero-media { filter: brightness(1.2) saturate(.88) contrast(1.03); animation-duration: 800ms; }
+/* Keep the silver vehicle luminous while the left copy zone remains calm and readable. */
+.hero-media {
+  object-position: 58% center;
+  filter: brightness(1.08) saturate(.9) contrast(1.04);
+  animation-duration: 800ms;
+}
 .hero-shade {
-  background: linear-gradient(90deg, rgba(7,12,14,.91), rgba(7,12,14,.71) 31%, rgba(7,12,14,.12) 65%, rgba(7,12,14,.02)),
-    linear-gradient(0deg, rgba(11,14,16,.85), transparent 45%),
+  background: linear-gradient(90deg, rgba(7,12,14,.86), rgba(7,12,14,.62) 32%, rgba(7,12,14,.08) 64%, rgba(7,12,14,.01)),
+    linear-gradient(0deg, rgba(11,14,16,.78), transparent 48%),
     linear-gradient(120deg, rgba(159,228,234,.06), transparent 52%);
 }
 .hero::after { content: ""; position: absolute; inset: auto 0 0; height: 1px; background: var(--studio-edge); pointer-events: none; }
@@ -201,6 +205,18 @@ h1, h2, h3, h4, button, .button, .eyebrow, .nav-links, summary {
 .hero-proof div { min-width: 140px; padding: 16px; }
 .hero-proof strong { font-size: 1.125rem; line-height: 1.4; }
 .hero-proof span { font-size: .9375rem; line-height: 1.5; }
+
+@media (min-width: 1051px) {
+  .home .hero { min-height: clamp(760px, calc(100svh - 88px), 1080px); }
+  .home .hero-inner, .home .service-intro .container {
+    width: min(1660px, calc(100% - var(--studio-gutter) * 2));
+  }
+  .home .hero-copy { max-width: 880px; }
+  .home .service-intro { padding-block: clamp(64px, 7vw, 108px); }
+  .home .home-service-grid { gap: 24px; }
+  .home .home-service-card__media { aspect-ratio: 16 / 9; }
+  .home .home-service-card__body { padding: 28px; }
+}
 
 /* Shared card finish: fine edges, short lift, consistent media treatment. */
 .home-service-card, .service-card--premium, .package,
@@ -409,6 +425,14 @@ h1, h2, h3, h4, button, .button, .eyebrow, .nav-links, summary {
   .nav-menu-meta span { font-size: .8125rem; }
   .nav-menu-meta strong { font-size: 1rem; line-height: 1.45; }
   .nav-links { background: linear-gradient(135deg, #293337, #11191c 55%, #182224); border-color: var(--studio-border-strong); border-radius: var(--studio-radius); box-shadow: var(--studio-shadow); }
+}
+@media (min-width: 761px) and (max-width: 1050px) {
+  .home .home-service-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+  .home .home-service-card:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    width: calc(50% - 10px);
+    justify-self: center;
+  }
 }
 @media (max-width: 760px) {
   :root {

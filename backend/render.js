@@ -27,7 +27,7 @@ const number = (index) => String(index + 1).padStart(2, "0");
 function localImage(value) {
   return /^\/images\/[a-z0-9-]+\.(?:webp|png|jpe?g|svg)$/i.test(value || "")
     ? value
-    : "/images/premium-hero.webp";
+    : "/images/premium-hero-v2.jpg";
 }
 function serviceCard(service, index, teaser, config) {
   const slug = escape(service.slug);
@@ -136,7 +136,7 @@ function renderHtml(filePath, config) {
   const active = config.services.filter((item) => item.active !== false);
   const setText = (selector, value) => $(selector).text(value ?? "");
   const links = business.contactLinks(config);
-  $('link[href^="/css/studio.css"]').attr("href", "/css/studio.css?v=8");
+  $('link[href^="/css/studio.css"]').attr("href", "/css/studio.css?v=9");
   $('script[src^="/js/main.js"]').attr("src", "/js/main.js?v=27");
   const action = (selector, href) => {
     $(selector).each((_, element) => {
@@ -265,7 +265,7 @@ function renderHtml(filePath, config) {
     "og:type": "website",
     "og:locale": "de_DE",
     "og:url": canonical,
-    "og:image": `${origin}${localImage(service?.image || "/images/premium-hero.webp")}`,
+    "og:image": `${origin}${localImage(service?.image || "/images/premium-hero-v2.jpg")}`,
     "og:image:alt": service?.imageAlt || config.claim,
   };
   $("head").append(

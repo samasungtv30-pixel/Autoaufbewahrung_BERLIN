@@ -162,7 +162,7 @@ test("HTML includes canonical and social metadata before JavaScript", async () =
     const result = await request(page, { headers: { Host: "attacker.invalid" } });
     assert.match(result.body, /<meta property="og:title" content="[^"]+">/);
     const service = site.services.find((item) => `/${item.slug}.html` === page);
-    const image = service?.image || "/images/premium-hero.webp";
+    const image = service?.image || "/images/premium-hero-v2.jpg";
     assert.ok(
       result.body.includes(`<meta property="og:image" content="${new URL(site.publicUrl).origin}${image}">`),
     );
