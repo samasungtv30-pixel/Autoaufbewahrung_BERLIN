@@ -19,6 +19,9 @@ test("public configuration allow-lists fields rather than exposing arbitrary int
 test("services, FAQ, business data and detail content exist in the initial HTML", () => {
   const home = render("index.html");
   assert.equal(home(".home-service-card").length, config.services.length);
+  assert.equal(home(".header-utility").length, 1);
+  assert.equal(home(".header-utility [data-call-link]").length, 1);
+  assert.equal(home(".header-utility [data-whatsapp-link]").length, 1);
   assert.deepEqual(
     home(".home-service-card h3")
       .map((_, item) => home(item).text().replaceAll("\u00ad", ""))
@@ -121,7 +124,11 @@ test("central data updates legal pages, hero location and public contact data", 
     address: { street: "TESTSTRASSE", zip: "12345", city: "TESTORT", country: "DE" },
   };
   const home = render("index.html", fixture);
-  assert.equal(home("[data-city]").text(), "TESTORT");
+  assert.ok(
+    home("[data-city]")
+      .toArray()
+      .every((item) => home(item).text() === "TESTORT"),
+  );
   const legal = render("impressum.html", fixture);
   assert.equal(legal('[data-legal="owner"]').text(), "TESTINHABER");
   assert.equal(legal('[data-legal="vatId"]').text(), "");

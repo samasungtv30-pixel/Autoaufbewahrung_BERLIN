@@ -136,7 +136,7 @@ function renderHtml(filePath, config) {
   const active = config.services.filter((item) => item.active !== false);
   const setText = (selector, value) => $(selector).text(value ?? "");
   const links = business.contactLinks(config);
-  $('link[href^="/css/studio.css"]').attr("href", "/css/studio.css?v=13");
+  $('link[href^="/css/studio.css"]').attr("href", "/css/studio.css?v=14");
   $('script[src^="/js/main.js"]').attr("src", "/js/main.js?v=27");
   const action = (selector, href) => {
     $(selector).each((_, element) => {
@@ -145,6 +145,15 @@ function renderHtml(filePath, config) {
       else el.removeAttr("href").attr({ "aria-disabled": "true", tabindex: "-1" });
     });
   };
+  $(".site-header").prepend(`<div class="header-utility">
+    <div class="header-utility__inner">
+      <p><span class="header-utility__pulse" aria-hidden="true"></span>Premium Fahrzeugpflege <span data-city></span></p>
+      <div class="header-utility__actions">
+        <a data-call-link href="#">${icon("phone")}<span data-phone></span></a>
+        <a class="header-utility__whatsapp" data-whatsapp-link href="#" target="_blank" rel="noopener noreferrer">${icon("message-circle")}<span>WhatsApp</span></a>
+      </div>
+    </div>
+  </div>`);
   setText("[data-site-name]", config.siteName);
   setText("[data-short-name]", config.shortName);
   setText("[data-claim]", config.claim);
