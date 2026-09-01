@@ -237,8 +237,11 @@ h1, h2, h3, h4, button, .button, .eyebrow, .nav-links, summary {
   margin-inline: auto;
   color: #45504d;
 }
-.home .service-intro h2 { color: #101617; }
-.home .service-intro h2 > span { color: #ed3340; }
+.home .service-intro .section-head h2 { color: #101617; }
+.home .service-intro .section-head h2 > span { color: #ed3340; }
+.home .service-intro .service-card--premium,
+.home .service-intro .service-card--premium h2,
+.home .service-intro .service-checklist li { color: var(--ink); }
 .home .home-service-card:last-child:nth-child(3n + 1) { grid-column: 2; }
 .home .service-intro .section-link { margin-top: 28px; text-align: center; }
 .home .service-intro .text-link { color: #172021; }
@@ -486,7 +489,7 @@ h1, h2, h3, h4, button, .button, .eyebrow, .nav-links, summary {
     margin-inline: auto;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     gap: 30px;
   }
   .header-utility p {
@@ -507,32 +510,17 @@ h1, h2, h3, h4, button, .button, .eyebrow, .nav-links, summary {
     background: var(--accent);
     box-shadow: 0 0 12px rgba(206,242,76,.4);
   }
-  .header-utility__actions { height: 100%; display: flex; align-items: stretch; }
-  .header-utility__actions a {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    min-width: 0;
-    padding-inline: 18px;
-    color: #d7e3df;
-    border-left: 1px solid rgba(181,213,218,.14);
-    font-family: var(--font-heading);
-    font-size: .75rem;
-    font-weight: 700;
-    text-decoration: none;
-    transition: color var(--studio-fast) ease, background var(--studio-fast) ease;
-  }
-  .header-utility__actions svg { width: 15px; height: 15px; color: var(--studio-ice); }
-  .header-utility__actions a:not(.is-unavailable):hover { color: #fff; background: rgba(159,228,234,.07); }
-  .header-utility__actions .header-utility__whatsapp { color: #bdf6d3; }
-  .header-utility__actions .header-utility__whatsapp svg { color: #58df91; }
-  .header-utility__actions .is-unavailable { opacity: .52; }
   .site-header .nav { flex: 0 0 92px; height: 92px; gap: 24px; }
   .site-header .brand-logo { width: 204px; height: 64px; }
   .site-header .nav-actions { gap: 12px; }
-  .site-header .nav-actions .nav-phone { display: none; }
-  .site-header .button, .site-header .nav-phone { min-height: 50px; padding: 12px 18px; }
-  .site-header .nav-phone {
+  .site-header .nav-actions .nav-phone { display: inline-flex; }
+  .site-header .nav-phone,
+  .site-header .nav-whatsapp {
+    min-height: 50px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 18px;
     border: 1px solid rgba(159,228,234,.48);
     border-radius: var(--studio-radius-small);
     color: #c0f0f4;
@@ -540,20 +528,25 @@ h1, h2, h3, h4, button, .button, .eyebrow, .nav-links, summary {
     box-shadow: var(--studio-highlight);
     font-size: 1rem;
     line-height: 1.35;
-    gap: 10px;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
     transition: border-color var(--studio-fast) ease, background var(--studio-fast) ease;
   }
   .site-header .nav-phone > span:first-child { color: var(--studio-ice); width: 20px; height: 20px; }
-  .site-header .nav-phone svg { width: 20px; height: 20px; }
+  .site-header .nav-phone svg,
+  .site-header .nav-whatsapp svg { width: 20px; height: 20px; }
   .site-header .nav-phone:not(.is-unavailable):hover { border-color: var(--studio-ice); background: linear-gradient(145deg, #304d51, #1b3034); }
-  .site-header .nav-quote {
-    color: #111806;
-    border-color: #d8f987;
-    background: linear-gradient(165deg, #e1ff8b, #d2f65a 45%, #bfe747);
-    box-shadow: inset 0 1px rgba(255,255,255,.7), inset 0 -2px rgba(82,112,19,.32), 0 4px 12px rgba(164,207,55,.1);
-    white-space: nowrap;
+  .site-header .nav-whatsapp {
+    color: #d7f9e3;
+    border-color: rgba(88,223,145,.5);
+    background: linear-gradient(145deg, #21402e, #13271d);
+    box-shadow: inset 0 1px rgba(255,255,255,.08), 0 0 16px rgba(88,223,145,.06);
   }
-  .site-header .nav-quote:hover { color: #111806; border-color: #e1ff8b; background: linear-gradient(165deg, #ebffac, #dcfa79 45%, #cbef59); }
+  .site-header .nav-whatsapp svg { color: #58df91; }
+  .site-header .nav-whatsapp:not(.is-unavailable):hover { border-color: #58df91; background: linear-gradient(145deg, #2a513a, #183324); }
+  .site-header .nav-phone.is-unavailable,
+  .site-header .nav-whatsapp.is-unavailable { opacity: .58; }
   .home .hero { min-height: clamp(760px, calc(100svh - 126px), 1080px); }
   .home .hero-inner { gap: 28px; padding-block: 72px 40px; }
   .home .hero h1 { max-width: 800px; }
@@ -563,15 +556,16 @@ h1, h2, h3, h4, button, .button, .eyebrow, .nav-links, summary {
   .header-utility { flex-basis: 38px; }
   .header-utility__inner,
   .site-header .nav { width: min(2400px, calc(100% - 12vw)); }
-  .header-utility p, .header-utility__actions a { font-size: .875rem; }
+  .header-utility p { font-size: .875rem; }
   .site-header .nav { flex-basis: 104px; height: 104px; }
   .home .hero { min-height: clamp(900px, calc(100svh - 142px), 1240px); }
 }
 @media (min-width: 1051px) and (max-width: 1399px) {
   .site-header .nav { gap: 18px; }
-  .site-header .brand-logo { width: 184px; height: 58px; }
-  .site-header .nav-links { gap: 18px; }
-  .site-header .button, .site-header .nav-phone { padding-inline: 14px; }
+  .site-header .brand-logo { width: 166px; height: 54px; }
+  .site-header .nav-links { gap: 15px; }
+  .site-header .nav-links > a { font-size: 1.125rem; }
+  .site-header .nav-phone, .site-header .nav-whatsapp { padding-inline: 12px; font-size: .875rem; }
 }
 @media (min-width: 1051px) and (max-width: 1300px) {
   :root { --studio-hero-size: 3.5rem; }
