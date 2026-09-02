@@ -85,8 +85,8 @@ async function main() {
     const page = await browser.newPage({ reducedMotion: "reduce" });
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.message));
-    for (const width of [768, 1024, 1051, 1440, 1920]) {
-      await page.setViewportSize({ width, height: 900 });
+    for (const width of [768, 1024, 1051, 1440, 1920, 2560, 3840]) {
+      await page.setViewportSize({ width, height: width >= 2560 ? Math.round((width * 9) / 16) : 900 });
       let reference;
       for (const route of pages) {
         await page.goto(`http://localhost:${port}${route}`);
@@ -95,6 +95,19 @@ async function main() {
         if (reference) equalGeometry(before, reference, `${width} ${route}`);
         else reference = before;
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
+        const footer = await page.locator(".site-footer").evaluate((element) => ({
+          bottom: element.getBoundingClientRect().bottom + scrollY,
+          documentHeight: document.documentElement.scrollHeight,
+          viewportHeight: innerHeight,
+        }));
+        assert.ok(
+          footer.bottom >= footer.viewportHeight - 1,
+          `${width} ${route}: footer above viewport bottom`,
+        );
+        assert.ok(
+          Math.abs(footer.bottom - footer.documentHeight) <= 1,
+          `${width} ${route}: gap below footer`,
+        );
         await page.evaluate(() => scrollTo({ top: 300, behavior: "instant" }));
         await page.waitForTimeout(50);
         equalGeometry(await geometry(page), before, `${width} ${route} scrolled`);
