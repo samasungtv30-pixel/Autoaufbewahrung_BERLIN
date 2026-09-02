@@ -7,6 +7,18 @@ const { renderHtml, schemaFor, publicConfig } = require("../backend/render");
 const config = require("../backend/data/site.json");
 const render = (file, data = config) => load(renderHtml(path.join(__dirname, "../frontend", file), data));
 
+test("inquiry dialog uses only an explicitly public contact address", () => {
+  const doc = render("kontakt.html", { ...config, inquiryContactEmail: "contact@studio.de" });
+  assert.equal(doc("dialog[data-inquiry-result]").length, 1);
+  assert.equal(
+    doc("[data-inquiry-mail]").attr("href"),
+    "mailto:contact@studio.de?subject=Anfrage%20zur%20Fahrzeugpflege",
+  );
+  assert.equal(doc("[data-result-alternative][hidden]").length, 1);
+  const unavailable = render("kontakt.html", { ...config, email: "", inquiryContactEmail: "" });
+  assert.equal(unavailable("[data-inquiry-mail]").length, 0);
+});
+
 test("public configuration allow-lists fields rather than exposing arbitrary internal data", () => {
   const data = structuredClone(config);
   data.smtpPassword = "private-test-marker";

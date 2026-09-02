@@ -71,6 +71,17 @@
       </form>
     </div></section>
   </main>
+  <dialog class="inquiry-result" data-inquiry-result aria-labelledby="inquiry-result-title" aria-describedby="inquiry-result-copy">
+    <span class="inquiry-result__icon" data-result-success data-service-icon="circle-check-big" aria-hidden="true"></span>
+    <span class="inquiry-result__icon" data-result-error data-service-icon="mail" aria-hidden="true" hidden></span>
+    <h2 id="inquiry-result-title" data-result-title></h2>
+    <p id="inquiry-result-copy" data-result-copy></p>
+    <div data-result-alternative hidden>
+      <p>Bitte kontaktieren Sie uns alternativ per E-Mail.</p>
+      <a class="button button--primary" data-inquiry-mail href="#"><span data-service-icon="mail" aria-hidden="true"></span> Anfrage per E-Mail senden</a>
+    </div>
+    <button class="button button--dark inquiry-result__close" type="button" data-result-close autofocus>Schließen</button>
+  </dialog>
 
   <footer class="site-footer"><div class="footer-grid"><div><a class="brand brand--footer" href="/"><img class="brand-logo" data-brand-logo src="/images/brand-logo.svg" alt="Autoaufbereitung Berlin" width="184" height="58"></a><p data-claim></p></div><div><h3>Kontakt</h3><p data-address></p><p><a data-call-link href="#" data-phone></a></p><p><a data-mail-link href="#" data-email></a></p></div><div><h3>Navigation</h3><nav class="footer-navigation" aria-label="Footernavigation" data-footer-navigation></nav></div><div><h3>Rechtliches</h3><p><a href="/impressum.html">Impressum</a><br><a href="/datenschutz.html">Datenschutz</a></p></div></div><div class="footer-bottom">© 2026 <span data-site-name>[KUNDENNAME]</span>.</div></footer>
   <div class="mobile-sticky-actions"><a class="button button--primary" data-whatsapp-link href="#" target="_blank" rel="noopener">WhatsApp</a><a class="button button--dark" data-call-link href="#">Anrufen</a></div>

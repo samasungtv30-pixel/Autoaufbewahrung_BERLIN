@@ -149,8 +149,8 @@ function renderHtml(filePath, config) {
   const setText = (selector, value) => $(selector).text(value ?? "");
   const links = business.contactLinks(config);
   $('link[href^="/css/style.css"]').attr("href", "/css/style.css?v=31");
-  $('link[href^="/css/studio.css"]').attr("href", "/css/studio.css?v=30");
-  $('script[src^="/js/main.js"]').attr("src", "/js/main.js?v=29");
+  $('link[href^="/css/studio.css"]').attr("href", "/css/studio.css?v=31");
+  $('script[src^="/js/main.js"]').attr("src", "/js/main.js?v=30");
   const action = (selector, href) => {
     $(selector).each((_, element) => {
       const el = $(element).toggleClass("is-unavailable", !href);
@@ -189,6 +189,15 @@ function renderHtml(filePath, config) {
   action("[data-call-link]", links.phone);
   action("[data-whatsapp-link]", links.whatsapp);
   action("[data-mail-link]", links.email);
+  const inquiryEmail = config.inquiryContactEmail || config.email;
+  if (business.hasUsableEmail(inquiryEmail)) {
+    $("[data-inquiry-mail]").attr(
+      "href",
+      `mailto:${inquiryEmail.trim()}?subject=Anfrage%20zur%20Fahrzeugpflege`,
+    );
+  } else {
+    $("[data-result-alternative]").remove();
+  }
   action("[data-maps-link]", links.route);
   $("[data-opening-hours]").html(
     config.openingHours

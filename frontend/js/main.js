@@ -397,6 +397,39 @@ function initInquiryForm() {
   const form = qs("#inquiry-form");
   if (!form) return;
   const status = qs("[data-form-status]");
+  const resultDialog = qs("[data-inquiry-result]");
+  const closeResult = resultDialog ? qs("[data-result-close]", resultDialog) : null;
+  closeResult?.addEventListener("click", () => resultDialog.close());
+  resultDialog?.addEventListener("close", () => readyButton?.focus());
+  resultDialog?.addEventListener("keydown", (event) => {
+    if (event.key !== "Tab") return;
+    const controls = [...resultDialog.querySelectorAll("button, a[href]")].filter(
+      (element) => !element.closest("[hidden]"),
+    );
+    const first = controls[0];
+    const last = controls.at(-1);
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last?.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first?.focus();
+    }
+  });
+  const showResult = (message, type) => {
+    if (!resultDialog || typeof resultDialog.showModal !== "function") return;
+    const success = type === "success";
+    resultDialog.classList.toggle("is-error", !success);
+    qs("[data-result-title]", resultDialog).textContent = success
+      ? "Vielen Dank für Ihre Anfrage!"
+      : "Versand nicht bestätigt";
+    qs("[data-result-copy]", resultDialog).textContent = message;
+    qs("[data-result-success]", resultDialog).hidden = !success;
+    qs("[data-result-error]", resultDialog).hidden = success;
+    const alternative = qs("[data-result-alternative]", resultDialog);
+    if (alternative) alternative.hidden = success;
+    resultDialog.showModal();
+  };
   const serviceSelect = qs("#service", form);
   if (!serviceSelect.options?.length)
     serviceSelect.innerHTML = `<option value="">Bitte wählen</option>${activeServices()
@@ -459,6 +492,10 @@ function initInquiryForm() {
       }
       setStatus("Vielen Dank. Ihre Anfrage wurde per E-Mail übermittelt.", "success");
       form.reset();
+      showResult(
+        "Ihre Anfrage wurde per E-Mail übermittelt. Wir melden uns persönlich bei Ihnen.",
+        "success",
+      );
     } catch (error) {
       const message =
         error.name === "TimeoutError" || error.name === "AbortError"
@@ -467,6 +504,10 @@ function initInquiryForm() {
             ? "Die Verbindung wurde unterbrochen. Bitte prüfen Sie Ihre Internetverbindung. Ihre Eingaben bleiben erhalten."
             : error.message;
       setStatus(message, "error");
+      showResult(
+        message.includes("Eingaben") ? message : `${message} Ihre Eingaben bleiben erhalten.`,
+        "error",
+      );
     } finally {
       submitting = false;
       submitButton.disabled = false;

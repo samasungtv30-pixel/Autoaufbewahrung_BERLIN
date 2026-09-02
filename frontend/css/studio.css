@@ -1533,6 +1533,33 @@ h1, h2, h3, h4, button, .button, .eyebrow, .nav-links, summary {
   .motion-ready .hero-media, .motion-ready .service-hero__media { will-change: auto; }
 }
 
+.inquiry-result {
+  width: min(32rem, calc(100% - 2rem));
+  max-height: calc(100dvh - 2rem);
+  margin: auto;
+  padding: 2rem;
+  overflow-y: auto;
+  color: #f4f7f6;
+  background: #141c1e;
+  border: 1px solid #526331;
+  border-radius: 8px;
+  box-shadow: 0 12px 40px #0003;
+}
+.inquiry-result::backdrop { background: #030809b8; backdrop-filter: blur(4px); }
+.inquiry-result[open] { animation: inquiry-result-in 180ms ease-out; }
+.inquiry-result.is-error { border-color: #d68a81; }
+.inquiry-result__icon { display: grid; place-items: center; width: 3rem; height: 3rem; margin-bottom: 1rem; color: #d5f55c; }
+.inquiry-result.is-error .inquiry-result__icon { color: #ffaca2; }
+.inquiry-result__icon svg { width: 2.5rem; height: 2.5rem; }
+.inquiry-result [hidden] { display: none !important; }
+.inquiry-result h2 { margin: 0 0 1rem; font-size: 1.75rem; line-height: 1.2; letter-spacing: 0; }
+.inquiry-result p { margin: 0 0 1.25rem; color: #d0dadb; font-size: 1rem; line-height: 1.6; }
+.inquiry-result .button { width: 100%; min-height: 48px; white-space: normal; text-align: center; }
+.inquiry-result__close { margin-top: 1rem; }
+@keyframes inquiry-result-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (max-width: 430px) { .inquiry-result { padding: 1.5rem; } }
+@media (prefers-reduced-motion: reduce) { .inquiry-result[open] { animation: none; } }
+
 @keyframes motion-logo { from { opacity: 0; filter: brightness(2); transform: translateY(-5px) scale(.98); } to { opacity: 1; filter: none; transform: none; } }
 @keyframes motion-hero-copy { from { opacity: 0; transform: translate3d(0, 24px, 0); clip-path: inset(0 0 38%); } to { opacity: 1; transform: none; clip-path: inset(0); } }
 @keyframes motion-hero-image { from { opacity: .35; transform: translate3d(0, var(--motion-image-y, 0), 0) scale(1.08); } to { opacity: 1; transform: translate3d(0, var(--motion-image-y, 0), 0) scale(1.035); } }

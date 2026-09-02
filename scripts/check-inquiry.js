@@ -345,7 +345,8 @@ test("form resets only after confirmed mail acceptance; failures preserve input"
       AbortSignal,
       document: {
         addEventListener() {},
-        querySelector: (selector) => (selector === "#inquiry-form" ? form : status),
+        querySelector: (selector) =>
+          selector === "#inquiry-form" ? form : selector === "[data-form-status]" ? status : null,
       },
       window: { location: { search: "" } },
       FormData: class {

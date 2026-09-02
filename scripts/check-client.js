@@ -88,6 +88,20 @@ function formHarness() {
   const button = {};
   const status = { classList: { toggle() {} } };
   const attributes = new Map();
+  const resultNodes = Object.fromEntries(
+    ["title", "copy", "success", "error", "alternative", "close"].map((name) => [
+      `[data-result-${name}]`,
+      { addEventListener() {} },
+    ]),
+  );
+  const dialog = {
+    classList: { toggle() {} },
+    addEventListener() {},
+    querySelector: (selector) => resultNodes[selector],
+    showModal() {
+      this.open = true;
+    },
+  };
   const phone = {
     value: "030 123456",
     validity: "",
@@ -118,7 +132,12 @@ function formHarness() {
     URLSearchParams,
     document: {
       addEventListener() {},
-      querySelector: (selector) => (selector === "#inquiry-form" ? form : status),
+      querySelector: (selector) =>
+        ({
+          "#inquiry-form": form,
+          "[data-form-status]": status,
+          "[data-inquiry-result]": dialog,
+        })[selector] || null,
     },
     window: { AutoBusiness: business, location: { search: "" } },
     FormData: class {
@@ -143,6 +162,8 @@ function formHarness() {
     button,
     status,
     attributes,
+    dialog,
+    resultNodes,
     submit: () => submit({ preventDefault() {} }),
     input: () => input(),
     requests: () => requests,
@@ -164,6 +185,32 @@ test("pending submissions disable the button and cannot be duplicated", async ()
   assert.equal(h.button.disabled, false);
   assert.equal(h.resets(), 0);
   assert.equal(h.attributes.has("aria-busy"), false);
+});
+
+test("mail result dialog confirms accepted mail and retains inputs on failures", async () => {
+  for (const outcome of ["success", "provider-error", "filtered", "invalid-json"]) {
+    const h = formHarness();
+    const pending = h.submit();
+    assert.equal(h.dialog.open, undefined);
+    h.resolve({
+      ok: outcome !== "provider-error",
+      json: async () =>
+        outcome === "invalid-json"
+          ? null
+          : {
+              success: outcome !== "provider-error",
+              emailSent: outcome === "success",
+            },
+    });
+    await pending;
+    assert.equal(h.dialog.open, true);
+    assert.equal(h.resets(), outcome === "success" ? 1 : 0);
+    assert.equal(h.resultNodes["[data-result-alternative]"].hidden, outcome === "success");
+    assert.match(
+      h.resultNodes["[data-result-title]"].textContent,
+      outcome === "success" ? /Vielen Dank/ : /nicht bestätigt/,
+    );
+  }
 });
 
 test("client phone validation blocks letters but allows common phone notation", async () => {
