@@ -1245,6 +1245,20 @@ h1, h2, h3, h4, button, .button, .eyebrow, .nav-links, summary {
 /* Desktop reading sizes are fixed in rem; long copy stays bounded in characters. */
 @media (min-width: 1051px) {
   :root { --studio-detail-size: 1.25rem; }
+  .contact-page .contact-visit-heading h2 { font-size: 2.75rem; line-height: 1.2; }
+  .contact-page .contact-visit-heading .eyebrow { font-size: 1rem; }
+  .contact-page .contact-visit .contact-facts small { font-size: 1.125rem; line-height: 1.5; }
+  .contact-page .contact-visit .hours-list li,
+  .contact-page .contact-visit .contact-facts strong { font-size: 1.375rem; line-height: 1.5; }
+  .contact-page .contact-visit .hours-list li {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+    padding-block: 12px;
+    gap: 16px;
+  }
+  .contact-page .contact-visit .hours-list strong { margin-top: 0; text-align: right; }
+  .contact-page .contact-visit .contact-facts > div { padding-block: 18px; }
+  .contact-page .contact-visit .contact-facts svg { width: 28px; height: 28px; }
   .package-section .package { padding: 30px; }
   .pricing-page .package h2 { font-size: 2.25rem; }
   .package-section .package p { font-size: 1.375rem; max-width: 38ch; }
@@ -1262,6 +1276,10 @@ h1, h2, h3, h4, button, .button, .eyebrow, .nav-links, summary {
   .site-footer h3 { font-size: 1.25rem; }
   .site-footer p, .site-footer a { font-size: 1.125rem; }
   .footer-bottom { font-size: 1rem; }
+}
+@media (min-width: 1051px) and (max-width: 1279px) {
+  .contact-page .contact-visit .hours-list li { grid-template-columns: minmax(0,1fr); gap: 2px; }
+  .contact-page .contact-visit .hours-list strong { text-align: left; }
 }
 /* Photo inquiry uses the contact page's light, depth and action hierarchy. */
 .pricing-page .pricing-photo, .services-page .pricing-photo {

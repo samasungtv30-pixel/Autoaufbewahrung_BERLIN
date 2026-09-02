@@ -149,7 +149,7 @@ function renderHtml(filePath, config) {
   const setText = (selector, value) => $(selector).text(value ?? "");
   const links = business.contactLinks(config);
   $('link[href^="/css/style.css"]').attr("href", "/css/style.css?v=31");
-  $('link[href^="/css/studio.css"]').attr("href", "/css/studio.css?v=32");
+  $('link[href^="/css/studio.css"]').attr("href", "/css/studio.css?v=33");
   $('script[src^="/js/main.js"]').attr("src", "/js/main.js?v=31");
   const action = (selector, href) => {
     $(selector).each((_, element) => {
