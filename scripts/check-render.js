@@ -91,6 +91,22 @@ test("contact bar is rendered once on every page and honeypots remain excluded f
   );
   assert.equal(ready(".mobile-sticky-actions small").text(), "");
 });
+test("photo inquiry preserves contact actions, copy and decorative server icons", () => {
+  const doc = render("pakete.html", { ...config, whatsapp: "" });
+  const section = doc(".pricing-photo");
+  assert.equal(section.find("h2").text(), "Fotos helfen bei der ersten Einschätzung.");
+  assert.equal(section.find(".pricing-photo__action").length, 2);
+  assert.equal(section.find("[data-whatsapp-link]").attr("href"), undefined);
+  assert.equal(section.find("[data-whatsapp-link]").attr("aria-disabled"), "true");
+  assert.equal(section.find('.pricing-photo__action[href="/kontakt.html#anfrage"]').length, 1);
+  assert.equal(section.find('[data-service-icon="camera"] svg').length, 1);
+  assert.equal(section.find('[data-service-icon="notebook-pen"] svg').length, 1);
+  assert.equal(section.find(".pricing-photo__image").attr("alt"), "");
+  assert.equal(section.find(".pricing-photo__image").attr("loading"), "lazy");
+  const ready = render("pakete.html", { ...config, whatsapp: "https://wa.me/493012345678" });
+  assert.match(ready(".pricing-photo [data-whatsapp-link]").attr("href"), /^https:\/\/wa.me\/493012345678/);
+});
+
 test("only enabled packages and active services are rendered", () => {
   for (const enabled of [false, undefined, "true"]) {
     const doc = render("pakete.html", { ...config, packagesEnabled: enabled });
