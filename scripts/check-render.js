@@ -98,7 +98,7 @@ test("enabled package section renders exactly the configured cards in server HTM
   });
   assert.ok(!doc("[data-packages-section]").is("[hidden]"));
 });
-test("service checklists share central highlights, bounded previews and matching anchors", () => {
+test("homepage previews omit checklists while detail cards use central highlights and matching anchors", () => {
   for (const fixture of [
     config,
     {
@@ -118,6 +118,7 @@ test("service checklists share central highlights, bounded previews and matching
     assert.equal(home(".service-card--overview").length, services.length);
     assert.equal(detail(".service-card--premium").length, services.length);
     assert.equal(home(".service-card__process").length, 0);
+    assert.equal(home(".service-checklist").length, 0);
     services.forEach((service, index) => {
       const card = home(".service-card--overview").eq(index);
       const target = detail(`#service-${service.slug}`);
@@ -129,7 +130,7 @@ test("service checklists share central highlights, bounded previews and matching
       assert.equal(target.length, 1);
       assert.equal(target.find("h2").text(), service.title);
       for (const [element, values] of [
-        [card, service.highlights.slice(0, 4)],
+        [card, []],
         [target, service.highlights],
       ]) {
         assert.deepEqual(
@@ -150,6 +151,36 @@ test("service checklists share central highlights, bounded previews and matching
       );
     });
   }
+});
+test("header and footer share the same five navigation links on every template that has navigation", () => {
+  const expected = [
+    ["Home", "/"],
+    ["Unsere Leistungen", "/leistungen.html"],
+    ["Pakete", "/preise.html"],
+    ["Kontakt", "/kontakt.html"],
+    ["FAQ", "/#faq"],
+  ];
+  for (const file of fs
+    .readdirSync(path.join(__dirname, "../frontend"))
+    .filter((name) => name.endsWith(".html"))) {
+    const doc = render(file);
+    for (const selector of [".nav-links", "[data-footer-navigation]"]) {
+      if (!doc(selector).length) continue;
+      assert.deepEqual(
+        doc(`${selector} > a`)
+          .toArray()
+          .map((el) => [doc(el).text(), doc(el).attr("href")]),
+        expected,
+        `${file} ${selector}`,
+      );
+    }
+    assert.equal(doc('.site-header a[href="/#ablauf"], .site-footer a[href="/#ablauf"]').length, 0);
+  }
+  const home = render("index.html");
+  assert.equal(home('.nav-links a[aria-current="page"]').attr("href"), "/");
+  assert.equal(home("#ablauf .process-line__item").length, 4);
+  assert.equal(home("#hero-title").text(), "Autoaufbereitung.Bis ins Detail.");
+  assert.ok(!home("#hero-title").html().includes("\u00ad"));
 });
 test("package page starts with its headline and renders configured feature lists without defaults", () => {
   const fixture = {

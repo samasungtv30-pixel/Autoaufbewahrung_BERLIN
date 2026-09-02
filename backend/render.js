@@ -23,6 +23,13 @@ const json = (value) =>
   );
 const icon = (name) => `<span data-service-icon="${escape(name)}" aria-hidden="true"></span>`;
 const number = (index) => String(index + 1).padStart(2, "0");
+const navigation = [
+  { name: "Home", href: "/" },
+  { name: "Unsere Leistungen", href: "/leistungen.html" },
+  { name: "Pakete", href: "/preise.html" },
+  { name: "Kontakt", href: "/kontakt.html" },
+  { name: "FAQ", href: "/#faq" },
+];
 
 function localImage(value) {
   return /^\/images\/[a-z0-9-]+\.(?:webp|png|jpe?g|svg)$/i.test(value || "")
@@ -32,9 +39,11 @@ function localImage(value) {
 function serviceCard(service, index, teaser, config) {
   const slug = escape(service.slug);
   const image = `<img src="${escape(localImage(service.image))}" alt="${escape(service.imageAlt)}" width="1536" height="1024" loading="${!teaser && index === 0 ? "eager" : "lazy"}"${!teaser && index === 0 ? ' fetchpriority="high"' : ""}>`;
-  // Reuse the detailed service's central highlights; overview cards stay bounded.
+  // Detailed cards use the central highlights; the homepage is a preview only.
   const highlights = Array.isArray(service.highlights) ? service.highlights : [];
-  const included = teaser ? highlights.slice(0, 4) : highlights;
+  const checklist = teaser
+    ? ""
+    : `<ul class="service-checklist" aria-label="Leistungsmerkmale: ${escape(service.title)}">${highlights.map((feature) => `<li>${icon("check")}<span>${escape(feature)}</span></li>`).join("")}</ul>`;
   const heading = teaser ? "h3" : "h2";
   const process =
     !teaser && service.cardSteps?.length
@@ -56,8 +65,7 @@ function serviceCard(service, index, teaser, config) {
     <div class="service-card__media">${image}</div><div class="service-card__body">
       <div class="service-card__heading"><span aria-hidden="true">${number(index)}</span><${heading} id="service-title-${slug}">${escape(service.title).replace(/(aufbereitung|reparatur)/g, "<wbr>$1")}</${heading}></div>
       <p>${escape(service.summary)}</p>
-      <ul class="service-checklist" aria-label="Leistungsmerkmale: ${escape(service.title)}">${included.map((feature) => `<li>${icon("check")}<span>${escape(feature)}</span></li>`).join("")}</ul>
-      ${process}${actions}</div></article>`;
+      ${checklist}${process}${actions}</div></article>`;
 }
 function packageCard(item, index) {
   const titleId = `package-title-${number(index)}`;
@@ -139,7 +147,7 @@ function renderHtml(filePath, config) {
   const setText = (selector, value) => $(selector).text(value ?? "");
   const links = business.contactLinks(config);
   $('link[href^="/css/style.css"]').attr("href", "/css/style.css?v=30");
-  $('link[href^="/css/studio.css"]').attr("href", "/css/studio.css?v=18");
+  $('link[href^="/css/studio.css"]').attr("href", "/css/studio.css?v=19");
   $('script[src^="/js/main.js"]').attr("src", "/js/main.js?v=27");
   const action = (selector, href) => {
     $(selector).each((_, element) => {
@@ -148,6 +156,8 @@ function renderHtml(filePath, config) {
       else el.removeAttr("href").attr({ "aria-disabled": "true", tabindex: "-1" });
     });
   };
+  const menu = navigation.map(({ name, href }) => `<a href="${href}">${name}</a>`).join("");
+  $(".nav-links, [data-footer-navigation]").html(menu);
   $(".site-header").prepend(`<div class="header-utility">
     <div class="header-utility__inner">
       <p><span class="header-utility__pulse" aria-hidden="true"></span>Premium Fahrzeugpflege <span data-city></span></p>
