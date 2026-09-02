@@ -26,7 +26,7 @@ const number = (index) => String(index + 1).padStart(2, "0");
 const navigation = [
   { name: "Home", href: "/" },
   { name: "Unsere Leistungen", href: "/leistungen.html" },
-  { name: "Pakete", href: "/preise.html" },
+  { name: "Pakete", href: "/pakete.html" },
   { name: "Kontakt", href: "/kontakt.html" },
   { name: "FAQ", href: "/#faq" },
 ];
@@ -68,17 +68,19 @@ function serviceCard(service, index, teaser, config) {
       ${checklist}${process}${actions}</div></article>`;
 }
 function packageCard(item, index) {
-  const titleId = `package-title-${number(index)}`;
+  const id = /^[a-z0-9-]+$/.test(item.id || "") ? item.id : number(index);
+  const titleId = `package-title-${id}`;
+  const packageIcon = ["brush-cleaning", "sparkles", "layers-2"].includes(item.icon) ? item.icon : "layers-2";
   const features = Array.isArray(item.features) ? item.features : [];
   const suffix = item.priceSuffix ? `<small>${escape(item.priceSuffix)}</small>` : "";
   const featureList = features.length
-    ? `<ul>${features.map((feature) => `<li>${icon("circle-check-big")}<span>${escape(feature)}</span></li>`).join("")}</ul>`
+    ? `<div class="package__features"><h3 id="package-features-${id}">Enthaltene Leistungen</h3><ul aria-labelledby="package-features-${id}" role="list">${features.map((feature) => `<li>${icon("check")}<span>${escape(feature)}</span></li>`).join("")}</ul></div>`
     : "";
-  return `<article class="package package--${["lime", "blue", "teal"][index % 3]}${item.highlighted === true ? " package--featured" : ""}" data-package-name="${escape(item.name)}" aria-labelledby="${titleId}">
-    <div class="package__top"><span class="package__label">${number(index)} / Pflegepaket</span><span class="package__icon" data-service-icon="${["brush-cleaning", "sparkles", "layers-2"][index % 3]}" aria-hidden="true"></span></div>
+  return `<article class="package package--${["lime", "blue", "teal"][index % 3]}${item.highlighted === true ? " package--featured" : ""}" id="package-${id}" data-package-name="${escape(item.name)}" aria-labelledby="${titleId}">
+    <div class="package__top"><span class="package__label">${number(index)} / Pflegepaket</span><span class="package__icon" data-service-icon="${packageIcon}" aria-hidden="true"></span></div>
     <h2 id="${titleId}">${escape(item.name)}</h2><p>${escape(item.shortDescription)}</p>
-    <div class="package__price"><span>Individuelles Angebot</span><strong>${escape(item.price)}</strong>${suffix}</div>
     ${featureList}
+    <div class="package__price"><span>Individuelles Angebot</span><strong>${escape(item.price)}</strong>${suffix}</div>
     <a class="button package__cta" href="/kontakt.html?paket=${encodeURIComponent(item.name)}#anfrage" aria-label="Pflegepaket ${escape(item.name)} anfragen">${escape(item.cta)}${icon("arrow-up-right")}</a></article>`;
 }
 function schemaFor(config) {
@@ -147,7 +149,7 @@ function renderHtml(filePath, config) {
   const setText = (selector, value) => $(selector).text(value ?? "");
   const links = business.contactLinks(config);
   $('link[href^="/css/style.css"]').attr("href", "/css/style.css?v=30");
-  $('link[href^="/css/studio.css"]').attr("href", "/css/studio.css?v=19");
+  $('link[href^="/css/studio.css"]').attr("href", "/css/studio.css?v=20");
   $('script[src^="/js/main.js"]').attr("src", "/js/main.js?v=27");
   const action = (selector, href) => {
     $(selector).each((_, element) => {

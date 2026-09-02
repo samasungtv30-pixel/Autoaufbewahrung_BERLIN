@@ -42,9 +42,17 @@ elements.set("#inquiry-form", {
   addEventListener() {},
 });
 fixture({ ...config, packagesEnabled: true });
-context.window.location.search = "?paket=Premium";
+for (const item of config.packages) {
+  messageField.value = "";
+  context.window.location.search = `?paket=${encodeURIComponent(item.name)}`;
+  context.initInquiryForm();
+  assert.equal(messageField.value, `Ich interessiere mich für das Pflegepaket ${item.name}.`);
+}
+messageField.value = "";
+context.window.location.search = "?paket=Unbekannt";
 context.initInquiryForm();
-assert.equal(messageField.value, "Ich interessiere mich für das Pflegepaket Premium.");
+assert.equal(messageField.value, "");
+context.window.location.search = "?paket=Premium";
 messageField.value = "Meine eigene Nachricht";
 context.initInquiryForm();
 assert.equal(messageField.value, "Meine eigene Nachricht");

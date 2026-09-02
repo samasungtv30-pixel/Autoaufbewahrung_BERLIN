@@ -47,7 +47,7 @@ for (const file of htmlFiles) {
   const navigation = html.match(/<div class="nav-links">([\s\S]*?)<\/div>/)?.[1];
   if (navigation) {
     const labels = [...navigation.matchAll(/<a\b[^>]*>([^<]+)<\/a>/g)].map((match) => match[1]);
-    if (labels.join(",") !== "Leistungen,Pakete,Ablauf,Kontakt,FAQ")
+    if (labels.join(",") !== "Home,Unsere Leistungen,Pakete,Kontakt,FAQ")
       errors.push(`${file}: falsche Reihenfolge der Hauptnavigation`);
   }
   for (const font of ["inter-latin.woff2", "space-grotesk-latin.woff2"]) {
@@ -121,9 +121,9 @@ if (
 const homeHtml = fs.readFileSync(path.join(frontend, "index.html"), "utf8");
 if (homeHtml.includes("data-featured-service") || homeHtml.includes('class="section home-benefits"'))
   errors.push("index.html: redundante Schwerpunktsection gefunden");
-const priceHtml = fs.readFileSync(path.join(frontend, "preise.html"), "utf8");
-if (!priceHtml.includes("data-packages-section hidden"))
-  errors.push("preise.html: Pakete müssen standardmäßig verborgen sein");
+const packageHtml = fs.readFileSync(path.join(frontend, "pakete.html"), "utf8");
+if (!packageHtml.includes("data-packages-section hidden"))
+  errors.push("pakete.html: Pakete müssen standardmäßig verborgen sein");
 const servicesHtml = fs.readFileSync(path.join(frontend, "leistungen.html"), "utf8");
 if (/Bereiche entdecken|data-service-jump|detail-hero--services/.test(servicesHtml))
   errors.push("leistungen.html: veralteter doppelter Einstieg gefunden");
@@ -144,7 +144,13 @@ if (!Array.isArray(config.packages)) errors.push("packages muss eine Liste sein"
 if (config.packagesEnabled === true && config.packages.length !== 3)
   errors.push("Die aktive Paket-Sektion muss genau drei Pakete enthalten");
 const packageNames = new Set();
+const packageIds = new Set();
 for (const item of config.packages || []) {
+  if (typeof item.id !== "string" || !/^[a-z0-9-]+$/.test(item.id) || packageIds.has(item.id))
+    errors.push(`Paket ${item.name}: id muss eindeutig und URL-tauglich sein`);
+  packageIds.add(item.id);
+  if (!["brush-cleaning", "sparkles", "layers-2"].includes(item.icon))
+    errors.push(`Paket ${item.name}: ungültiges Icon`);
   for (const field of ["name", "shortDescription", "price", "priceSuffix", "cta"]) {
     if (typeof item[field] !== "string")
       errors.push(`Paket ${item.name || "ohne Namen"}: ${field} muss Text sein`);

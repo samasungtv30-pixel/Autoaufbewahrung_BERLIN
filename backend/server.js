@@ -140,7 +140,7 @@ function handleSitemap(req, res) {
     "/komplettaufbereitung.html",
     "/keramikversiegelung.html",
     "/leasing.html",
-    "/preise.html",
+    "/pakete.html",
     "/kontakt.html",
   ];
   const activePages = pages.filter((page) => {
@@ -440,6 +440,11 @@ const server = http.createServer(async (req, res) => {
 
     if (req.method !== "GET" && req.method !== "HEAD") {
       send(res, 405, "Method not allowed", MIME_TYPES[".txt"], { Allow: "GET, HEAD" });
+      return;
+    }
+
+    if (["/preise.html", "/preise"].includes(url.pathname)) {
+      send(res, 308, "", MIME_TYPES[".txt"], { Location: `/pakete.html${url.search}` });
       return;
     }
 

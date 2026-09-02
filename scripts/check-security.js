@@ -6,6 +6,7 @@ const { spawn } = require("node:child_process");
 const { once } = require("node:events");
 const { gunzipSync } = require("node:zlib");
 const { before, after, test } = require("node:test");
+const { load } = require("cheerio");
 
 const root = path.join(__dirname, "..");
 const site = JSON.parse(fs.readFileSync(path.join(root, "backend/data/site.json"), "utf8"));
@@ -131,6 +132,31 @@ test("canonical routes, HEAD and supported methods behave consistently", async (
   }
   assert.equal((await request("/api/inquiry")).headers.allow, "POST");
   assert.equal((await request("/", { method: "DELETE" })).status, 405);
+});
+
+test("package route redirects legacy URLs and serves configured cards in initial HTML", async () => {
+  for (const method of ["GET", "HEAD"]) {
+    for (const source of ["/preise.html", "/preise", "/pakete"]) {
+      const redirect = await request(`${source}?paket=Basis&source=legacy`, { method });
+      assert.equal(redirect.status, 308);
+      assert.equal(redirect.headers.location, "/pakete.html?paket=Basis&source=legacy");
+    }
+    assert.equal((await request("/pakete.html", { method })).status, 200);
+  }
+  assert.equal((await request("/preise.html", { method: "POST" })).status, 405);
+  const page = load((await request("/pakete.html")).body);
+  assert.deepEqual(
+    page("[data-packages-grid] > article")
+      .map((_, el) => page(el).attr("data-package-name"))
+      .get(),
+    site.packagesEnabled === true ? site.packages.map((item) => item.name) : [],
+  );
+  assert.equal(page('.nav-links a[aria-current="page"]').attr("href"), "/pakete.html");
+  assert.equal(page('link[rel="canonical"]').attr("href"), `${new URL(site.publicUrl).origin}/pakete.html`);
+  assert.equal(page('a[href*="preise.html"]').length, 0);
+  const sitemap = (await request("/sitemap.xml")).body;
+  assert.ok(sitemap.includes("/pakete.html</loc>"));
+  assert.ok(!sitemap.includes("/preise.html"));
 });
 
 test("public HTML compresses without changing content and assets revalidate", async () => {

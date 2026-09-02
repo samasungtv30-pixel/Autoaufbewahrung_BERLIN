@@ -92,9 +92,9 @@
   "packagesEnabled": true,
   "packagesConfirmed": false,
   "packages": [
-    { "name": "Basis", "shortDescription": "Grundlegender Leistungsumfang.", "features": [], "price": "Preis auf Anfrage", "priceSuffix": "", "cta": "Paket anfragen", "highlighted": false },
-    { "name": "Intensiv", "shortDescription": "Umfangreichere Fahrzeugpflege.", "features": [], "price": "Preis auf Anfrage", "priceSuffix": "", "cta": "Paket anfragen", "highlighted": false },
-    { "name": "Premium", "shortDescription": "Umfassender, detailorientierter Leistungsumfang.", "features": [], "price": "Preis auf Anfrage", "priceSuffix": "", "cta": "Paket anfragen", "highlighted": false }
+    { "id": "basis", "icon": "brush-cleaning", "name": "Basis", "shortDescription": "Grundlegender Leistungsumfang.", "features": [], "price": "Preis auf Anfrage", "priceSuffix": "", "cta": "Paket anfragen", "highlighted": false },
+    { "id": "intensiv", "icon": "sparkles", "name": "Intensiv", "shortDescription": "Umfangreichere Fahrzeugpflege.", "features": [], "price": "Preis auf Anfrage", "priceSuffix": "", "cta": "Paket anfragen", "highlighted": false },
+    { "id": "premium", "icon": "layers-2", "name": "Premium", "shortDescription": "Umfassender, detailorientierter Leistungsumfang.", "features": [], "price": "Preis auf Anfrage", "priceSuffix": "", "cta": "Paket anfragen", "highlighted": false }
   ],
   "faq": [
     { "question": "Kann ich vorab Fotos per WhatsApp schicken?", "answer": "Ja. Fotos von Fahrzeugzustand, Felge oder Lackbereich helfen bei einer ersten unverbindlichen Einschätzung. Ein verbindliches Angebot kann eine Prüfung vor Ort erfordern." },

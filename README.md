@@ -13,7 +13,9 @@ Produktionsnahe Website-Basis fuer einen Autoaufbereitungsbetrieb. Inhalte, Leis
 
 ## Oeffentliche Freigaben
 
-- Pakete bleiben mit `packagesConfirmed: false` in `backend/data/site.json` intern vorbereitet. Die API liefert sie dann nicht aus; Paketbereich und Formular-Vorauswahl bleiben deaktiviert. Erst nach Freigabe echter Paketbestandteile und Preise auf den booleschen Wert `true` setzen.
+- `frontend/pakete.html` ist die Paketseite. `/preise.html` und `/preise` werden dauerhaft mit HTTP 308 auf `/pakete.html` weitergeleitet; Query-Parameter bleiben erhalten.
+- `packagesEnabled` in `backend/data/site.json` steuert die sichtbaren Paketkarten und die Formular-Vorauswahl. `packagesConfirmed: false` dokumentiert die noch ausstehende fachliche Freigabe, deaktiviert die Vorschau aber nicht. Aktuell bleiben die drei Pakete mit `Preis auf Anfrage` und leeren `features` sichtbar.
+- Paketdaten nur in `backend/data/site.json` pflegen: `id` (eindeutig/stabil), `icon` (`brush-cleaning`, `sparkles` oder `layers-2`), `name`, `shortDescription`, `features`, `price`, `priceSuffix`, `cta`, `highlighted`. Die Nummer folgt der Reihenfolge. `features` erst mit bestaetigten Paketleistungen fuellen; dann erscheinen Ueberschrift und semantische Checkliste automatisch vor dem Preis, auch ohne JavaScript. Keine Leistungen aus anderen Bereichen pauschal uebernehmen.
 - Die Galerie ist aus dem oeffentlichen Frontend entfernt. Eine spaetere Galerie benoetigt echte, freigegebene Kundenarbeiten.
 - Karte und Route verwenden die vollstaendige Adresse oder numerische `address.latitude`/`address.longitude` aus der Konfiguration. Ohne gueltiges Ziel bleiben sie deaktiviert; Google Maps wird erst nach einem ausdruecklichen Klick geladen. Ladefehler bieten einen erneuten Versuch.
 - Fehlende Kontaktangaben werden nicht als funktionsfaehige Telefonnummern oder E-Mail-Adressen verlinkt.

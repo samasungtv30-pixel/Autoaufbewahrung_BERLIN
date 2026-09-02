@@ -63,7 +63,7 @@ test("hero principles preserve their copy and render three decorative icons in s
 });
 test("only enabled packages and active services are rendered", () => {
   for (const enabled of [false, undefined, "true"]) {
-    const doc = render("preise.html", { ...config, packagesEnabled: enabled });
+    const doc = render("pakete.html", { ...config, packagesEnabled: enabled });
     assert.equal(doc(".package").length, 0);
     assert.deepEqual(JSON.parse(doc("#site-config").text()).packages, []);
   }
@@ -75,7 +75,7 @@ test("only enabled packages and active services are rendered", () => {
 });
 
 test("enabled package section renders exactly the configured cards in server HTML", () => {
-  const doc = render("preise.html");
+  const doc = render("pakete.html");
   const cards = doc("[data-packages-grid] > .package");
   assert.equal(cards.length, config.packages.length);
   assert.deepEqual(
@@ -84,6 +84,8 @@ test("enabled package section renders exactly the configured cards in server HTM
   );
   config.packages.forEach((item, index) => {
     const card = cards.eq(index);
+    assert.equal(card.attr("id"), `package-${item.id}`);
+    assert.equal(card.find(".package__icon").attr("data-service-icon"), item.icon);
     assert.equal(card.find("h2").text(), item.name);
     assert.equal(card.find("p").text(), item.shortDescription);
     assert.equal(card.find("li").length, item.features.length);
@@ -156,7 +158,7 @@ test("header and footer share the same five navigation links on every template t
   const expected = [
     ["Home", "/"],
     ["Unsere Leistungen", "/leistungen.html"],
-    ["Pakete", "/preise.html"],
+    ["Pakete", "/pakete.html"],
     ["Kontakt", "/kontakt.html"],
     ["FAQ", "/#faq"],
   ];
@@ -190,12 +192,19 @@ test("package page starts with its headline and renders configured feature lists
       features: index === 1 ? [] : ["Fixture A", "Fixture B"],
     })),
   };
-  const doc = render("preise.html", fixture);
+  const doc = render("pakete.html", fixture);
   assert.equal(doc("h1").text(), "Unsere Pakete im Detail.");
   assert.equal(doc("main > section").first().attr("id"), "pakete");
   assert.equal(doc(".pricing-intro").length, 0);
   fixture.packages.forEach((item, index) => {
     const card = doc(".package").eq(index);
+    assert.equal(card.find(".package__features").length, item.features.length ? 1 : 0);
+    if (item.features.length) {
+      assert.equal(card.find(".package__features h3").text(), "Enthaltene Leistungen");
+      assert.equal(card.find("ul").attr("aria-labelledby"), card.find(".package__features h3").attr("id"));
+      assert.equal(card.find("ul").attr("role"), "list");
+      assert.ok(card.html().indexOf("package__features") < card.html().indexOf("package__price"));
+    }
     assert.deepEqual(
       card
         .find("li > span:last-child")
@@ -205,7 +214,7 @@ test("package page starts with its headline and renders configured feature lists
     );
     assert.equal(card.find("li svg").length, item.features.length);
   });
-  assert.equal(render("preise.html", { ...config, packagesEnabled: false })("h1").length, 1);
+  assert.equal(render("pakete.html", { ...config, packagesEnabled: false })("h1").length, 1);
 });
 test("config values cannot inject HTML or escape embedded JSON", () => {
   const attack = '</script><script src="https://evil.invalid/x.js"></script><img src=x onerror=alert(1)>';
@@ -218,7 +227,7 @@ test("config values cannot inject HTML or escape embedded JSON", () => {
   assert.equal(doc("[onerror]").length, 0);
   assert.equal(doc('img[src^="javascript:"]').length, 0);
   assert.equal(JSON.parse(doc("#site-config").text()).siteName, attack);
-  const packages = render("preise.html", {
+  const packages = render("pakete.html", {
     ...config,
     packages: config.packages.map((item) => ({
       ...item,
