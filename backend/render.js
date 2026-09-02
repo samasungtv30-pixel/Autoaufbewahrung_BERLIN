@@ -149,8 +149,8 @@ function renderHtml(filePath, config) {
   const setText = (selector, value) => $(selector).text(value ?? "");
   const links = business.contactLinks(config);
   $('link[href^="/css/style.css"]').attr("href", "/css/style.css?v=30");
-  $('link[href^="/css/studio.css"]').attr("href", "/css/studio.css?v=20");
-  $('script[src^="/js/main.js"]').attr("src", "/js/main.js?v=27");
+  $('link[href^="/css/studio.css"]').attr("href", "/css/studio.css?v=21");
+  $('script[src^="/js/main.js"]').attr("src", "/js/main.js?v=28");
   const action = (selector, href) => {
     $(selector).each((_, element) => {
       const el = $(element).toggleClass("is-unavailable", !href);

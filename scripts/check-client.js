@@ -6,6 +6,49 @@ const vm = require("node:vm");
 const business = require("../frontend/js/business");
 const source = fs.readFileSync(path.join(__dirname, "../frontend/js/main.js"), "utf8");
 
+test("scroll and resize updates are coalesced into one animation frame", () => {
+  const listeners = new Map();
+  const frames = [];
+  const states = [];
+  const bar = { style: {} };
+  const header = { classList: { toggle: (name, value) => states.push([name, value]) } };
+  const context = vm.createContext({
+    document: {
+      addEventListener() {},
+      querySelector: (selector) => (selector === ".site-header" ? header : bar),
+      querySelectorAll: () => [],
+      createElement: () => ({ setAttribute() {}, querySelector: () => bar }),
+      body: { append() {} },
+      documentElement: { scrollHeight: 2000 },
+    },
+    window: {
+      scrollY: 0,
+      innerHeight: 1000,
+      matchMedia: () => ({ matches: true }),
+      addEventListener: (name, callback) => listeners.set(name, callback),
+      requestAnimationFrame: (callback) => {
+        frames.push(callback);
+        return frames.length;
+      },
+    },
+  });
+  vm.runInContext(source, context);
+  context.initMotion();
+  assert.equal(bar.style.transform, "scaleX(0)");
+  context.window.scrollY = 400;
+  for (let i = 0; i < 20; i++) listeners.get("scroll")();
+  listeners.get("resize")();
+  assert.equal(frames.length, 1);
+  frames[0]();
+  assert.equal(bar.style.transform, "scaleX(0.4)");
+  assert.deepEqual(states.at(-1), ["is-scrolled", true]);
+  context.window.scrollY = 0;
+  listeners.get("scroll")();
+  assert.equal(frames.length, 2);
+  frames[1]();
+  assert.equal(bar.style.transform, "scaleX(0)");
+});
+
 function formHarness() {
   let submit, input, resolveRequest;
   let requests = 0,

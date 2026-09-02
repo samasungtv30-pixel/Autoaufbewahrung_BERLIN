@@ -38,6 +38,12 @@ Danach ist die Website unter `http://localhost:3100` erreichbar.
   sind simuliert beziehungsweise im lokalen Integrationstest deaktiviert.
 - `npm run check:launch`: separate Vorpruefung echter Betriebsdaten und der
   Versandkonfiguration. Ein Fehler ist in der Vorschau mit Platzhaltern zu erwarten.
+- `npm run check:header`: optionaler echter Browser-Regressionscheck aller Header
+  (Tablet/Desktop, Scrollen, Menue und verzoegerte Fonts). Benoetigt eine vorhandene
+  Playwright-Testumgebung, keine zusaetzliche Produktionsabhaengigkeit. Bei einer
+  externen Installation `PLAYWRIGHT_MODULE` auf deren absoluten Modulpfad setzen;
+  optional `BROWSER_CHANNEL=msedge` fuer Microsoft Edge. Der Test startet und beendet
+  seinen eigenen lokalen Server auf einem freien Port, ohne E-Mails zu senden.
 - GitHub Actions fuehrt Tests, Formatierungspruefung und Dependency-Audit aus.
 - Render fuehrt Tests auch vor dem Start einer neuen Version aus.
 - `indexingEnabled: false` in `backend/data/site.json` setzt den HTTP-Header

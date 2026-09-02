@@ -10,7 +10,8 @@
     "check": "node --check backend/server.js && node --check backend/mailer.js && node --check backend/render.js && node --check frontend/js/business.js && node --check frontend/js/main.js && node scripts/check-site.js && node scripts/check-ui.js && node --test scripts/check-inquiry.js scripts/check-security.js scripts/check-render.js scripts/check-client.js",
     "format": "prettier --write \"backend/*.js\" \"frontend/js/*.js\" \"scripts/*.js\"",
     "format:check": "prettier --check \"backend/*.js\" \"frontend/js/*.js\" \"scripts/*.js\"",
-    "check:launch": "node scripts/check-launch.js"
+    "check:launch": "node scripts/check-launch.js",
+    "check:header": "node scripts/check-header.js"
   },
   "engines": {
     "node": "24.x"

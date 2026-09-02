@@ -119,14 +119,20 @@ function initMotion() {
   document.body.append(progress);
   const progressBar = qs("span", progress);
 
+  let headerFrame = 0;
   const updateHeader = () => {
+    headerFrame = 0;
     header?.classList.toggle("is-scrolled", window.scrollY > 24);
     const scrollable = document.documentElement.scrollHeight - window.innerHeight;
     const ratio = scrollable > 0 ? Math.min(window.scrollY / scrollable, 1) : 0;
     progressBar.style.transform = `scaleX(${ratio})`;
   };
+  const scheduleHeader = () => {
+    if (!headerFrame) headerFrame = window.requestAnimationFrame(updateHeader);
+  };
   updateHeader();
-  window.addEventListener("scroll", updateHeader, { passive: true });
+  window.addEventListener("scroll", scheduleHeader, { passive: true });
+  window.addEventListener("resize", scheduleHeader, { passive: true });
 
   const items = qsa(".reveal");
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) {
@@ -212,14 +218,16 @@ function initPremiumMotion() {
     qs(".site-footer")?.classList.add("is-revealed");
   }
 
-  if (window.matchMedia("(min-width: 761px)").matches) {
+  const parallaxImages = qsa(".hero-media, .service-hero__media");
+  if (parallaxImages.length && window.matchMedia("(min-width: 761px)").matches) {
     let scrollFrame = 0;
+    let lastOffset;
     const updateParallax = () => {
       scrollFrame = 0;
       const offset = Math.max(-28, Math.min(28, window.scrollY * 0.025));
-      qsa(".hero-media, .service-hero__media").forEach((image) =>
-        image.style.setProperty("--motion-image-y", `${offset}px`),
-      );
+      if (offset === lastOffset) return;
+      lastOffset = offset;
+      parallaxImages.forEach((image) => image.style.setProperty("--motion-image-y", `${offset}px`));
     };
     const scheduleParallax = () => {
       if (!scrollFrame) scrollFrame = window.requestAnimationFrame(updateParallax);
