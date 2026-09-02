@@ -400,7 +400,10 @@ function initInquiryForm() {
   const resultDialog = qs("[data-inquiry-result]");
   const closeResult = resultDialog ? qs("[data-result-close]", resultDialog) : null;
   closeResult?.addEventListener("click", () => resultDialog.close());
-  resultDialog?.addEventListener("close", () => readyButton?.focus());
+  resultDialog?.addEventListener("close", () => {
+    if (status.classList.contains("is-success")) setStatus("");
+    readyButton?.focus();
+  });
   resultDialog?.addEventListener("keydown", (event) => {
     if (event.key !== "Tab") return;
     const controls = [...resultDialog.querySelectorAll("button, a[href]")].filter(

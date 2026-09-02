@@ -85,8 +85,14 @@ function formHarness() {
   let submit, input, resolveRequest;
   let requests = 0,
     resets = 0;
-  const button = {};
-  const status = { classList: { toggle() {} } };
+  const button = { focus() {} };
+  const statusClasses = new Set();
+  const status = {
+    classList: {
+      toggle: (name, enabled) => (enabled ? statusClasses.add(name) : statusClasses.delete(name)),
+      contains: (name) => statusClasses.has(name),
+    },
+  };
   const attributes = new Map();
   const resultNodes = Object.fromEntries(
     ["title", "copy", "success", "error", "alternative", "close"].map((name) => [
@@ -94,9 +100,14 @@ function formHarness() {
       { addEventListener() {} },
     ]),
   );
+  const dialogEvents = new Map();
   const dialog = {
     classList: { toggle() {} },
-    addEventListener() {},
+    addEventListener: (name, callback) => dialogEvents.set(name, callback),
+    close() {
+      this.open = false;
+      dialogEvents.get("close")();
+    },
     querySelector: (selector) => resultNodes[selector],
     showModal() {
       this.open = true;
@@ -210,6 +221,23 @@ test("mail result dialog confirms accepted mail and retains inputs on failures",
       h.resultNodes["[data-result-title]"].textContent,
       outcome === "success" ? /Vielen Dank/ : /nicht bestätigt/,
     );
+  }
+});
+
+test("closing the result clears success copy and decoration but preserves errors", async () => {
+  for (const success of [true, false]) {
+    const h = formHarness();
+    const pending = h.submit();
+    h.resolve({
+      ok: success,
+      json: async () => ({ success, emailSent: success, error: "Versand fehlgeschlagen" }),
+    });
+    await pending;
+    h.dialog.close();
+    assert.equal(h.status.textContent, success ? "" : "Versand fehlgeschlagen");
+    assert.equal(h.status.classList.contains("is-success"), false);
+    assert.equal(h.status.classList.contains("is-error"), !success);
+    assert.equal(h.resets(), success ? 1 : 0);
   }
 });
 
