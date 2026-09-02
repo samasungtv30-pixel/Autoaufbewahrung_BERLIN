@@ -248,8 +248,8 @@ h3 { font-size: 24px; line-height: 1.15; }
 .service-card__footer strong { font-size: 13px; }
 .service-card__footer a { color: var(--accent); font-size: 13px; font-weight: 800; text-decoration: none; }
 .services-showcase { background: #080a0b; }
-.services-page .service-grid, .home .service-intro .service-grid { grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 18px; border: 0; }
-.service-card--premium { grid-column: span 3; min-height: 590px; padding: 0; border: 1px solid rgba(255,255,255,.14); border-top: 2px solid var(--card-accent); border-radius: 6px; background: linear-gradient(145deg, #171b1c, #0d1011 70%); box-shadow: 0 18px 55px rgba(0,0,0,.28); transition: border-color .35s ease, box-shadow .35s ease, transform .35s ease; }
+.services-page .service-grid, .home .service-intro .service-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; border: 0; }
+.service-card--premium { min-height: 0; padding: 0; border: 1px solid rgba(255,255,255,.14); border-top: 2px solid var(--card-accent); border-radius: 6px; background: linear-gradient(145deg, #171b1c, #0d1011 70%); box-shadow: 0 18px 55px rgba(0,0,0,.28); transition: border-color .35s ease, box-shadow .35s ease, transform .35s ease; }
 .service-card--premium { scroll-margin-top: 96px; }
 .service-card--lime { --card-accent: #b9f23d; }
 .service-card--blue { --card-accent: #4e8cff; }
@@ -258,9 +258,7 @@ h3 { font-size: 24px; line-height: 1.15; }
 .service-card--red { --card-accent: #ff5050; }
 .service-card--teal { --card-accent: #2bd4c7; }
 .service-card--yellow { --card-accent: #f2c62e; }
-.service-card--premium:nth-child(5) { grid-column: 2 / span 3; }
-.service-card--premium:nth-child(6) { grid-column: 5 / span 3; }
-.service-card--premium:nth-child(7) { grid-column: 8 / span 3; }
+.service-card--premium:last-child:nth-child(3n + 1) { grid-column: 2; }
 .service-card--premium::after { height: 2px; background: var(--card-accent); }
 .service-card--premium:hover { border-color: color-mix(in srgb, var(--card-accent) 65%, transparent); background: linear-gradient(145deg, #1a1f20, #101314 72%); box-shadow: 0 24px 70px rgba(0,0,0,.42), 0 0 32px color-mix(in srgb, var(--card-accent) 13%, transparent); transform: translateY(-7px); }
 .service-card--premium .service-card__media { aspect-ratio: 16 / 9; margin: 0; }

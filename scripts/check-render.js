@@ -24,7 +24,7 @@ test("services, FAQ, business data and detail content exist in the initial HTML"
   assert.equal(home(".site-header .nav-whatsapp").length, 1);
   assert.equal(home(".site-header .nav-quote").length, 0);
   assert.deepEqual(
-    home(".service-card--premium h2")
+    home(".service-card--premium h3")
       .map((_, item) => home(item).text())
       .get(),
     config.services.map((service) => service.title),
@@ -68,7 +68,7 @@ test("enabled package section renders exactly the configured cards in server HTM
   );
   config.packages.forEach((item, index) => {
     const card = cards.eq(index);
-    assert.equal(card.find("h3").text(), item.name);
+    assert.equal(card.find("h2").text(), item.name);
     assert.equal(card.find("p").text(), item.shortDescription);
     assert.equal(card.find("li").length, item.features.length);
     assert.equal(card.find(".package__price strong").text(), item.price);
@@ -81,6 +81,84 @@ test("enabled package section renders exactly the configured cards in server HTM
     );
   });
   assert.ok(!doc("[data-packages-section]").is("[hidden]"));
+});
+test("service checklists share central highlights, bounded previews and matching anchors", () => {
+  for (const fixture of [
+    config,
+    {
+      ...config,
+      services: config.services
+        .map((service, index) => ({
+          ...service,
+          active: index !== 1,
+          highlights: Array.from({ length: 6 }, (_, i) => `Fixture ${index} / ${i} <safe>`),
+        }))
+        .reverse(),
+    },
+  ]) {
+    const home = render("index.html", fixture);
+    const detail = render("leistungen.html", fixture);
+    const services = fixture.services.filter((service) => service.active !== false);
+    assert.equal(home(".service-card--overview").length, services.length);
+    assert.equal(detail(".service-card--premium").length, services.length);
+    assert.equal(home(".service-card__process").length, 0);
+    services.forEach((service, index) => {
+      const card = home(".service-card--overview").eq(index);
+      const target = detail(`#service-${service.slug}`);
+      assert.equal(card.find("h3").text(), service.title);
+      assert.equal(
+        card.find(".service-card__details").attr("href"),
+        `/leistungen.html#service-${service.slug}`,
+      );
+      assert.equal(target.length, 1);
+      assert.equal(target.find("h2").text(), service.title);
+      for (const [element, values] of [
+        [card, service.highlights.slice(0, 4)],
+        [target, service.highlights],
+      ]) {
+        assert.deepEqual(
+          element
+            .find(".service-checklist li > span:last-child")
+            .map((_, el) => (element === card ? home : detail)(el).text())
+            .get(),
+          values,
+        );
+        assert.equal(element.find(".service-checklist svg").length, values.length);
+      }
+      assert.deepEqual(
+        target
+          .find(".service-card__process li")
+          .map((_, el) => detail(el).text())
+          .get(),
+        service.cardSteps.map((step) => step.label),
+      );
+    });
+  }
+});
+test("package page starts with its headline and renders configured feature lists without defaults", () => {
+  const fixture = {
+    ...config,
+    packages: config.packages.map((item, index) => ({
+      ...item,
+      features: index === 1 ? [] : ["Fixture A", "Fixture B"],
+    })),
+  };
+  const doc = render("preise.html", fixture);
+  assert.equal(doc("h1").text(), "Unsere Pakete im Detail.");
+  assert.equal(doc("main > section").first().attr("id"), "pakete");
+  assert.equal(doc(".pricing-intro").length, 0);
+  fixture.packages.forEach((item, index) => {
+    const card = doc(".package").eq(index);
+    assert.deepEqual(
+      card
+        .find("li > span:last-child")
+        .map((_, el) => doc(el).text())
+        .get(),
+      item.features,
+    );
+    assert.equal(card.find("li svg").length, item.features.length);
+  });
+  assert.equal(render("preise.html", { ...config, packagesEnabled: false })("h1").length, 1);
 });
 test("config values cannot inject HTML or escape embedded JSON", () => {
   const attack = '</script><script src="https://evil.invalid/x.js"></script><img src=x onerror=alert(1)>';

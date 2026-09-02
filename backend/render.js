@@ -32,15 +32,14 @@ function localImage(value) {
 function serviceCard(service, index, teaser, config) {
   const slug = escape(service.slug);
   const image = `<img src="${escape(localImage(service.image))}" alt="${escape(service.imageAlt)}" width="1536" height="1024" loading="${!teaser && index === 0 ? "eager" : "lazy"}"${!teaser && index === 0 ? ' fetchpriority="high"' : ""}>`;
-  if (teaser)
-    return `<article class="home-service-card">
-    <a class="home-service-card__media" href="/leistungen.html#service-${slug}" tabindex="-1">${image}</a>
-    <div class="home-service-card__body">
-      <span class="home-service-card__icon" data-service-icon="${escape(service.cardSteps[0]?.icon || "sparkles")}" aria-hidden="true"></span>
-      <span class="home-service-card__number">${number(index)}</span>
-      <h3>${escape(service.title).replace(/aufbereitung/g, "&shy;aufbereitung")}</h3><p>${escape(service.summary)}</p>
-      <a class="home-service-card__details" href="/leistungen.html#service-${slug}" aria-label="Details zur Leistung ${escape(service.title)}">Details ansehen ${icon("arrow-up-right")}</a>
-    </div></article>`;
+  // Reuse the detailed service's central highlights; overview cards stay bounded.
+  const highlights = Array.isArray(service.highlights) ? service.highlights : [];
+  const included = teaser ? highlights.slice(0, 4) : highlights;
+  const heading = teaser ? "h3" : "h2";
+  const process =
+    !teaser && service.cardSteps?.length
+      ? `<ol class="service-card__process" aria-label="Typischer Ablauf: ${escape(service.title)}">${service.cardSteps.map((step) => `<li>${escape(step.label)}</li>`).join("")}</ol>`
+      : "";
   const theme = ["lime", "blue", "orange", "violet", "red", "teal", "yellow"].includes(service.theme)
     ? service.theme
     : "lime";
@@ -48,14 +47,17 @@ function serviceCard(service, index, teaser, config) {
     config,
     `Hallo, ich möchte ein Angebot für ${service.title} anfragen.`,
   ).whatsapp;
-  return `<article class="service-card service-card--premium service-card--${theme}" id="service-${slug}">
-    <div class="service-card__media">${image}</div><div class="service-card__body">
-      <div class="service-card__heading"><span>${number(index)}</span><h2>${escape(service.title)}</h2></div>
-      <p>${escape(service.summary)}</p>
-      <ul class="service-checklist" aria-label="Typische Arbeitsschritte für ${escape(service.title)}">${service.cardSteps.map((step) => `<li>${icon("circle-check-big")}<span>${escape(step.label)}</span></li>`).join("")}</ul>
-      <div class="service-card__actions"><a class="service-card__primary" href="/${slug}.html">Angebot anfragen</a>
+  const actions = teaser
+    ? `<a class="service-card__details" href="/leistungen.html#service-${slug}" aria-label="Mehr Details: ${escape(service.title)}">Mehr Details ${icon("arrow-right")}</a>`
+    : `<div class="service-card__actions"><a class="service-card__primary" href="/${slug}.html">Angebot anfragen</a>
         <a class="service-card__chat${whatsapp ? "" : " is-unavailable"}" ${whatsapp ? `href="${escape(whatsapp)}"` : 'aria-disabled="true" tabindex="-1" title="WhatsApp-Nummer folgt"'} target="_blank" rel="noopener noreferrer" aria-label="${escape(service.title)} per WhatsApp anfragen">${icon("message-circle")}</a>
-      </div></div></article>`;
+      </div>`;
+  return `<article class="service-card service-card--premium service-card--${theme}${teaser ? " service-card--overview" : ""}" id="service-${slug}" aria-labelledby="service-title-${slug}">
+    <div class="service-card__media">${image}</div><div class="service-card__body">
+      <div class="service-card__heading"><span aria-hidden="true">${number(index)}</span><${heading} id="service-title-${slug}">${escape(service.title).replace(/(aufbereitung|reparatur)/g, "<wbr>$1")}</${heading}></div>
+      <p>${escape(service.summary)}</p>
+      <ul class="service-checklist" aria-label="Leistungsmerkmale: ${escape(service.title)}">${included.map((feature) => `<li>${icon("check")}<span>${escape(feature)}</span></li>`).join("")}</ul>
+      ${process}${actions}</div></article>`;
 }
 function packageCard(item, index) {
   const titleId = `package-title-${number(index)}`;
@@ -66,7 +68,7 @@ function packageCard(item, index) {
     : "";
   return `<article class="package package--${["lime", "blue", "teal"][index % 3]}${item.highlighted === true ? " package--featured" : ""}" data-package-name="${escape(item.name)}" aria-labelledby="${titleId}">
     <div class="package__top"><span class="package__label">${number(index)} / Pflegepaket</span><span class="package__icon" data-service-icon="${["brush-cleaning", "sparkles", "layers-2"][index % 3]}" aria-hidden="true"></span></div>
-    <h3 id="${titleId}">${escape(item.name)}</h3><p>${escape(item.shortDescription)}</p>
+    <h2 id="${titleId}">${escape(item.name)}</h2><p>${escape(item.shortDescription)}</p>
     <div class="package__price"><span>Individuelles Angebot</span><strong>${escape(item.price)}</strong>${suffix}</div>
     ${featureList}
     <a class="button package__cta" href="/kontakt.html?paket=${encodeURIComponent(item.name)}#anfrage" aria-label="Pflegepaket ${escape(item.name)} anfragen">${escape(item.cta)}${icon("arrow-up-right")}</a></article>`;
@@ -136,7 +138,8 @@ function renderHtml(filePath, config) {
   const active = config.services.filter((item) => item.active !== false);
   const setText = (selector, value) => $(selector).text(value ?? "");
   const links = business.contactLinks(config);
-  $('link[href^="/css/studio.css"]').attr("href", "/css/studio.css?v=16");
+  $('link[href^="/css/style.css"]').attr("href", "/css/style.css?v=30");
+  $('link[href^="/css/studio.css"]').attr("href", "/css/studio.css?v=17");
   $('script[src^="/js/main.js"]').attr("src", "/js/main.js?v=27");
   const action = (selector, href) => {
     $(selector).each((_, element) => {
@@ -152,7 +155,7 @@ function renderHtml(filePath, config) {
   </div>`);
   $(".site-header .nav-quote").remove();
   $(".site-header .nav-actions").append(
-    `<a class="nav-whatsapp" data-whatsapp-link href="#" target="_blank" rel="noopener noreferrer">${icon("message-circle")}<span>WhatsApp</span></a>`,
+    `<a class="nav-whatsapp" data-whatsapp-link href="#" target="_blank" rel="noopener noreferrer"><img src="/images/whatsapp.svg" width="24" height="24" alt=""><span>WhatsApp</span></a>`,
   );
   setText("[data-site-name]", config.siteName);
   setText("[data-short-name]", config.shortName);
