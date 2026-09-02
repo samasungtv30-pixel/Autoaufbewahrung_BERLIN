@@ -11,7 +11,8 @@
     "format": "prettier --write \"backend/*.js\" \"frontend/js/*.js\" \"scripts/*.js\"",
     "format:check": "prettier --check \"backend/*.js\" \"frontend/js/*.js\" \"scripts/*.js\"",
     "check:launch": "node scripts/check-launch.js",
-    "check:header": "node scripts/check-header.js"
+    "check:header": "node scripts/check-header.js",
+    "check:contact": "node scripts/check-contact-layout.js"
   },
   "engines": {
     "node": "24.x"

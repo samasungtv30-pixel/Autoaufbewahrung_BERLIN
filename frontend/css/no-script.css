@@ -1,5 +1,5 @@
 /* Loaded only when scripting is disabled. Navigation remains usable. */
-.nav-toggle, .mobile-sticky-actions { display: none !important; }
+.nav-toggle { display: none !important; }
 @media (max-width: 1050px) {
   .site-header { position: relative; height: auto; }
   .nav { display: flex; flex-wrap: wrap; padding-block: 12px; gap: 12px; }

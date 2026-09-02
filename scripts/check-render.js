@@ -61,6 +61,36 @@ test("hero principles preserve their copy and render three decorative icons in s
   );
   assert.equal(doc('.hero-proof__icon[aria-hidden="true"] svg').length, 3);
 });
+
+test("contact bar is rendered once on every page and honeypots remain excluded from navigation", () => {
+  for (const file of fs
+    .readdirSync(path.join(__dirname, "../frontend"))
+    .filter((name) => name.endsWith(".html"))) {
+    const doc = render(file, { ...config, phone: "", whatsapp: "" });
+    const bar = doc('nav.mobile-sticky-actions[aria-label="Direkter Kontakt"]');
+    assert.equal(doc(".mobile-sticky-actions").length, 1, file);
+    assert.equal(bar.length, 1, file);
+    assert.equal(bar.find("a").length, 2);
+    assert.equal(bar.find('[aria-hidden="true"] svg').length, 2);
+    assert.equal(bar.find("a[href]").length, 0, "placeholder phone numbers stay disabled");
+    doc('[name="website"]').each((_, input) => {
+      assert.equal(doc(input).attr("tabindex"), "-1");
+      assert.equal(doc(input).attr("autocomplete"), "off");
+      assert.equal(doc(input).closest(".honeypot").attr("aria-hidden"), "true");
+    });
+  }
+  const ready = render("kontakt.html", {
+    ...config,
+    phone: "+49 30 12345678",
+    whatsapp: "https://wa.me/493012345678",
+  });
+  assert.equal(ready(".mobile-sticky-actions [data-call-link]").attr("href"), "tel:+493012345678");
+  assert.match(
+    ready(".mobile-sticky-actions [data-whatsapp-link]").attr("href"),
+    /^https:\/\/wa.me\/493012345678/,
+  );
+  assert.equal(ready(".mobile-sticky-actions small").text(), "");
+});
 test("only enabled packages and active services are rendered", () => {
   for (const enabled of [false, undefined, "true"]) {
     const doc = render("pakete.html", { ...config, packagesEnabled: enabled });
@@ -130,6 +160,10 @@ test("homepage previews omit checklists while detail cards use central highlight
         `/leistungen.html#service-${service.slug}`,
       );
       assert.equal(target.length, 1);
+      assert.equal(
+        target.find(".service-card__primary").attr("href"),
+        `/kontakt.html?service=${encodeURIComponent(service.slug)}#anfrage`,
+      );
       assert.equal(target.find("h2").text(), service.title);
       for (const [element, values] of [
         [card, []],

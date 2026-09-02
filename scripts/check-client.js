@@ -49,6 +49,38 @@ test("scroll and resize updates are coalesced into one animation frame", () => {
   assert.equal(bar.style.transform, "scaleX(0)");
 });
 
+test("sticky contacts preserve server markup and are inert while a field is edited", () => {
+  const listeners = new Map();
+  const states = new Map();
+  const sticky = { classList: { toggle: (name, value) => states.set(name, value) } };
+  Object.defineProperty(sticky, "innerHTML", {
+    set() {
+      throw new Error("Must preserve SSR contacts");
+    },
+  });
+  const document = {
+    addEventListener: (name, callback) => listeners.set(name, callback),
+    querySelector: () => sticky,
+    activeElement: { matches: () => false },
+    body: { classList: { contains: () => false } },
+  };
+  const context = vm.createContext({ document, window: { setTimeout: (callback) => callback() } });
+  vm.runInContext(source, context);
+  context.initStickyActions();
+  assert.equal(sticky.inert, false);
+  document.activeElement.matches = () => true;
+  listeners.get("focusin")();
+  assert.equal(sticky.inert, true);
+  assert.equal(states.get("is-suppressed"), true);
+  document.activeElement.matches = () => false;
+  listeners.get("focusout")();
+  assert.equal(sticky.inert, false);
+  assert.equal(states.get("is-suppressed"), false);
+  document.body.classList.contains = () => true;
+  listeners.get("focusin")();
+  assert.equal(sticky.inert, true);
+});
+
 function formHarness() {
   let submit, input, resolveRequest;
   let requests = 0,

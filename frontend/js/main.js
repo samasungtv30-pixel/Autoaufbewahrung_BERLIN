@@ -545,26 +545,14 @@ function initImageFallbacks() {
 }
 
 function initStickyActions() {
-  let sticky = qs(".mobile-sticky-actions");
-  if (!sticky) {
-    sticky = document.createElement("div");
-    sticky.className = "mobile-sticky-actions";
-    document.body.append(sticky);
-  }
-  sticky.setAttribute("aria-label", "Direkter Kontakt");
-  sticky.innerHTML = `
-    <a class="button button--primary" data-whatsapp-link href="#" target="_blank" rel="noopener">
-      <span data-service-icon="message-circle" aria-hidden="true"></span><span>WhatsApp<small></small></span>
-    </a>
-    <a class="button button--dark" data-call-link href="#">
-      <span data-service-icon="phone" aria-hidden="true"></span><span>Anrufen<small></small></span>
-    </a>`;
+  const sticky = qs(".mobile-sticky-actions");
+  if (!sticky) return;
   const updateKeyboardState = () => {
-    sticky.classList.toggle(
-      "is-suppressed",
-      Boolean(document.activeElement?.matches("input, textarea, select")),
-    );
+    const editing = Boolean(document.activeElement?.matches("input, textarea, select"));
+    sticky.classList.toggle("is-suppressed", editing);
+    sticky.inert = editing || document.body.classList.contains("nav-open");
   };
+  updateKeyboardState();
   document.addEventListener("focusin", updateKeyboardState);
   document.addEventListener("focusout", () => window.setTimeout(updateKeyboardState, 0));
 }

@@ -45,6 +45,10 @@ Danach ist die Website unter `http://localhost:3100` erreichbar.
   optional `BROWSER_CHANNEL=msedge` fuer Microsoft Edge. Der Test startet und beendet
   seinen eigenen lokalen Server auf einem freien Port, ohne E-Mails zu senden.
 - GitHub Actions fuehrt Tests, Formatierungspruefung und Dependency-Audit aus.
+- `npm run check:contact`: optionaler Browser-Regressionscheck der zentralen
+  Kontaktleiste auf allen 14 Seiten bei 320/360/375/390/430 px: Footer-Abstand,
+  Touch-Ziele, Overflow, Formularfokus und Ausgabe ohne JavaScript. Verwendet
+  dieselbe Playwright-Konfiguration wie `check:header` und sendet keine E-Mails.
 - Render fuehrt Tests auch vor dem Start einer neuen Version aus.
 - `indexingEnabled: false` in `backend/data/site.json` setzt den HTTP-Header
   `X-Robots-Tag: noindex, nofollow`. Erst nach Betreiberfreigabe, vervollstaendigten

@@ -62,9 +62,29 @@ for (const approval of [false, undefined, "true"]) {
   context.initInquiryForm();
   assert.equal(messageField.value, "");
 }
-context.window.location.search = "?service=lackaufbereitung";
+fixture(config);
+for (const service of config.services) {
+  for (const value of [service.slug, service.title]) {
+    serviceSelect.value = "";
+    context.window.location.search = `?service=${encodeURIComponent(value)}`;
+    context.initInquiryForm();
+    assert.equal(serviceSelect.value, service.title);
+  }
+}
+for (const value of ["Unbekannt", "<img src=x onerror=alert(1)>", "../innenreinigung"]) {
+  serviceSelect.value = "";
+  messageField.value = "";
+  context.window.location.search = `?service=${encodeURIComponent(value)}&paket=${encodeURIComponent(value)}`;
+  context.initInquiryForm();
+  assert.equal(serviceSelect.value, "");
+  assert.equal(messageField.value, "");
+}
+fixture({ ...config, services: config.services.map((service) => ({ ...service, active: false })) });
+serviceSelect.value = "";
+context.window.location.search = `?service=${config.services[0].slug}`;
 context.initInquiryForm();
-assert.equal(serviceSelect.value, config.services.find((s) => s.slug === "lackaufbereitung").title);
+assert.equal(serviceSelect.value, "");
+fixture(config);
 const calls = [];
 elements.set("#service-lackaufbereitung", {
   classList: { contains: (name) => name === "service-card--premium" },

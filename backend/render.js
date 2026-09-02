@@ -58,7 +58,7 @@ function serviceCard(service, index, teaser, config) {
   ).whatsapp;
   const actions = teaser
     ? `<a class="service-card__details" href="/leistungen.html#service-${slug}" aria-label="Mehr Details: ${escape(service.title)}">Mehr Details ${icon("arrow-right")}</a>`
-    : `<div class="service-card__actions"><a class="service-card__primary" href="/${slug}.html">Angebot anfragen</a>
+    : `<div class="service-card__actions"><a class="service-card__primary" href="/kontakt.html?service=${encodeURIComponent(service.slug)}#anfrage">Angebot anfragen</a>
         <a class="service-card__chat${whatsapp ? "" : " is-unavailable"}" ${whatsapp ? `href="${escape(whatsapp)}"` : 'aria-disabled="true" tabindex="-1" title="WhatsApp-Nummer folgt"'} target="_blank" rel="noopener noreferrer" aria-label="${escape(service.title)} per WhatsApp anfragen">${icon("message-circle")}</a>
       </div>`;
   return `<article class="service-card service-card--premium service-card--${theme}${teaser ? " service-card--overview" : ""}" id="service-${slug}" aria-labelledby="service-title-${slug}">
@@ -148,9 +148,9 @@ function renderHtml(filePath, config) {
   const active = config.services.filter((item) => item.active !== false);
   const setText = (selector, value) => $(selector).text(value ?? "");
   const links = business.contactLinks(config);
-  $('link[href^="/css/style.css"]').attr("href", "/css/style.css?v=30");
-  $('link[href^="/css/studio.css"]').attr("href", "/css/studio.css?v=21");
-  $('script[src^="/js/main.js"]').attr("src", "/js/main.js?v=28");
+  $('link[href^="/css/style.css"]').attr("href", "/css/style.css?v=31");
+  $('link[href^="/css/studio.css"]').attr("href", "/css/studio.css?v=22");
+  $('script[src^="/js/main.js"]').attr("src", "/js/main.js?v=29");
   const action = (selector, href) => {
     $(selector).each((_, element) => {
       const el = $(element).toggleClass("is-unavailable", !href);
@@ -160,6 +160,12 @@ function renderHtml(filePath, config) {
   };
   const menu = navigation.map(({ name, href }) => `<a href="${href}">${name}</a>`).join("");
   $(".nav-links, [data-footer-navigation]").html(menu);
+  const sticky = `<nav class="mobile-sticky-actions" aria-label="Direkter Kontakt">
+    <a class="button button--primary" data-whatsapp-link href="#" target="_blank" rel="noopener noreferrer">${icon("message-circle")}<span>WhatsApp<small>${links.whatsapp ? "" : "Nummer folgt"}</small></span></a>
+    <a class="button button--dark" data-call-link href="#">${icon("phone")}<span>Anrufen<small>${links.phone ? "" : "Nummer folgt"}</small></span></a>
+  </nav>`;
+  if ($(".mobile-sticky-actions").length) $(".mobile-sticky-actions").replaceWith(sticky);
+  else $("body").append(sticky);
   $(".site-header").prepend(`<div class="header-utility">
     <div class="header-utility__inner">
       <p><span class="header-utility__pulse" aria-hidden="true"></span>Premium Fahrzeugpflege <span data-city></span></p>
@@ -298,7 +304,7 @@ function renderHtml(filePath, config) {
   for (const [property, content] of Object.entries(meta))
     $("head").append(`<meta property="${property}" content="${escape(content)}">`);
   $("head").append('<meta name="twitter:card" content="summary_large_image">');
-  $("head").append('<noscript><link rel="stylesheet" href="/css/no-script.css?v=1"></noscript>');
+  $("head").append('<noscript><link rel="stylesheet" href="/css/no-script.css?v=2"></noscript>');
   const schema = schemaFor(config);
   if (schema && !["404.html", "impressum.html", "datenschutz.html"].includes(filename))
     $("head").append(`<script type="application/ld+json">${json(schema)}</script>`);
