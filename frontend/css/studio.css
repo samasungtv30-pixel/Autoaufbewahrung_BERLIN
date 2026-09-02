@@ -204,14 +204,20 @@ h1, h2, h3, h4, button, .button, .eyebrow, .nav-links, summary {
 .hero .lead { max-width: 49ch; color: #d1d8d4; }
 .hero-proof {
   border-radius: var(--studio-radius);
-  background: linear-gradient(135deg, rgba(65,81,84,.65), rgba(15,22,24,.86));
-  box-shadow: var(--studio-shadow);
-  border-color: rgba(194,230,233,.3);
+  overflow: hidden;
+  background: rgba(12,20,23,.94);
+  box-shadow: var(--studio-highlight), 0 6px 20px rgba(0,0,0,.14);
+  border-color: rgba(194,230,233,.4);
   backdrop-filter: blur(8px);
 }
-.hero-proof div { min-width: 140px; padding: 16px; }
-.hero-proof strong { font-size: 1.125rem; line-height: 1.4; }
-.hero-proof span { font-size: .9375rem; line-height: 1.5; }
+.home .hero-proof__item { min-width: 166px; padding: 18px; border-top: 2px solid var(--proof-accent); background: linear-gradient(155deg, color-mix(in srgb, var(--proof-accent) 12%, transparent), transparent 75%); }
+.hero-proof__item--personal { --proof-accent: var(--studio-ice); }
+.hero-proof__item--simple { --proof-accent: #58df91; }
+.hero-proof__item--clear { --proof-accent: var(--accent); }
+.home .hero-proof strong { color: var(--proof-accent); font-size: 1.25rem; line-height: 1.4; }
+.home .hero-proof .hero-proof__copy { color: var(--ink); font-size: 1rem; line-height: 1.5; max-width: 18ch; }
+.home .hero-proof .hero-proof__icon { display: grid; place-items: center; width: 38px; height: 38px; margin: 0 0 12px; border: 1px solid color-mix(in srgb, var(--proof-accent) 45%, transparent); border-radius: var(--studio-radius); color: var(--proof-accent); background: color-mix(in srgb, var(--proof-accent) 10%, transparent); box-shadow: inset 0 1px rgba(255,255,255,.1); }
+.hero-proof__icon svg { width: 23px; height: 23px; stroke-width: 1.8; }
 
 /* A light showroom band separates the dark hero from the dark process section. */
 .home .service-intro {
@@ -629,7 +635,8 @@ h1, h2, h3, h4, button, .button, .eyebrow, .nav-links, summary {
 }
 @media (min-width: 1051px) and (max-width: 1300px) {
   :root { --studio-hero-size: 3.5rem; }
-  .hero-proof div { min-width: 112px; padding: 14px 10px; }
+  .home .hero-proof__item { min-width: 145px; padding: 16px 12px; }
+  .home .hero-proof strong { font-size: 1.125rem; }
   .process-line { --process-gap: 28px; }
   .process-line__item { padding-inline: 12px; }
 }
@@ -666,9 +673,12 @@ h1, h2, h3, h4, button, .button, .eyebrow, .nav-links, summary {
   .hero-media { object-position: 60% center; }
   .hero-shade { background: linear-gradient(90deg, rgba(7,12,14,.83), rgba(7,12,14,.28)), linear-gradient(0deg, rgba(11,14,16,.93), rgba(7,12,14,.1) 65%); }
   .home .hero-actions { gap: 16px; margin-top: 24px; }
-  .home .hero-proof div { min-width: 0; padding: 12px 9px; }
-  .home .hero-proof strong { font-size: .875rem; line-height: 1.4; }
-  .home .hero-proof span { font-size: .8125rem; line-height: 1.5; }
+  .home .hero-proof { display: grid; grid-template-columns: minmax(0,1fr); }
+  .home .hero-proof__item { display: grid; grid-template-columns: 42px minmax(0,1fr); column-gap: 14px; align-items: center; min-width: 0; padding: 14px 16px; border-top: 0; border-right: 0; border-left: 3px solid var(--proof-accent); border-bottom: 1px solid var(--line); }
+  .home .hero-proof__item:last-child { border-bottom: 0; }
+  .home .hero-proof .hero-proof__icon { grid-row: 1 / 3; width: 42px; height: 42px; margin: 0; }
+  .home .hero-proof strong { font-size: 1.125rem; line-height: 1.4; }
+  .home .hero-proof .hero-proof__copy { max-width: none; margin-top: 1px; }
   .home .service-intro .section-head { text-align: left; }
   .home .service-intro .section-head > p { margin-inline: 0; }
   .home .home-service-card:last-child:nth-child(3n + 1) { grid-column: auto; }

@@ -45,6 +45,22 @@ test("services, FAQ, business data and detail content exist in the initial HTML"
   assert.equal(services(".service-card img").first().attr("loading"), "eager");
   assert.ok(home("[data-service-icon] svg").length > 10);
 });
+test("hero principles preserve their copy and render three decorative icons in server HTML", () => {
+  const doc = render("index.html");
+  assert.deepEqual(
+    doc(".hero-proof strong")
+      .map((_, el) => doc(el).text())
+      .get(),
+    ["Persönlich", "Einfach", "Transparent"],
+  );
+  assert.deepEqual(
+    doc(".hero-proof__copy")
+      .map((_, el) => doc(el).text())
+      .get(),
+    ["Direkte Abstimmung", "Fotos per WhatsApp", "Angebot vor Beginn"],
+  );
+  assert.equal(doc('.hero-proof__icon[aria-hidden="true"] svg').length, 3);
+});
 test("only enabled packages and active services are rendered", () => {
   for (const enabled of [false, undefined, "true"]) {
     const doc = render("preise.html", { ...config, packagesEnabled: enabled });
