@@ -234,6 +234,25 @@ test("header and footer share the same five navigation links on every template t
   assert.equal(home("#hero-title").text(), "Autoaufbereitung.Bis ins Detail.");
   assert.ok(!home("#hero-title").html().includes("\u00ad"));
 });
+test("header and footer identify the same current page in server HTML", () => {
+  const pages = {
+    "index.html": "/",
+    "leistungen.html": "/leistungen.html",
+    "pakete.html": "/pakete.html",
+    "kontakt.html": "/kontakt.html",
+    "impressum.html": null,
+    "datenschutz.html": null,
+    ...Object.fromEntries(config.services.map((service) => [`${service.slug}.html`, "/leistungen.html"])),
+  };
+  for (const [file, expected] of Object.entries(pages)) {
+    const doc = render(file);
+    for (const selector of [".nav-links", "[data-footer-navigation]"]) {
+      const active = doc(`${selector} > a[aria-current="page"]`);
+      assert.equal(active.length, expected ? 1 : 0, `${file} ${selector}`);
+      if (expected) assert.equal(active.attr("href"), expected, `${file} ${selector}`);
+    }
+  }
+});
 test("package page starts with its headline and renders configured feature lists without defaults", () => {
   const fixture = {
     ...config,

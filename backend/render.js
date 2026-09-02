@@ -149,7 +149,7 @@ function renderHtml(filePath, config) {
   const setText = (selector, value) => $(selector).text(value ?? "");
   const links = business.contactLinks(config);
   $('link[href^="/css/style.css"]').attr("href", "/css/style.css?v=31");
-  $('link[href^="/css/studio.css"]').attr("href", "/css/studio.css?v=25");
+  $('link[href^="/css/studio.css"]').attr("href", "/css/studio.css?v=26");
   $('script[src^="/js/main.js"]').attr("src", "/js/main.js?v=29");
   const action = (selector, href) => {
     $(selector).each((_, element) => {
@@ -264,7 +264,7 @@ function renderHtml(filePath, config) {
       "Die genaue Adresse wird noch ergänzt. Fragen zur Anfahrt können Sie uns über das Formular senden.",
     );
   }
-  $(".nav-links > a").each((_, el) => {
+  $(".nav-links > a, [data-footer-navigation] > a").each((_, el) => {
     if ($(el).attr("href") === pagePath || (service && $(el).attr("href") === "/leistungen.html"))
       $(el).attr("aria-current", "page");
   });
