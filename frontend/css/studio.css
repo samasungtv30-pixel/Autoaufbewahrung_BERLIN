@@ -1244,7 +1244,7 @@ h1, h2, h3, h4, button, .button, .eyebrow, .nav-links, summary {
   .footer-bottom { font-size: 1rem; }
 }
 /* Photo inquiry uses the contact page's light, depth and action hierarchy. */
-.pricing-page .pricing-photo {
+.pricing-page .pricing-photo, .services-page .pricing-photo {
   position: relative;
   isolation: isolate;
   overflow: hidden;
@@ -1323,7 +1323,7 @@ h1, h2, h3, h4, button, .button, .eyebrow, .nav-links, summary {
   .pricing-photo__icon { width: 44px; height: 44px; }
 }
 @media (max-width: 760px) {
-  .pricing-page .pricing-photo { padding-block: 40px; }
+  .pricing-page .pricing-photo, .services-page .pricing-photo { padding-block: 40px; }
   .pricing-photo::before { background: linear-gradient(110deg, rgba(5, 10, 12, .96), rgba(5, 10, 12, .78)); }
   .pricing-photo .cta-band__actions { grid-template-columns: minmax(0, 1fr); gap: 12px; }
   .pricing-photo__action { min-height: 88px; padding: 16px; gap: 12px; }

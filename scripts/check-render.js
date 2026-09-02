@@ -107,6 +107,30 @@ test("photo inquiry preserves contact actions, copy and decorative server icons"
   assert.match(ready(".pricing-photo [data-whatsapp-link]").attr("href"), /^https:\/\/wa.me\/493012345678/);
 });
 
+test("service photo inquiry shares contact surfaces without changing its copy or availability", () => {
+  const doc = render("leistungen.html", { ...config, whatsapp: "" });
+  const section = doc(".pricing-photo");
+  assert.equal(section.length, 1);
+  assert.equal(section.find("h2").text(), "Ein Foto ist ein guter Anfang.");
+  assert.equal(
+    section.find(".pricing-photo__copy > p:not(.eyebrow)").text(),
+    "Senden Sie Bilder des Fahrzeugs, der Felge oder des Lackbereichs für eine erste unverbindliche Einordnung.",
+  );
+  assert.deepEqual(
+    section
+      .find(".pricing-photo__action")
+      .toArray()
+      .map((el) => doc(el).children("span:not([aria-hidden])").text()),
+    ["Fotos per WhatsApp", "Formular nutzen"],
+  );
+  assert.equal(section.find("[data-whatsapp-link]").attr("href"), undefined);
+  assert.equal(section.find("[data-whatsapp-link]").attr("aria-disabled"), "true");
+  assert.equal(section.find('.pricing-photo__action[href="/kontakt.html#anfrage"]').length, 1);
+  assert.equal(section.find('[data-service-icon="notebook-pen"] svg').length, 1);
+  assert.equal(section.find(".pricing-photo__image").attr("alt"), "");
+  const ready = render("leistungen.html", { ...config, whatsapp: "https://wa.me/493012345678" });
+  assert.match(ready(".pricing-photo [data-whatsapp-link]").attr("href"), /^https:\/\/wa.me\/493012345678/);
+});
 test("only enabled packages and active services are rendered", () => {
   for (const enabled of [false, undefined, "true"]) {
     const doc = render("pakete.html", { ...config, packagesEnabled: enabled });
